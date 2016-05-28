@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/ExtremeEnvironment/disaster-service.svg?branch=master)](https://travis-ci.org/ExtremeEnvironment/disaster-service)
+
 # DisasterService
 
 This application was generated using JHipster, you can find documentation and help at [https://jhipster.github.io](https://jhipster.github.io).
