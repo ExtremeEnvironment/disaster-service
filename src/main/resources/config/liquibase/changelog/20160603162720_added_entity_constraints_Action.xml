@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <!--
+        Added the constraints for entity Action.
+    -->
+    <changeSet id="20160603162720-2" author="jhipster">
+        
+        <addForeignKeyConstraint baseColumnNames="disaster_id"
+                                 baseTableName="action"
+                                 constraintName="fk_action_disaster_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="disaster"/>
+
+        <addForeignKeyConstraint baseColumnNames="user_id"
+                                 baseTableName="action"
+                                 constraintName="fk_action_user_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="jhi_user"/>
+
+        <addForeignKeyConstraint baseColumnNames="actions_id"
+                                 baseTableName="action_action_object"
+                                 constraintName="fk_action_action_object_actionobject_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="action"/>
+        <addForeignKeyConstraint baseColumnNames="action_objects_id"
+                                 baseTableName="action_action_object"
+                                 constraintName="fk_action_action_object_action_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="action_object"/>
+        
+    </changeSet>
+</databaseChangeLog>

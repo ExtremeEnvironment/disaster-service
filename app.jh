@@ -1,0 +1,54 @@
+
+enum ActionType {
+	OFFER,
+    SEEK,
+    KNOWLEDGE
+}
+
+entity Action {
+	lat Float required,
+    lon Float required,
+    isExpired Boolean,
+    actionType ActionType required
+}
+
+entity User	{
+	userId Long required
+
+}
+
+entity DisasterType {
+    name String
+}
+
+/*
+* was in einer Aktion angeboten/gesucht wird
+*/
+entity ActionObject {
+    name String
+}
+
+entity Disaster {
+    isExpired Boolean,
+    lat Long,
+    lon Long
+}
+
+
+
+relationship ManyToOne {
+	Action{disaster} to Disaster
+}
+
+relationship ManyToOne {
+	Action{user} to User
+}
+
+
+relationship ManyToMany {
+	Action{actionObject} to ActionObject{action}
+}
+
+relationship ManyToOne {
+	Disaster to DisasterType
+}

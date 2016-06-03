@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<databaseChangeLog
+    xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+
+    <property name="now" value="now()" dbms="mysql,h2"/>
+    <property name="now" value="current_timestamp" dbms="postgresql"/>
+    <property name="now" value="sysdate" dbms="oracle"/>
+
+    <property name="autoIncrement" value="true" dbms="mysql,h2,postgresql,oracle"/>
+
+    <property name="floatType" value="float4" dbms="postgresql, h2"/>
+    <property name="floatType" value="float" dbms="mysql, oracle"/>
+
+    <!--
+        Added the entity Action.
+    -->
+    <changeSet id="20160603162720-1" author="jhipster">
+        <createTable tableName="action">
+            <column name="id" type="bigint" autoIncrement="${autoIncrement}">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="lat" type="${floatType}">
+                <constraints nullable="false" />
+            </column>
+            
+            <column name="lon" type="${floatType}">
+                <constraints nullable="false" />
+            </column>
+            
+            <column name="is_expired" type="bit">
+                <constraints nullable="true" />
+            </column>
+            
+            <column name="action_type" type="varchar(255)">
+                <constraints nullable="false" />
+            </column>
+            
+            <column name="disaster_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="user_id" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
+            <!-- jhipster-needle-liquibase-add-column - Jhipster will add columns here, do not remove-->
+        </createTable>
+        
+        <createTable tableName="action_action_object">
+            <column name="action_objects_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="actions_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>
+        
+    </changeSet>
+</databaseChangeLog>

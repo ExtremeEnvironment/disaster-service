@@ -1,0 +1,62 @@
+{
+  "relationships": [
+    {
+      "relationshipId": 1,
+      "relationshipName": "disaster",
+      "otherEntityName": "disaster",
+      "relationshipType": "many-to-one",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipId": 2,
+      "relationshipName": "user",
+      "otherEntityName": "user",
+      "relationshipType": "many-to-one",
+      "otherEntityField": "id"
+    },
+    {
+      "relationshipId": 3,
+      "relationshipName": "actionObject",
+      "otherEntityName": "actionObject",
+      "relationshipType": "many-to-many",
+      "otherEntityField": "id",
+      "ownerSide": true
+    }
+  ],
+  "fields": [
+    {
+      "fieldId": 1,
+      "fieldName": "lat",
+      "fieldType": "Float",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldId": 2,
+      "fieldName": "lon",
+      "fieldType": "Float",
+      "fieldValidateRules": [
+        "required"
+      ]
+    },
+    {
+      "fieldId": 3,
+      "fieldName": "isExpired",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldId": 4,
+      "fieldName": "actionType",
+      "fieldType": "ActionType",
+      "fieldValues": "OFFER,SEEK,KNOWLEDGE",
+      "fieldValidateRules": [
+        "required"
+      ]
+    }
+  ],
+  "changelogDate": "20160603162720",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no"
+}

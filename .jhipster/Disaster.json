@@ -1,0 +1,24 @@
+{
+  "relationships": [],
+  "fields": [
+    {
+      "fieldId": 1,
+      "fieldName": "isExpired",
+      "fieldType": "Boolean"
+    },
+    {
+      "fieldId": 2,
+      "fieldName": "lat",
+      "fieldType": "Long"
+    },
+    {
+      "fieldId": 3,
+      "fieldName": "lon",
+      "fieldType": "Long"
+    }
+  ],
+  "changelogDate": "20160603162820",
+  "dto": "no",
+  "pagination": "no",
+  "service": "no"
+}
