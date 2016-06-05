@@ -47,8 +47,8 @@ public class Action implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "action_action_object",
-               joinColumns = @JoinColumn(name="actions_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="action_objects_id", referencedColumnName="ID"))
+        joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
+        inverseJoinColumns = @JoinColumn(name = "action_objects_id", referencedColumnName = "ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
 
     public Long getId() {
@@ -124,7 +124,7 @@ public class Action implements Serializable {
             return false;
         }
         Action action = (Action) o;
-        if(action.id == null || id == null) {
+        if (action.id == null || id == null) {
             return false;
         }
         return Objects.equals(id, action.id);

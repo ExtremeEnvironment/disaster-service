@@ -16,10 +16,8 @@ public interface DisasterRepository extends JpaRepository<Disaster,Long> {
 
     List<Disaster> findByIsExpired(boolean isExpired);
 
-    @Override
-    void delete(Disaster disaster);
 
-
+    void delete(Optional<Disaster> disaster);
 
 
 }

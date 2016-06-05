@@ -27,6 +27,16 @@ public class Disaster implements Serializable {
     @Column(name = "lon")
     private Long lon;
 
+    public Disaster() {
+
+    }
+
+    public Disaster(Long lon, Long lat ) {
+        this.lon=lon;
+        this.lat=lat;
+        isExpired=false;
+    }
+
     public Long getId() {
         return id;
     }
