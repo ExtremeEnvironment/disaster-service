@@ -31,7 +31,7 @@ public class ActionService {
     @Inject
     DisasterTypeRepository disasterTypeRepository;
 
-    public Action createAction(Float lat, Float lon, ActionType actionType, Long user, Set<ActionObject> actionObjects, Long disterType) {
+    public Action createAction(Float lat, Float lon, ActionType actionType, Long user, Set<ActionObject> actionObjects, Long disasterType) {
         Action action = new Action();
         action.setLat(lat);
         action.setLon(lon);
@@ -44,7 +44,7 @@ public class ActionService {
             action.setActionObjects(actionObjects);
         }
 
-        action.setDisasterType(disasterTypeRepository.findById(disterType).get());
+        action.setDisasterType(disasterTypeRepository.findById(disasterType).get());
 
         actionRepository.save(action);
 
@@ -57,10 +57,12 @@ public class ActionService {
         action.get().setActionObjects(actionObjects);
 
 
-        //save oder einfach so lassen?
-         // actionRepository.save()
+
+        actionRepository.save(action.get());
 
         return action.get();
 
     }
+
+
 }

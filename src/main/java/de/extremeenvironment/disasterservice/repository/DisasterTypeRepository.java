@@ -10,7 +10,7 @@ import java.util.Optional;
 /**
  * Spring Data JPA repository for the DisasterType entity.
  */
-@SuppressWarnings("unused")
+
 public interface DisasterTypeRepository extends JpaRepository<DisasterType,Long> {
 
    Optional<DisasterType> findById(Long id);

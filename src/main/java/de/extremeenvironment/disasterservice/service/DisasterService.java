@@ -19,6 +19,8 @@ public class DisasterService {
     @Inject
     private DisasterRepository disasterRepository;
 
+
+
        public Disaster createDisater(Long lon, Long lat) {
         Disaster disaster = new Disaster(lon, lat);
 
