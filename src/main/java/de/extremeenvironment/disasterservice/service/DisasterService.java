@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.util.List;
 
 /**
  * Created by over on 05.06.2016.
@@ -34,5 +35,9 @@ public class DisasterService {
 
     public void deleteDisaster(Long id) {
         disasterRepository.delete(disasterRepository.findById(id).get());
+    }
+
+    public List<Disaster> getAllDisasters() {
+        return disasterRepository.findAll();
     }
 }
