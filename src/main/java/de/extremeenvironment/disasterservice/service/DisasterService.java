@@ -31,6 +31,6 @@ public class DisasterService {
     }
 
     public void deleteDisaster(Long id) {
-        disasterRepository.delete(disasterRepository.findById(id));
+        disasterRepository.delete(disasterRepository.findById(id).get());
     }
 }
