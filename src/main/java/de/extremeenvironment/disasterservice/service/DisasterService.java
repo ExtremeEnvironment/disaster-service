@@ -19,7 +19,7 @@ public class DisasterService {
     @Inject
     private DisasterRepository disasterRepository;
 
-    public Disaster createDisater(Long lon, Long lat) {
+       public Disaster createDisater(Long lon, Long lat) {
         Disaster disaster = new Disaster(lon, lat);
 
 
@@ -27,7 +27,7 @@ public class DisasterService {
 
         log.debug("Created Information for Disaster: {}", disaster);
 
-        return null;
+        return disaster;
     }
 
     public void deleteDisaster(Long id) {

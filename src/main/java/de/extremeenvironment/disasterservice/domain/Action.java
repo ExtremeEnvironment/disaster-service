@@ -45,6 +45,9 @@ public class Action implements Serializable {
     @ManyToOne
     private User user;
 
+    @ManyToOne
+    private DisasterType disasterType;
+
     @ManyToMany
     @JoinTable(name = "action_action_object",
         joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
@@ -114,6 +117,14 @@ public class Action implements Serializable {
     public void setActionObjects(Set<ActionObject> actionObjects) {
         this.actionObjects = actionObjects;
     }
+
+    public void setDisasterType(DisasterType disasterType) {
+        this.disasterType=disasterType;
+    }
+    public DisasterType getDisasterType() {
+        return disasterType;
+    }
+
 
     @Override
     public boolean equals(Object o) {
