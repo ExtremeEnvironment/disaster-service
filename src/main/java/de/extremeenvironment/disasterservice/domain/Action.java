@@ -1,14 +1,15 @@
 package de.extremeenvironment.disasterservice.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
+
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
-
-import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
+import java.util.Set;
 
 /**
  * A Action.
@@ -53,6 +54,15 @@ public class Action implements Serializable {
         joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "action_objects_id", referencedColumnName = "ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
+
+    @OneToOne
+    private Action match;
+
+    @OneToMany
+    @JsonIgnore
+    private Set<Action> rejectedMatches = new HashSet<>();
+
+
 
     public Long getId() {
         return id;
@@ -121,10 +131,26 @@ public class Action implements Serializable {
     public void setDisasterType(DisasterType disasterType) {
         this.disasterType=disasterType;
     }
+
     public DisasterType getDisasterType() {
         return disasterType;
     }
 
+    public Action getMatch() {
+        return match;
+    }
+
+    public void setMatch(Action match) {
+        this.match = match;
+    }
+
+    public Set<Action> getRejectedMatches() {
+        return rejectedMatches;
+    }
+
+    public void addRejectedMatch(Action rejectedMatch) {
+        rejectedMatches.add(rejectedMatch);
+    }
 
     @Override
     public boolean equals(Object o) {
