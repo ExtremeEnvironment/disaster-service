@@ -45,14 +45,16 @@ public class Action implements Serializable {
     @ManyToOne
     private User user;
 
-    @ManyToOne
-    private DisasterType disasterType;
+
 
     @ManyToMany
     @JoinTable(name = "action_action_object",
         joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "action_objects_id", referencedColumnName = "ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
+
+
+
 
     public Long getId() {
         return id;
@@ -116,13 +118,6 @@ public class Action implements Serializable {
 
     public void setActionObjects(Set<ActionObject> actionObjects) {
         this.actionObjects = actionObjects;
-    }
-
-    public void setDisasterType(DisasterType disasterType) {
-        this.disasterType=disasterType;
-    }
-    public DisasterType getDisasterType() {
-        return disasterType;
     }
 
 
