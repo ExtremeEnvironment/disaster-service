@@ -135,7 +135,7 @@ public class ActionResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
 
-    @RequestMapping(value="/action/{userId}/{actionType}")
+    @RequestMapping(value="/action/{userId}/{actionType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
 
 
