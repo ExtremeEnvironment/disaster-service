@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -56,6 +57,8 @@ public class ActionResourceIntTest {
 
     private static final ActionType DEFAULT_ACTION_TYPE = ActionType.OFFER;
     private static final ActionType UPDATED_ACTION_TYPE = ActionType.SEEK;
+
+    private static User user;
 
     @Inject
     private ActionRepository actionRepository;
@@ -90,9 +93,11 @@ public class ActionResourceIntTest {
         action.setLon(DEFAULT_LON);
         action.setIsExpired(DEFAULT_IS_EXPIRED);
         action.setActionType(DEFAULT_ACTION_TYPE);
-        User u = new User();
-        userRepository.saveAndFlush(u);
-        action.setUser(u);
+
+        user = new User();
+
+        userRepository.saveAndFlush(user);
+        action.setUser(user);
     }
 
     @Test
@@ -106,7 +111,7 @@ public class ActionResourceIntTest {
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(action)))
                 .andExpect(status().isCreated());
-
+        System.out.println(userRepository.findAll().get(0).toString());
         // Validate the Action in the database
         List<Action> actions = actionRepository.findAll();
         assertThat(actions).hasSize(databaseSizeBeforeCreate + 1);
@@ -115,6 +120,10 @@ public class ActionResourceIntTest {
         assertThat(testAction.getLon()).isEqualTo(DEFAULT_LON);
         assertThat(testAction.isIsExpired()).isEqualTo(DEFAULT_IS_EXPIRED);
         assertThat(testAction.getActionType()).isEqualTo(DEFAULT_ACTION_TYPE);
+        assertThat(testAction.getUser().getId()).isEqualTo(user.getId());
+        user.getActions().add(action);
+
+
     }
 
     @Test

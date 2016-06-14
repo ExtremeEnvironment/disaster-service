@@ -2,6 +2,7 @@ package de.extremeenvironment.disasterservice.domain;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,6 +13,12 @@ import java.util.List;
 @Entity
 @Table(name = "jhi_user")
 public class User {
+
+
+    public User() {
+        this.actions = new ArrayList<>();
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -20,6 +27,15 @@ public class User {
     @Column(unique = true)
     private long userId;
 
+
+    @Override
+    public String toString() {
+        return "User{" +
+            "id=" + id +
+            ", userId=" + userId +
+            ", actions=" + actions +
+            '}';
+    }
 
     @OneToMany(mappedBy = "user")
     private List<Action> actions;
