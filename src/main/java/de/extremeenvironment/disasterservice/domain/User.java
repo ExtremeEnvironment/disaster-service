@@ -2,6 +2,7 @@ package de.extremeenvironment.disasterservice.domain;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * Created by on 03.06.16.
@@ -19,6 +20,10 @@ public class User {
     @Column(unique = true)
     private long userId;
 
+
+    @OneToMany(mappedBy = "user")
+    private List<Action> actions;
+
     public long getId() {
         return id;
     }
@@ -33,5 +38,13 @@ public class User {
 
     public void setUserId(long userId) {
         this.userId = userId;
+    }
+
+    public List<Action> getActions() {
+        return actions;
+    }
+
+    public void setActions(List<Action> actions) {
+        this.actions = actions;
     }
 }

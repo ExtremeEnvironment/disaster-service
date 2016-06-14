@@ -43,6 +43,7 @@ public class Action implements Serializable {
     private Disaster disaster;
 
     @ManyToOne
+    @JoinColumn(name="user_id")
     private User user;
 
 

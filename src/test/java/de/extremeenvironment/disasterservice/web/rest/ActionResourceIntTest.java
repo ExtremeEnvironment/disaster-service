@@ -2,8 +2,10 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 
+import de.extremeenvironment.disasterservice.repository.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -64,6 +66,9 @@ public class ActionResourceIntTest {
     @Inject
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
+    @Inject
+    private UserRepository userRepository;
+
     private MockMvc restActionMockMvc;
 
     private Action action;
@@ -85,6 +90,9 @@ public class ActionResourceIntTest {
         action.setLon(DEFAULT_LON);
         action.setIsExpired(DEFAULT_IS_EXPIRED);
         action.setActionType(DEFAULT_ACTION_TYPE);
+        User u = new User();
+        userRepository.saveAndFlush(u);
+        action.setUser(u);
     }
 
     @Test
