@@ -40,12 +40,9 @@ public class Action implements Serializable {
     @Column(name = "action_type", nullable = false)
     private ActionType actionType;
 
-    @ManyToOne
-    private Disaster disaster;
 
     @ManyToOne
     private User user;
-
 
 
     @ManyToMany
@@ -101,14 +98,6 @@ public class Action implements Serializable {
 
     public void setActionType(ActionType actionType) {
         this.actionType = actionType;
-    }
-
-    public Disaster getDisaster() {
-        return disaster;
-    }
-
-    public void setDisaster(Disaster disaster) {
-        this.disaster = disaster;
     }
 
     public User getUser() {
