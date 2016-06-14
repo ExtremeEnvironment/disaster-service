@@ -141,16 +141,21 @@ public class ActionResource {
 
         // sehr ineffizient sollte direkt als Query implementiert werden
         List<Action> actions= actionRepository.findActionByActionType(actionType);
-        User user = userRepository.findOneById(userId).get();
-        List<Action> result= new ArrayList<>();
 
-        for(Action a : actions) {
-            if(a.getUser()==user) {
-                result.add(a);
+        if(userRepository.findOneById(userId).isPresent()) {
+            User user = userRepository.findOneById(userId).get();
+            List<Action> result = new ArrayList<>();
+
+            for (Action a : actions) {
+                if (a.getUser() == user) {
+                    result.add(a);
+                }
             }
-        }
 
-        return result;
+            return result;
+        } else {
+            return null;
+        }
 
     }
 }
