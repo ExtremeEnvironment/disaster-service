@@ -1,7 +1,6 @@
 package de.extremeenvironment.disasterservice.aop.logging;
 
 import de.extremeenvironment.disasterservice.config.Constants;
-
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;

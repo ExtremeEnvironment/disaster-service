@@ -1,8 +1,7 @@
 package de.extremeenvironment.disasterservice.repository;
 
 import de.extremeenvironment.disasterservice.domain.Disaster;
-
-import org.springframework.data.jpa.repository.*;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;

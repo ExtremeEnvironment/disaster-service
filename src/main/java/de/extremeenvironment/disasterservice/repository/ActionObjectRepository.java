@@ -1,10 +1,7 @@
 package de.extremeenvironment.disasterservice.repository;
 
 import de.extremeenvironment.disasterservice.domain.ActionObject;
-
-import org.springframework.data.jpa.repository.*;
-
-import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
 
 /**
  * Spring Data JPA repository for the ActionObject entity.

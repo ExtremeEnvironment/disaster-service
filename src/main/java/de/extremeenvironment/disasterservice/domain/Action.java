@@ -1,17 +1,18 @@
 package de.extremeenvironment.disasterservice.domain;
 
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Objects;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 /**
- * A Action.
+ * An Action.
  */
 @Entity
 @Table(name = "action")
