@@ -1,15 +1,14 @@
 package de.extremeenvironment.disasterservice.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.Objects;
+
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 
 /**
  * A Action.
@@ -46,8 +45,7 @@ public class Action implements Serializable {
     @ManyToOne
     private User user;
 
-    @ManyToOne
-    private DisasterType disasterType;
+
 
     @ManyToMany
     @JoinTable(name = "action_action_object",
@@ -126,14 +124,6 @@ public class Action implements Serializable {
 
     public void setActionObjects(Set<ActionObject> actionObjects) {
         this.actionObjects = actionObjects;
-    }
-
-    public void setDisasterType(DisasterType disasterType) {
-        this.disasterType=disasterType;
-    }
-
-    public DisasterType getDisasterType() {
-        return disasterType;
     }
 
     public Action getMatch() {

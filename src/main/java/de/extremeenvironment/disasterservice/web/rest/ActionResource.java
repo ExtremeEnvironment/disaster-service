@@ -27,10 +27,10 @@ import java.util.Optional;
 public class ActionResource {
 
     private final Logger log = LoggerFactory.getLogger(ActionResource.class);
-        
+
     @Inject
     private ActionRepository actionRepository;
-    
+
     /**
      * POST  /actions : Create a new action.
      *

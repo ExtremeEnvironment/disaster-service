@@ -43,7 +43,7 @@ public class ActionService {
             action.setActionObjects(actionObjects);
         }
 
-        action.setDisasterType(disasterTypeRepository.findById(disasterType).get());
+
 
         actionRepository.save(action);
 
