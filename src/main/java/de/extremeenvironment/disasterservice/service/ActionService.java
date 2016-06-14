@@ -111,10 +111,8 @@ public class ActionService {
         a.setMatch(bestMatch);
         actionRepository.save(a);
 
-        if (bestMatch != null) {
-            bestMatch.setMatch(a);
-            actionRepository.save(bestMatch);
-        }
+        bestMatch.setMatch(a);
+        actionRepository.save(bestMatch);
 
 
     }
