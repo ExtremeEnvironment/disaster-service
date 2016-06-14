@@ -3,6 +3,7 @@ package de.extremeenvironment.disasterservice.repository;
 import de.extremeenvironment.disasterservice.domain.Action;
 
 import de.extremeenvironment.disasterservice.domain.User;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import org.springframework.data.jpa.repository.*;
 import org.springframework.data.repository.query.Param;
 
@@ -34,6 +35,8 @@ public interface ActionRepository extends JpaRepository<Action,Long> {
 
     @Query("select action from Action action, User user where action.user.id = user.id and action.isExpired=false")
     List<Action> findNotExpiredActionsByUser(@Param("user") User user);
+
+    List<Action> findActionByActionType(ActionType actionType);
 
 
 

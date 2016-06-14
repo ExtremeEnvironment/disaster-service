@@ -2,7 +2,10 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.User;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
+import de.extremeenvironment.disasterservice.repository.UserRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,6 +34,9 @@ public class ActionResource {
 
     @Inject
     private ActionRepository actionRepository;
+
+    @Inject
+    private UserRepository userRepository;
 
     /**
      * POST  /actions : Create a new action.
@@ -128,4 +135,22 @@ public class ActionResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
 
+    @RequestMapping(value="/action/{userId}/{actionType}")
+    public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
+
+
+        // sehr ineffizient sollte direkt als Query implementiert werden
+        List<Action> actions= actionRepository.findActionByActionType(actionType);
+        User user = userRepository.findOneById(userId).get();
+        List<Action> result= new ArrayList<>();
+
+        for(Action a : actions) {
+            if(a.getUser()==user) {
+                result.add(a);
+            }
+        }
+
+        return result;
+
+    }
 }
