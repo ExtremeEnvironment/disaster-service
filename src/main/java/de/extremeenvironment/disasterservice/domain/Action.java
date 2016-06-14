@@ -44,6 +44,8 @@ public class Action implements Serializable {
     @ManyToOne
     private User user;
 
+    @ManyToOne
+    Disaster disaster;
 
     @ManyToMany
     @JoinTable(name = "action_action_object",
@@ -98,6 +100,14 @@ public class Action implements Serializable {
 
     public void setActionType(ActionType actionType) {
         this.actionType = actionType;
+    }
+
+    public Disaster getDisaster() {
+        return disaster;
+    }
+
+    public void setDisaster(Disaster disaster) {
+        this.disaster = disaster;
     }
 
     public User getUser() {
