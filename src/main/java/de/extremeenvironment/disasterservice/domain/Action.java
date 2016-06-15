@@ -104,7 +104,7 @@ public class Action implements Serializable {
     public void setDisaster(Disaster disaster) {
         this.disaster = disaster;
     }
-    /*
+
     public User getUser() {
         return user;
     }
@@ -112,7 +112,7 @@ public class Action implements Serializable {
     public void setUser(User user) {
         this.user = user;
     }
-*/
+
     public Set<ActionObject> getActionObjects() {
         return actionObjects;
     }

@@ -15,9 +15,9 @@ import java.util.List;
 public class User {
 
 
-   /* public User() {
+    public User() {
         this.actions = new ArrayList<>();
-    } */
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -37,10 +37,10 @@ public class User {
             '}';
     }
 
-    /*
+
     @OneToMany(mappedBy = "user")
     private List<Action> actions;
-*/
+
     public long getId() {
         return id;
     }
@@ -56,7 +56,7 @@ public class User {
     public void setUserId(long userId) {
         this.userId = userId;
     }
-    /*
+
     public List<Action> getActions() {
         return actions;
     }
@@ -64,5 +64,5 @@ public class User {
     public void setActions(List<Action> actions) {
         this.actions = actions;
     }
-    */
+
 }
