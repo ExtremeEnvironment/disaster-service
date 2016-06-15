@@ -41,7 +41,7 @@ public class ActionService {
         action.setActionType(actionType);
 
 
-        action.setUser(userRepository.findOneById(user).get());
+     //   action.setUser(userRepository.findOneById(user).get());
 
         if(actionType == ActionType.OFFER || actionType== ActionType.SEEK) {
             action.setActionObjects(actionObjects);
