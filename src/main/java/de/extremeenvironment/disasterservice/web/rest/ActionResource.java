@@ -9,7 +9,7 @@ import de.extremeenvironment.disasterservice.repository.UserRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -134,29 +134,15 @@ public class ActionResource {
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
-    /*
-    @RequestMapping(value="/action/{userId}/{actionType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+
+
+    @RequestMapping(value = "/action/{userId}/{actionType}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
     public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
-
-
-        // sehr ineffizient sollte direkt als Query implementiert werden
-        List<Action> actions= actionRepository.findActionByActionType(actionType);
-
-        if(userRepository.findOneById(userId).isPresent()) {
-            User user = userRepository.findOneById(userId).get();
-            List<Action> result = new ArrayList<>();
-
-            for (Action a : actions) {
-                if (a.getUser() == user) {
-                    result.add(a);
-                }
-            }
-
-            return result;
-        } else {
-            return null;
-        }
+        return actionRepository.findByActionType(userId,actionType);
 
     }
-    */
+
 }

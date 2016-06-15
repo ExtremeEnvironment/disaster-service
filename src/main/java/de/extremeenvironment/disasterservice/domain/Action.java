@@ -146,10 +146,13 @@ public class Action implements Serializable {
     public String toString() {
         return "Action{" +
             "id=" + id +
-            ", lat='" + lat + "'" +
-            ", lon='" + lon + "'" +
-            ", isExpired='" + isExpired + "'" +
-            ", actionType='" + actionType + "'" +
+            ", lat=" + lat +
+            ", lon=" + lon +
+            ", isExpired=" + isExpired +
+            ", actionType=" + actionType +
+            ", disaster=" + disaster +
+            ", user=" + user +
+            ", actionObjects=" + actionObjects +
             '}';
     }
 }

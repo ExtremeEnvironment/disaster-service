@@ -33,7 +33,7 @@ public class User {
         return "User{" +
             "id=" + id +
             ", userId=" + userId +
-           // ", actions=" + actions +
+            ", actions=" + actions +
             '}';
     }
 

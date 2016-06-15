@@ -38,6 +38,9 @@ public interface ActionRepository extends JpaRepository<Action,Long> {
 
     List<Action> findActionByActionType(ActionType actionType);
 
+    @Query("select action from Action action where  action.user.id=:id and action.actionType=:actionType")
+    List<Action> findByActionType(@Param("id") Long id, @Param("actionType") ActionType actionType );
+
 
 
 

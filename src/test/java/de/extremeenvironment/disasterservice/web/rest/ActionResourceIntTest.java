@@ -6,6 +6,7 @@ import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 
 import de.extremeenvironment.disasterservice.repository.UserRepository;
+import jdk.nashorn.internal.objects.NativeRegExp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -95,9 +96,6 @@ public class ActionResourceIntTest {
         action.setActionType(DEFAULT_ACTION_TYPE);
 
         user = new User();
-
-        userRepository.saveAndFlush(user);
-       // action.setUser(user);
     }
 
     @Test
@@ -260,17 +258,46 @@ public class ActionResourceIntTest {
         actionRepository.saveAndFlush(action);
         int databaseSizeBeforeDelete = actionRepository.findAll().size();
         System.out.println(action);
-      //  user.getActions().add(action);
+        //  user.getActions().add(action);
         userRepository.save(user);
         System.out.println(user);
         // Get the action
         restActionMockMvc.perform(delete("/api/actions/{id}", action.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
 
         // Validate the database is empty
         List<Action> actions = actionRepository.findAll();
         assertThat(actions).hasSize(databaseSizeBeforeDelete - 1);
+    }
+
+    @Test
+    @Transactional
+    public void getActionByType() throws Exception {
+
+        userRepository.saveAndFlush(user);
+
+        Action action2 = new Action();
+        action2.setLat(DEFAULT_LAT);
+        action2.setLon(DEFAULT_LON);
+        action2.setIsExpired(DEFAULT_IS_EXPIRED);
+        action2.setActionType(ActionType.OFFER);
+        action2.setUser(user);
+
+        actionRepository.saveAndFlush(action2);
+
+
+        action.setUser(user);
+        actionRepository.saveAndFlush(action);
+
+        restActionMockMvc.perform(get("/api/action/{userId}/{actionType}",user.getId(), ActionType.OFFER))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.[*].actionType").value(hasItem(ActionType.OFFER.name())));
+
+
+
+
     }
 
 
