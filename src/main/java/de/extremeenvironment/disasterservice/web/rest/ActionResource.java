@@ -54,7 +54,7 @@ public class ActionResource {
         if (action.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
-        Action result = actionRepository.save(action);
+        Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("action", result.getId().toString()))
             .body(result);
@@ -134,7 +134,7 @@ public class ActionResource {
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
-
+    /*
     @RequestMapping(value="/action/{userId}/{actionType}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
     public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
 
@@ -158,4 +158,5 @@ public class ActionResource {
         }
 
     }
+    */
 }
