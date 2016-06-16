@@ -1,18 +1,17 @@
 package de.extremeenvironment.disasterservice.domain;
 
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
-
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.Objects;
+
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 
 /**
- * An Action.
+ * A Action.
  */
 @Entity
 @Table(name = "action")
@@ -40,28 +39,22 @@ public class Action implements Serializable {
     @Column(name = "action_type", nullable = false)
     private ActionType actionType;
 
+    @ManyToOne
+    private Disaster disaster;
 
     @ManyToOne
-    @JoinColumn(name="user_id")
+    @JoinColumn(name = "user_id")
     private User user;
-
-    @ManyToOne
-    Disaster disaster;
 
     @ManyToMany
     @JoinTable(name = "action_action_object",
-        joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
-        inverseJoinColumns = @JoinColumn(name = "action_objects_id", referencedColumnName = "ID"))
+               joinColumns = @JoinColumn(name="actions_id", referencedColumnName="ID"),
+               inverseJoinColumns = @JoinColumn(name="action_objects_id", referencedColumnName="ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
 
     @OneToOne
+    @JoinColumn(unique = true)
     private Action match;
-
-    @OneToMany
-    @JsonIgnore
-    private Set<Action> rejectedMatches = new HashSet<>();
-
-
 
     public Long getId() {
         return id;
@@ -131,16 +124,8 @@ public class Action implements Serializable {
         return match;
     }
 
-    public void setMatch(Action match) {
-        this.match = match;
-    }
-
-    public Set<Action> getRejectedMatches() {
-        return rejectedMatches;
-    }
-
-    public void addRejectedMatch(Action rejectedMatch) {
-        rejectedMatches.add(rejectedMatch);
+    public void setMatch(Action action) {
+        this.match = action;
     }
 
     @Override
@@ -152,7 +137,7 @@ public class Action implements Serializable {
             return false;
         }
         Action action = (Action) o;
-        if (action.id == null || id == null) {
+        if(action.id == null || id == null) {
             return false;
         }
         return Objects.equals(id, action.id);
@@ -167,13 +152,10 @@ public class Action implements Serializable {
     public String toString() {
         return "Action{" +
             "id=" + id +
-            ", lat=" + lat +
-            ", lon=" + lon +
-            ", isExpired=" + isExpired +
-            ", actionType=" + actionType +
-            ", disaster=" + disaster +
-            ", user=" + user +
-            ", actionObjects=" + actionObjects +
+            ", lat='" + lat + "'" +
+            ", lon='" + lon + "'" +
+            ", isExpired='" + isExpired + "'" +
+            ", actionType='" + actionType + "'" +
             '}';
     }
 }

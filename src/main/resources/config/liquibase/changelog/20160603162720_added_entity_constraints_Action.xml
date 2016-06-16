@@ -31,5 +31,11 @@
                                  referencedColumnNames="id"
                                  referencedTableName="action_object"/>
         
+        <addForeignKeyConstraint baseColumnNames="match_id"
+                                 baseTableName="action"
+                                 constraintName="fk_action_match_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="action"/>
+
     </changeSet>
 </databaseChangeLog>
