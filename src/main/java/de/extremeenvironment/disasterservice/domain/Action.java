@@ -1,17 +1,18 @@
 package de.extremeenvironment.disasterservice.domain;
 
 
-import javax.persistence.*;
-import javax.validation.constraints.*;
-import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Objects;
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
+
 /**
- * A Action.
+ * An Action.
  */
 @Entity
 @Table(name = "action")
@@ -39,14 +40,13 @@ public class Action implements Serializable {
     @Column(name = "action_type", nullable = false)
     private ActionType actionType;
 
-    @ManyToOne
-    private Disaster disaster;
 
     @ManyToOne
     @JoinColumn(name="user_id")
     private User user;
 
-
+    @ManyToOne
+    Disaster disaster;
 
     @ManyToMany
     @JoinTable(name = "action_action_object",
@@ -54,6 +54,12 @@ public class Action implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "action_objects_id", referencedColumnName = "ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
 
+    @OneToOne
+    private Action match;
+
+    @OneToMany
+    @JsonIgnore
+    private Set<Action> rejectedMatches = new HashSet<>();
 
 
 
@@ -121,6 +127,21 @@ public class Action implements Serializable {
         this.actionObjects = actionObjects;
     }
 
+    public Action getMatch() {
+        return match;
+    }
+
+    public void setMatch(Action match) {
+        this.match = match;
+    }
+
+    public Set<Action> getRejectedMatches() {
+        return rejectedMatches;
+    }
+
+    public void addRejectedMatch(Action rejectedMatch) {
+        rejectedMatches.add(rejectedMatch);
+    }
 
     @Override
     public boolean equals(Object o) {
