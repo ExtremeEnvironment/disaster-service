@@ -2,10 +2,13 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
+import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 
+import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
 import jdk.nashorn.internal.objects.NativeRegExp;
 import org.junit.Before;
@@ -29,6 +32,8 @@ import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -64,6 +69,9 @@ public class ActionResourceIntTest {
     private ActionRepository actionRepository;
 
     @Inject
+    private ActionObjectRepository actionObjectRepository;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -72,14 +80,21 @@ public class ActionResourceIntTest {
     @Inject
     private UserRepository userRepository;
 
+    @Inject
+    private DisasterRepository disasterRepository;
+
+
+
     private MockMvc restActionMockMvc;
 
     private Action action;
 
+    private Disaster disaster;
+
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource();
+        ActionResource actionResource = new ActionResource(actionRepository,disasterRepository);
         ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -95,6 +110,11 @@ public class ActionResourceIntTest {
         action.setActionType(DEFAULT_ACTION_TYPE);
 
         user = new User();
+        userRepository.saveAndFlush(user);
+        disaster = new Disaster(23L,23L);
+        disasterRepository.saveAndFlush(disaster);
+
+
     }
 
     @Test
@@ -298,6 +318,50 @@ public class ActionResourceIntTest {
 
 
     }
+
+    @Test
+    @Transactional
+    public void testActionIsMatchWithCatastrophy () throws Exception {
+        Float lat = 23F;
+        Float lon = 23F;
+        Action actionT = new Action();
+        Action actionT2 = new Action();
+        actionT2.setLat(84F);
+        actionT2.setLon(84F);
+        actionT2.setActionType(UPDATED_ACTION_TYPE);
+        actionT2.setIsExpired(DEFAULT_IS_EXPIRED);
+        actionT2.setUser(user);
+        actionT.setLat(lat);
+        actionT.setLon(lon);
+        actionT.setActionType(UPDATED_ACTION_TYPE);
+        actionT.setIsExpired(DEFAULT_IS_EXPIRED);
+        actionT.setUser(user);
+        System.out.println(actionT2.toString());
+
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(actionT)))
+            .andExpect(status().isCreated());
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(actionT2)))
+            .andExpect(status().isCreated());
+
+        System.out.println(action.toString());
+
+        List<Action> actions = actionRepository.findByDisasterId(disaster.getId());
+
+        Action testAction = actionRepository.findAll().get(0);
+        Action testAction2 = actionRepository.findAll().get(1);
+
+
+        assertTrue(testAction.getDisaster().equals(disaster));
+        assertFalse(testAction2.getDisaster().equals(disaster));
+
+    }
+
 
 
 }

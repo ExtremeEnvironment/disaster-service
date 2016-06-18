@@ -2,9 +2,11 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
+import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -34,9 +36,15 @@ public class ActionResource {
 
     @Inject
     private ActionRepository actionRepository;
-
     @Inject
-    private UserRepository userRepository;
+    private  DisasterRepository disasterRepository;
+
+    @Autowired
+    public ActionResource(ActionRepository actionRepositoryRepository,
+                          DisasterRepository disasterRepository) {
+        this.actionRepository = actionRepositoryRepository;
+        this.disasterRepository = disasterRepository;
+    }
 
     /**
      * POST  /actions : Create a new action.
@@ -54,6 +62,19 @@ public class ActionResource {
         if (action.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
+        if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
+            if (getDisasterForAction(action) == null) {
+
+                Disaster disaster = new Disaster(action.getLon().longValue(), action.getLat().longValue());
+                action.setDisaster(disaster);
+                disasterRepository.saveAndFlush(disaster);
+
+
+            } else {
+                action.setDisaster(getDisasterForAction(action));
+            }
+        }
+
         Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("action", result.getId().toString()))
@@ -143,6 +164,43 @@ public class ActionResource {
     public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
         return actionRepository.findByActionType(userId,actionType);
 
+    }
+
+    public Disaster getDisasterForAction(Action action) {
+        float distance = 15000;
+        Disaster disasterReturn = null;
+        float lon = action.getLon();
+        float lat = action.getLat();
+
+        List<Disaster> disasterList = disasterRepository.findAll();
+
+        for (int i = 0; i < disasterList.size(); i++) {
+            Disaster disaster = disasterList.get(i);
+            Long disasterLon = disaster.getLon();
+            Long disasterLat = disaster.getLat();
+            float distanceBetween = distFrom(lat, lon, disasterLat.floatValue(), disasterLon.floatValue());
+            if (distanceBetween < 15000) {
+                if (distanceBetween < distance) {
+                    distance = distanceBetween;
+                    disasterReturn = disaster;
+                }
+            }
+
+        }
+        return disasterReturn;
+    }
+
+    public static float distFrom(float lat1, float lng1, float lat2, float lng2) {
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lng2 - lng1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        float dist = (float) (earthRadius * c);
+
+        return dist;
     }
 
 }

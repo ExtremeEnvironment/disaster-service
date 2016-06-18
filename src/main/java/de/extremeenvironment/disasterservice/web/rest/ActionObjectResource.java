@@ -1,11 +1,15 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
+import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,8 +18,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * REST controller for managing ActionObject.
@@ -28,6 +31,17 @@ public class ActionObjectResource {
 
     @Inject
     private ActionObjectRepository actionObjectRepository;
+
+
+    @Inject
+    private ActionRepository actionRepository;
+
+    @Autowired
+    public ActionObjectResource(ActionRepository actionRepositoryRepository,
+                                ActionObjectRepository actionObjectRepository) {
+        this.actionRepository = actionRepositoryRepository;
+        this.actionObjectRepository = actionObjectRepository;
+    }
 
     /**
      * POST  /action-objects : Create a new actionObject.
@@ -124,6 +138,72 @@ public class ActionObjectResource {
         log.debug("REST request to delete ActionObject : {}", id);
         actionObjectRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("actionObject", id.toString())).build();
+    }
+
+    @RequestMapping(value = "/action-objects/topten/{id}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<ActionObject> getTopTenSearch(@PathVariable Long id) {
+        log.debug("REST request to get TopTen of Search of a Disaster : {}", id );
+
+
+        HashMap<ActionObject,Integer> objectWithRate = new HashMap<ActionObject,Integer>();
+
+        List<Action> actions = actionRepository.findByDisasterIdAndActionType(id, ActionType.SEEK);
+
+        List<ActionObject> actionObjects = new ArrayList<ActionObject>();
+
+        //alle ActionObjekte werden einer Actionobject Liste hinzugefügt
+        for(int i = 0;i<actions.size();i++){
+            actionObjects.addAll(actions.get(i).getActionObjects());
+        }
+
+
+        //ActionObjects werden mit ihrer Häufigkeit in einer Hashmap gespeichert
+        for(int i = 0;i<actionObjects.size();i++){
+            ActionObject actionObject = actionObjects.get(i);
+            if(objectWithRate.keySet().contains(actionObject)){
+                int a = objectWithRate.get(actionObject);
+                objectWithRate.put(actionObject,a+1);
+            }else{
+                objectWithRate.put(actionObject,1);
+            }
+        }
+
+        //Liste enthält keine mehrfache Elemente mehr
+        actionObjects.clear();
+        actionObjects.addAll(objectWithRate.keySet());
+
+
+        Comparator<ActionObject> c = new Comparator<ActionObject>() {
+            @Override
+            public int compare(ActionObject o1, ActionObject o2) {
+                if(objectWithRate.get(o1)>objectWithRate.get(o2)){
+                    return -1;
+                }
+                if(objectWithRate.get(o1)==objectWithRate.get(o2)){
+                    return 0;
+                }
+                return 1;
+            }
+        };
+
+        //Liste wird nach Häufigkeit sortiert
+
+        actionObjects.sort(c);
+
+        //erste 10 Elemente werden zurück gegeben
+        if(actionObjects.size()==0){
+            return actionObjects;
+        }
+        if(actionObjects.size()>9) {
+            actionObjects.subList(0, 9);
+        }else{
+            actionObjects.subList(0, actionObjects.size()-1);
+        }
+        return actionObjects;
+
     }
 
 }

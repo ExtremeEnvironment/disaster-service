@@ -155,6 +155,7 @@ public class Action implements Serializable {
             ", lat='" + lat + "'" +
             ", lon='" + lon + "'" +
             ", isExpired='" + isExpired + "'" +
+            ", disaster'" + disaster + "'" +
             ", actionType='" + actionType + "'" +
             '}';
     }

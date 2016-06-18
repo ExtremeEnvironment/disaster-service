@@ -33,6 +33,8 @@ public interface ActionRepository extends JpaRepository<Action,Long> {
 
     List<Action> findByDisasterId(Long id);
 
+    List<Action> findByDisasterIdAndActionType(Long id,ActionType actionType);
+
     Optional<Action> findActionById(Long id);
 
     @Query("select action from Action action, User user where action.user.id = user.id and action.isExpired=false")
