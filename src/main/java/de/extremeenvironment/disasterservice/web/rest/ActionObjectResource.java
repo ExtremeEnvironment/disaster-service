@@ -140,6 +140,11 @@ public class ActionObjectResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("actionObject", id.toString())).build();
     }
 
+    /**
+     * GET //action-objects/topten/{id} : get the TopTen of a disaster
+     * @param id
+     * @return a List of ActionObjects ordered by absolute frequency with size 10. The first element has the highest absolute frequency
+     */
     @RequestMapping(value = "/action-objects/topten/{id}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)

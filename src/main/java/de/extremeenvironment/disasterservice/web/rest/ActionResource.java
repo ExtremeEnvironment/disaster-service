@@ -8,6 +8,7 @@ import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
+import de.extremeenvironment.disasterservice.service.ActionService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,6 +167,10 @@ public class ActionResource {
 
     }
 
+    /**
+     * @param action
+     * @return the nearest disaster of an action location, in a radius of 15000km
+     */
     public Disaster getDisasterForAction(Action action) {
         float distance = 15000;
         Disaster disasterReturn = null;
@@ -178,7 +183,7 @@ public class ActionResource {
             Disaster disaster = disasterList.get(i);
             Long disasterLon = disaster.getLon();
             Long disasterLat = disaster.getLat();
-            float distanceBetween = distFrom(lat, lon, disasterLat.floatValue(), disasterLon.floatValue());
+            float distanceBetween = ActionService.getDistance(lat, lon, disasterLat.floatValue(), disasterLon.floatValue());
             if (distanceBetween < 15000) {
                 if (distanceBetween < distance) {
                     distance = distanceBetween;
@@ -190,17 +195,6 @@ public class ActionResource {
         return disasterReturn;
     }
 
-    public static float distFrom(float lat1, float lng1, float lat2, float lng2) {
-        double earthRadius = 6371000; //meters
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lng2 - lng1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        float dist = (float) (earthRadius * c);
 
-        return dist;
-    }
 
 }
