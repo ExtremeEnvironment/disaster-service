@@ -61,5 +61,16 @@
 
         <addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>
         
+        <createTable tableName="action_rejected_matches">
+            <column name="rejected_matches_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="actions_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="actions_id, rejected_matches_id" tableName="action_rejected_matches"/>
+        
     </changeSet>
 </databaseChangeLog>

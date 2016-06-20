@@ -40,7 +40,7 @@ public class ActionService {
         action.setActionType(actionType);
 
 
-     //   action.setUser(userRepository.findOneById(user).get());
+//        action.setUser(userRepository.findOneById(user).get());
 
         if (actionType == ActionType.OFFER || actionType == ActionType.SEEK) {
             action.setActionObjects(actionObjects);
@@ -50,7 +50,7 @@ public class ActionService {
 
         actionRepository.save(action);
 
-//        matchActions(action);
+        matchActions(action);
 
         return action;
 
@@ -62,7 +62,7 @@ public class ActionService {
 
         actionRepository.save(action.get());
 
-//        matchActions(action.get());
+        matchActions(action.get());
 
         return action.get();
 
@@ -89,7 +89,7 @@ public class ActionService {
         Set<Action> possibleMatches = new HashSet<>(actionRepository.findAll());
 
         possibleMatches.remove(a);
-//        possibleMatches.removeAll(a.getRejectedMatches());
+        possibleMatches.removeAll(a.getRejectedMatches());
 
 
         Action bestMatch = null;
@@ -129,11 +129,11 @@ public class ActionService {
      * @param a the action the match shall be removed from
      */
     public void rejectMatch(Action a) {
-//        a.getMatch().addRejectedMatch(a);
+        a.getMatch().addRejectedMatch(a);
         a.getMatch().setMatch(null);
         actionRepository.save(a.getMatch());
 
-//        a.addRejectedMatch(a.getMatch());
+        a.addRejectedMatch(a.getMatch());
         a.setMatch(null);
         actionRepository.save(a);
     }

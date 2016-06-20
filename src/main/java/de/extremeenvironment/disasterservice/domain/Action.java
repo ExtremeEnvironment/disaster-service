@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 
 /**
@@ -55,6 +56,13 @@ public class Action implements Serializable {
     @OneToOne
     @JoinColumn(unique = true)
     private Action match;
+
+    @ManyToMany
+    @JsonIgnore
+    @JoinTable(name = "action_rejected_matches",
+               joinColumns = @JoinColumn(name="actions_id", referencedColumnName="ID"),
+               inverseJoinColumns = @JoinColumn(name="rejected_matches_id", referencedColumnName="ID"))
+    private Set<Action> rejectedMatches = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -127,6 +135,19 @@ public class Action implements Serializable {
     public void setMatch(Action action) {
         this.match = action;
     }
+
+    public Set<Action> getRejectedMatches() {
+        return rejectedMatches;
+    }
+
+    public void setRejectedMatches(Set<Action> actions) {
+        this.rejectedMatches = actions;
+    }
+
+    public void addRejectedMatch(Action action) {
+        this.rejectedMatches.add(action);
+    }
+
 
     @Override
     public boolean equals(Object o) {

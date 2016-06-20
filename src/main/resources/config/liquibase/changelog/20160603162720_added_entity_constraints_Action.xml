@@ -37,5 +37,16 @@
                                  referencedColumnNames="id"
                                  referencedTableName="action"/>
 
+        <addForeignKeyConstraint baseColumnNames="actions_id"
+                                 baseTableName="action_rejected_matches"
+                                 constraintName="fk_action_rejected_matches_action_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="action"/>
+        <addForeignKeyConstraint baseColumnNames="rejected_matches_id"
+                                 baseTableName="action_rejected_matches"
+                                 constraintName="fk_action_rejected_matches_action_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="action"/>
+        
     </changeSet>
 </databaseChangeLog>
