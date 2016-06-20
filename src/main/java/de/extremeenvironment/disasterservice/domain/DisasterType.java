@@ -21,6 +21,14 @@ public class DisasterType implements Serializable {
     @Column(name = "name")
     private String name;
 
+    public DisasterType() {
+
+    }
+
+    public DisasterType(String name) {
+        this.name=name;
+    }
+
     public Long getId() {
         return id;
     }

@@ -1,10 +1,9 @@
 package de.extremeenvironment.disasterservice.config;
 
-import de.extremeenvironment.disasterservice.config.liquibase.AsyncSpringLiquibase;
-
 import com.codahale.metrics.MetricRegistry;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.zaxxer.hikari.HikariDataSource;
+import de.extremeenvironment.disasterservice.config.liquibase.AsyncSpringLiquibase;
 import liquibase.integration.spring.SpringLiquibase;
 import org.h2.tools.Server;
 import org.slf4j.Logger;

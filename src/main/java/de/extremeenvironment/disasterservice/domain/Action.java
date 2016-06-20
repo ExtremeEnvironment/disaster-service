@@ -43,6 +43,7 @@ public class Action implements Serializable {
     private Disaster disaster;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @ManyToMany
@@ -50,6 +51,10 @@ public class Action implements Serializable {
                joinColumns = @JoinColumn(name="actions_id", referencedColumnName="ID"),
                inverseJoinColumns = @JoinColumn(name="action_objects_id", referencedColumnName="ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
+
+    @OneToOne
+    @JoinColumn(unique = true)
+    private Action match;
 
     public Long getId() {
         return id;
@@ -115,6 +120,14 @@ public class Action implements Serializable {
         this.actionObjects = actionObjects;
     }
 
+    public Action getMatch() {
+        return match;
+    }
+
+    public void setMatch(Action action) {
+        this.match = action;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -142,6 +155,7 @@ public class Action implements Serializable {
             ", lat='" + lat + "'" +
             ", lon='" + lon + "'" +
             ", isExpired='" + isExpired + "'" +
+            ", disaster'" + disaster + "'" +
             ", actionType='" + actionType + "'" +
             '}';
     }

@@ -1,19 +1,22 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
+import de.extremeenvironment.disasterservice.domain.Disaster;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
-
+import de.extremeenvironment.disasterservice.repository.ActionRepository;
+import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -23,9 +26,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -48,6 +54,12 @@ public class ActionObjectResourceIntTest {
     private ActionObjectRepository actionObjectRepository;
 
     @Inject
+    private ActionRepository actionRepository;
+
+    @Inject
+    private DisasterRepository disasterRepository;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -60,7 +72,7 @@ public class ActionObjectResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionObjectResource actionObjectResource = new ActionObjectResource();
+        ActionObjectResource actionObjectResource = new ActionObjectResource(actionRepository,actionObjectRepository);
         ReflectionTestUtils.setField(actionObjectResource, "actionObjectRepository", actionObjectRepository);
         this.restActionObjectMockMvc = MockMvcBuilders.standaloneSetup(actionObjectResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -168,4 +180,73 @@ public class ActionObjectResourceIntTest {
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
         assertThat(actionObjects).hasSize(databaseSizeBeforeDelete - 1);
     }
+
+    @Test
+    @Transactional
+    public void getTopTen() throws Exception {
+        Disaster disaster = new Disaster(23L,23L);
+        disasterRepository.saveAndFlush(disaster);
+
+        Action actionT = new Action();
+        Action actionT2 = new Action();
+        Action action = new Action();
+        actionT2.setActionType(ActionType.SEEK);
+        actionT.setActionType(ActionType.SEEK);
+        action.setActionType(ActionType.SEEK);
+        action.setLat(23F);
+        action.setLon(23F);
+        actionT.setLat(23F);
+        actionT.setLon(23F);
+        actionT2.setLat(23F);
+        actionT2.setLon(23F);
+
+
+        ActionObject actionObject2 = new ActionObject();
+        actionObject2.setName("AA");
+
+        ActionObject actionObject = new ActionObject();
+        actionObject.setName("BB");
+
+        ActionObject actionObject3 = new ActionObject();
+        actionObject3.setName("CC");
+
+        actionObjectRepository.saveAndFlush(actionObject);
+        actionObjectRepository.saveAndFlush(actionObject2);
+        actionObjectRepository.saveAndFlush(actionObject3);
+
+        action.setDisaster(disaster);
+        actionT.setDisaster(disaster);
+        actionT2.setDisaster(disaster);
+
+        Set<ActionObject> ao = new HashSet<>();
+        ao.add(actionObject);
+        ao.add(actionObject2);
+        ao.add(actionObject3);
+        Set<ActionObject> ao2 = new HashSet<>();
+        ao2.add(actionObject);
+        ao2.add(actionObject3);
+        Set<ActionObject> ao3 = new HashSet<>();
+        ao3.add(actionObject3);
+        action.setActionObjects(ao);
+
+        actionT.setActionObjects(ao2);
+        actionT2.setActionObjects(ao3);
+
+        actionRepository.save(action);
+        actionRepository.save(actionT);
+        actionRepository.save(actionT2);
+        System.out.println(action.toString());
+        actionRepository.flush();
+        System.out.println(actionRepository.findAll().get(0).toString());
+
+        restActionObjectMockMvc.perform(get("/api/action-objects/topten/{id}", disaster.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.[0].id").value(actionObject3.getId().intValue()))
+            .andExpect(jsonPath("$.[1].id").value(actionObject.getId().intValue()))
+            .andExpect(jsonPath("$.[2].id").value(actionObject2.getId().intValue()));
+
+
+    }
+
 }

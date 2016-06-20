@@ -2,11 +2,17 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.Disaster;
+import de.extremeenvironment.disasterservice.domain.User;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
+import de.extremeenvironment.disasterservice.repository.DisasterRepository;
+import de.extremeenvironment.disasterservice.repository.UserRepository;
+import de.extremeenvironment.disasterservice.service.ActionService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +22,7 @@ import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,10 +34,19 @@ import java.util.Optional;
 public class ActionResource {
 
     private final Logger log = LoggerFactory.getLogger(ActionResource.class);
-        
+
     @Inject
     private ActionRepository actionRepository;
-    
+    @Inject
+    private  DisasterRepository disasterRepository;
+
+    @Autowired
+    public ActionResource(ActionRepository actionRepositoryRepository,
+                          DisasterRepository disasterRepository) {
+        this.actionRepository = actionRepositoryRepository;
+        this.disasterRepository = disasterRepository;
+    }
+
     /**
      * POST  /actions : Create a new action.
      *
@@ -47,7 +63,20 @@ public class ActionResource {
         if (action.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
-        Action result = actionRepository.save(action);
+        if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
+            if (getDisasterForAction(action) == null) {
+
+                Disaster disaster = new Disaster(action.getLon().longValue(), action.getLat().longValue());
+                action.setDisaster(disaster);
+                disasterRepository.saveAndFlush(disaster);
+
+
+            } else {
+                action.setDisaster(getDisasterForAction(action));
+            }
+        }
+
+        Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("action", result.getId().toString()))
             .body(result);
@@ -127,5 +156,45 @@ public class ActionResource {
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
+
+
+    @RequestMapping(value = "/action/{userId}/{actionType}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
+        return actionRepository.findByActionType(userId,actionType);
+
+    }
+
+    /**
+     * @param action
+     * @return the nearest disaster of an action location, in a radius of 15000km
+     */
+    public Disaster getDisasterForAction(Action action) {
+        float distance = 15000;
+        Disaster disasterReturn = null;
+        float lon = action.getLon();
+        float lat = action.getLat();
+
+        List<Disaster> disasterList = disasterRepository.findAll();
+
+        for (int i = 0; i < disasterList.size(); i++) {
+            Disaster disaster = disasterList.get(i);
+            Long disasterLon = disaster.getLon();
+            Long disasterLat = disaster.getLat();
+            float distanceBetween = ActionService.getDistance(lat, lon, disasterLat.floatValue(), disasterLon.floatValue());
+            if (distanceBetween < 15000) {
+                if (distanceBetween < distance) {
+                    distance = distanceBetween;
+                    disasterReturn = disaster;
+                }
+            }
+
+        }
+        return disasterReturn;
+    }
+
+
 
 }

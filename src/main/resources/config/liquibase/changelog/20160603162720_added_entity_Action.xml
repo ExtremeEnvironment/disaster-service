@@ -44,7 +44,9 @@
             <column name="user_id" type="bigint">
                 <constraints nullable="true" />
             </column>
-
+            <column name="match_id" type="bigint">
+                <constraints unique="true" nullable="true" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - Jhipster will add columns here, do not remove-->
         </createTable>
         

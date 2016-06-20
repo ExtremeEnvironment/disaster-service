@@ -2,18 +2,24 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.Disaster;
+import de.extremeenvironment.disasterservice.domain.User;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
+import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 
+import de.extremeenvironment.disasterservice.repository.DisasterRepository;
+import de.extremeenvironment.disasterservice.repository.UserRepository;
+import jdk.nashorn.internal.objects.NativeRegExp;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -23,13 +29,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
+import static junit.framework.TestCase.assertFalse;
+import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 
 /**
  * Test class for the ActionResource REST controller.
@@ -55,8 +63,13 @@ public class ActionResourceIntTest {
     private static final ActionType DEFAULT_ACTION_TYPE = ActionType.OFFER;
     private static final ActionType UPDATED_ACTION_TYPE = ActionType.SEEK;
 
+    private static User user;
+
     @Inject
     private ActionRepository actionRepository;
+
+    @Inject
+    private ActionObjectRepository actionObjectRepository;
 
     @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -64,14 +77,24 @@ public class ActionResourceIntTest {
     @Inject
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
+    @Inject
+    private UserRepository userRepository;
+
+    @Inject
+    private DisasterRepository disasterRepository;
+
+
+
     private MockMvc restActionMockMvc;
 
     private Action action;
 
+    private Disaster disaster;
+
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource();
+        ActionResource actionResource = new ActionResource(actionRepository,disasterRepository);
         ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -85,6 +108,13 @@ public class ActionResourceIntTest {
         action.setLon(DEFAULT_LON);
         action.setIsExpired(DEFAULT_IS_EXPIRED);
         action.setActionType(DEFAULT_ACTION_TYPE);
+
+        user = new User();
+        userRepository.saveAndFlush(user);
+        disaster = new Disaster(23L,23L);
+        disasterRepository.saveAndFlush(disaster);
+
+
     }
 
     @Test
@@ -107,6 +137,11 @@ public class ActionResourceIntTest {
         assertThat(testAction.getLon()).isEqualTo(DEFAULT_LON);
         assertThat(testAction.isIsExpired()).isEqualTo(DEFAULT_IS_EXPIRED);
         assertThat(testAction.getActionType()).isEqualTo(DEFAULT_ACTION_TYPE);
+       // assertThat(testAction.getUser().getId()).isEqualTo(user.getId());
+      //  user.getActions().add(action);
+        System.out.println(action.toString());
+        System.out.println(user.toString());
+
     }
 
     @Test
@@ -241,14 +276,92 @@ public class ActionResourceIntTest {
         // Initialize the database
         actionRepository.saveAndFlush(action);
         int databaseSizeBeforeDelete = actionRepository.findAll().size();
-
+        System.out.println(action);
+        //  user.getActions().add(action);
+        userRepository.save(user);
+        System.out.println(user);
         // Get the action
         restActionMockMvc.perform(delete("/api/actions/{id}", action.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
 
         // Validate the database is empty
         List<Action> actions = actionRepository.findAll();
         assertThat(actions).hasSize(databaseSizeBeforeDelete - 1);
     }
+
+    @Test
+    @Transactional
+    public void getActionByType() throws Exception {
+
+        userRepository.saveAndFlush(user);
+
+        Action action2 = new Action();
+        action2.setLat(DEFAULT_LAT);
+        action2.setLon(DEFAULT_LON);
+        action2.setIsExpired(DEFAULT_IS_EXPIRED);
+        action2.setActionType(ActionType.OFFER);
+        action2.setUser(user);
+
+        actionRepository.saveAndFlush(action2);
+
+
+        action.setUser(user);
+        actionRepository.saveAndFlush(action);
+
+        restActionMockMvc.perform(get("/api/action/{userId}/{actionType}",user.getId(), ActionType.OFFER))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.[*].actionType").value(hasItem(ActionType.OFFER.name())));
+
+
+
+
+    }
+
+    @Test
+    @Transactional
+    public void testActionIsMatchWithCatastrophy () throws Exception {
+        Float lat = 23F;
+        Float lon = 23F;
+        Action actionT = new Action();
+        Action actionT2 = new Action();
+        actionT2.setLat(84F);
+        actionT2.setLon(84F);
+        actionT2.setActionType(UPDATED_ACTION_TYPE);
+        actionT2.setIsExpired(DEFAULT_IS_EXPIRED);
+        actionT2.setUser(user);
+        actionT.setLat(lat);
+        actionT.setLon(lon);
+        actionT.setActionType(UPDATED_ACTION_TYPE);
+        actionT.setIsExpired(DEFAULT_IS_EXPIRED);
+        actionT.setUser(user);
+        System.out.println(actionT2.toString());
+
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(actionT)))
+            .andExpect(status().isCreated());
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(actionT2)))
+            .andExpect(status().isCreated());
+
+        System.out.println(action.toString());
+
+        List<Action> actions = actionRepository.findByDisasterId(disaster.getId());
+
+        Action testAction = actionRepository.findAll().get(0);
+        Action testAction2 = actionRepository.findAll().get(1);
+
+
+        assertTrue(testAction.getDisaster().equals(disaster));
+        assertFalse(testAction2.getDisaster().equals(disaster));
+
+    }
+
+
+
 }
