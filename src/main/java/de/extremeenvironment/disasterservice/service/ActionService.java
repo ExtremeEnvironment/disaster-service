@@ -165,4 +165,9 @@ public class ActionService {
 
         return dist - (waitingDuration * BONUS);
     }
+
+
+    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
+        return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
+    }
 }
