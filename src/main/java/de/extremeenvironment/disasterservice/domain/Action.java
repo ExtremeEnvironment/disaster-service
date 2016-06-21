@@ -16,7 +16,7 @@ import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
  */
 @Entity
 @Table(name = "action")
-public class Action implements Serializable {
+public class Action extends AbstractAuditingEntity implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
