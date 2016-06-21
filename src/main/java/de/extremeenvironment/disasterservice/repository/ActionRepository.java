@@ -21,10 +21,10 @@ public interface ActionRepository extends JpaRepository<Action,Long> {
     @Query("select action from Action action where action.user.login = ?#{principal.username}")
     List<Action> findByUserIsCurrentUser();*/
 
-    @Query("select distinct action from Action action left join fetch action.actionObjects")
+    @Query("select distinct action from Action action left join fetch action.actionObjects left join fetch action.rejectedMatches")
     List<Action> findAllWithEagerRelationships();
 
-    @Query("select action from Action action left join fetch action.actionObjects where action.id =:id")
+    @Query("select action from Action action left join fetch action.actionObjects left join fetch action.rejectedMatches where action.id =:id")
     Action findOneWithEagerRelationships(@Param("id") Long id);
 
     List<Action> findByIsExpired(boolean expired);
