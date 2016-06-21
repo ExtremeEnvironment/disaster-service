@@ -82,7 +82,7 @@ public class ActionService {
      * @param a the action for which a match shall be found
      */
     public void matchActions(Action a) {
-        if (!a.getMatch().equals(null) || a.getActionType() == ActionType.KNOWLEDGE) {
+        if (!a.getMatch().equals(null) || a.getActionType() == ActionType.KNOWLEDGE || a.getDisaster() == null) {
             return;
         }
 

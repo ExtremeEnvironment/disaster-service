@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="gereon (generated)" id="1466432291578-1">
+        <createTable tableName="action_rejected_matches">
+            <column name="actions_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rejected_matches_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466432291578-2">
+        <addColumn tableName="action">
+            <column name="match_id" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466432291578-3">
+        <addPrimaryKey columnNames="actions_id, rejected_matches_id" tableName="action_rejected_matches"/>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466432291578-4">
+        <addUniqueConstraint columnNames="match_id" constraintName="UC_ACTIONMATCH_ID_COL" tableName="action"/>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466432291578-5">
+        <addForeignKeyConstraint baseColumnNames="match_id" baseTableName="action" constraintName="FK_aksxuewrxjto77uy4d11caock" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466432291578-6">
+        <addForeignKeyConstraint baseColumnNames="actions_id" baseTableName="action_rejected_matches" constraintName="FK_i4tqpcgghg6lw7akl98s64prw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466432291578-7">
+        <addForeignKeyConstraint baseColumnNames="rejected_matches_id" baseTableName="action_rejected_matches" constraintName="FK_teu2thbv82ss3qbih3mm5yc1l" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466432291578-8">
+        <dropNotNullConstraint columnDataType="bigint" columnName="user_id" tableName="jhi_user"/>
+    </changeSet>
+</databaseChangeLog>

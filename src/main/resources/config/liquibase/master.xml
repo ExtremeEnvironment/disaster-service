@@ -15,4 +15,5 @@
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <include file="classpath:config/liquibase/changelog/20160621142500_rejected_matches.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20160621162600_auditing_action.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20160621164600_auditing_disaster.xml" relativeToChangelogFile="false"/>
 </databaseChangeLog>
