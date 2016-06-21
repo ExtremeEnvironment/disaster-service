@@ -10,6 +10,9 @@ import de.extremeenvironment.disasterservice.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
+import java.time.Duration;
+import java.time.Period;
+import java.time.ZonedDateTime;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -82,7 +85,7 @@ public class ActionService {
      * @param a the action for which a match shall be found
      */
     public void matchActions(Action a) {
-        if (!a.getMatch().equals(null) || a.getActionType() == ActionType.KNOWLEDGE || a.getDisaster() == null) {
+        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE || a.getDisaster() == null) {
             return;
         }
 
@@ -96,14 +99,14 @@ public class ActionService {
         Float bestMatchDist = Float.MAX_VALUE;
 
         for (Action act : possibleMatches) {
-            if (!act.getMatch().equals(null) || !a.getDisaster().equals(act.getDisaster())) {
+            if (act.getMatch() != null || !a.getDisaster().equals(act.getDisaster())) {
                 continue;
             }
 
             HashSet actionObjectIntersect = new HashSet<>(a.getActionObjects());
             actionObjectIntersect.retainAll(act.getActionObjects());
 
-            Float matchDist = getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon());
+            Float matchDist = getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.OFFER) ? a.getCreatedDate() : act.getCreatedDate()));
 
             if (!actionObjectIntersect.isEmpty() && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
                 bestMatchDist = matchDist;
@@ -130,16 +133,27 @@ public class ActionService {
      */
     public void rejectMatch(Action a) {
         a.getMatch().addRejectedMatch(a);
+        Action otherAction = a.getMatch();
         a.getMatch().setMatch(null);
         actionRepository.save(a.getMatch());
 
         a.addRejectedMatch(a.getMatch());
         a.setMatch(null);
         actionRepository.save(a);
+
+        matchActions(a);
+
+        matchActions(otherAction);
     }
 
 
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
+    public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
+        Duration d = Duration.between(seekDate, ZonedDateTime.now());
+        long waitingDuration = d.getSeconds();
+
+        final float BONUS = 1 / (60 * 60 * 24); // 1 km per day waited
+        //TODO set bonus via web interface
+
         double earthRadius = 6371000; //meters
         double dLat = Math.toRadians(lat2 - lat1);
         double dLng = Math.toRadians(lon2 - lon1);
@@ -149,6 +163,6 @@ public class ActionService {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         float dist = (float) (earthRadius * c);
 
-        return dist;
+        return dist - (waitingDuration * BONUS);
     }
 }
