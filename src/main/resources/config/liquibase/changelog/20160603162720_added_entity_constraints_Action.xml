@@ -7,7 +7,7 @@
         Added the constraints for entity Action.
     -->
     <changeSet id="20160603162720-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="disaster_id"
                                  baseTableName="action"
                                  constraintName="fk_action_disaster_id"
@@ -22,7 +22,7 @@
 
         <addForeignKeyConstraint baseColumnNames="actions_id"
                                  baseTableName="action_action_object"
-                                 constraintName="fk_action_action_object_actionobject_id"
+                                 constraintName="fk_action_action_object_action_object_id"
                                  referencedColumnNames="id"
                                  referencedTableName="action"/>
         <addForeignKeyConstraint baseColumnNames="action_objects_id"
@@ -30,12 +30,13 @@
                                  constraintName="fk_action_action_object_action_id"
                                  referencedColumnNames="id"
                                  referencedTableName="action_object"/>
-        
+
         <addForeignKeyConstraint baseColumnNames="match_id"
                                  baseTableName="action"
                                  constraintName="fk_action_match_id"
                                  referencedColumnNames="id"
                                  referencedTableName="action"/>
+
 
     </changeSet>
 </databaseChangeLog>
