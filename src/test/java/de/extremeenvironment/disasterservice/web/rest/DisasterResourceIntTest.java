@@ -45,11 +45,11 @@ public class DisasterResourceIntTest {
     private static final Boolean DEFAULT_IS_EXPIRED = false;
     private static final Boolean UPDATED_IS_EXPIRED = true;
 
-    private static final Long DEFAULT_LAT = 1L;
-    private static final Long UPDATED_LAT = 2L;
+    private static final Float DEFAULT_LAT = 1F;
+    private static final Float UPDATED_LAT = 2F;
 
-    private static final Long DEFAULT_LON = 1L;
-    private static final Long UPDATED_LON = 2L;
+    private static final Float DEFAULT_LON = 1F;
+    private static final Float UPDATED_LON = 2F;
     private static final String DEFAULT_TITLE = "AAAAA";
     private static final String UPDATED_TITLE = "BBBBB";
     private static final String DEFAULT_DESCRIPTION = "AAAAA";
@@ -123,8 +123,8 @@ public class DisasterResourceIntTest {
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.[*].id").value(hasItem(disaster.getId().intValue())))
                 .andExpect(jsonPath("$.[*].isExpired").value(hasItem(DEFAULT_IS_EXPIRED.booleanValue())))
-                .andExpect(jsonPath("$.[*].lat").value(hasItem(DEFAULT_LAT.intValue())))
-                .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.intValue())))
+                .andExpect(jsonPath("$.[*].lat").value(hasItem(DEFAULT_LAT.doubleValue())))
+                .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.doubleValue())))
                 .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
                 .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
     }
@@ -141,8 +141,8 @@ public class DisasterResourceIntTest {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.id").value(disaster.getId().intValue()))
             .andExpect(jsonPath("$.isExpired").value(DEFAULT_IS_EXPIRED.booleanValue()))
-            .andExpect(jsonPath("$.lat").value(DEFAULT_LAT.intValue()))
-            .andExpect(jsonPath("$.lon").value(DEFAULT_LON.intValue()))
+            .andExpect(jsonPath("$.lat").value(DEFAULT_LAT.doubleValue()))
+            .andExpect(jsonPath("$.lon").value(DEFAULT_LON.doubleValue()))
             .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
             .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()));
     }

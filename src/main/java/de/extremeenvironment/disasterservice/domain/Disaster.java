@@ -22,10 +22,10 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
     private Boolean isExpired;
 
     @Column(name = "lat")
-    private Long lat;
+    private Float lat;
 
     @Column(name = "lon")
-    private Long lon;
+    private Float lon;
 
     @Column(name = "title")
     private String title;
@@ -49,19 +49,19 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
         this.isExpired = isExpired;
     }
 
-    public Long getLat() {
+    public Float getLat() {
         return lat;
     }
 
-    public void setLat(Long lat) {
+    public void setLat(Float lat) {
         this.lat = lat;
     }
 
-    public Long getLon() {
+    public Float getLon() {
         return lon;
     }
 
-    public void setLon(Long lon) {
+    public void setLon(Float lon) {
         this.lon = lon;
     }
 

@@ -9,12 +9,12 @@
         {
             "fieldId": 2,
             "fieldName": "lat",
-            "fieldType": "Long"
+            "fieldType": "Float"
         },
         {
             "fieldId": 3,
             "fieldName": "lon",
-            "fieldType": "Long"
+            "fieldType": "Float"
         },
         {
             "fieldName": "title",

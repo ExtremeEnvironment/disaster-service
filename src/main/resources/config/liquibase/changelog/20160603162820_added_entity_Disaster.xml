@@ -25,11 +25,11 @@
                 <constraints nullable="true" />
             </column>
             
-            <column name="lat" type="bigint">
+            <column name="lat" type="${floatType}">
                 <constraints nullable="true" />
             </column>
             
-            <column name="lon" type="bigint">
+            <column name="lon" type="${floatType}">
                 <constraints nullable="true" />
             </column>
             

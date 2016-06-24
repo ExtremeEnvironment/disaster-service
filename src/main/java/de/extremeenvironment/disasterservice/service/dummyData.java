@@ -82,17 +82,17 @@ public class dummyData {
         actionObjectRepository.flush();
 
         Disaster disaster = new Disaster();
-        disaster.setLat(23L);
-        disaster.setLon(23L);
+        disaster.setLat(23F);
+        disaster.setLon(23F);
         disaster.setTitle("Berlin Erdbeben");
         Disaster disaster1 = new Disaster();
         disaster1.setTitle("New York Zombie-Angriff");
-        disaster1.setLon(45L);
-        disaster1.setLat(45L);
+        disaster1.setLon(45F);
+        disaster1.setLat(45F);
         Disaster disaster2 = new Disaster();
         disaster2.setTitle("London Brexit");
-        disaster2.setLon(34L);
-        disaster2.setLat(34L);
+        disaster2.setLon(34F);
+        disaster2.setLat(34F);
         disasterRepository.saveAndFlush(disaster);
         disasterRepository.saveAndFlush(disaster1);
         disasterRepository.saveAndFlush(disaster2);

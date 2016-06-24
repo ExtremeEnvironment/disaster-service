@@ -185,8 +185,8 @@ public class ActionObjectResourceIntTest {
     @Transactional
     public void getTopTen() throws Exception {
         Disaster disaster = new Disaster();
-        disaster.setLat(23L);
-        disaster.setLon(23L);
+        disaster.setLat(23F);
+        disaster.setLon(23F);
         disasterRepository.saveAndFlush(disaster);
 
         Action actionT = new Action();

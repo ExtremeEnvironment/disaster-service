@@ -67,8 +67,8 @@ public class ActionResource {
             if (getDisasterForAction(action) == null) {
 
                 Disaster disaster = new Disaster();
-                disaster.setLat(action.getLat().longValue());
-                disaster.setLon(action.getLon().longValue());
+                disaster.setLat(action.getLat());
+                disaster.setLon(action.getLon());
                 action.setDisaster(disaster);
                 disasterRepository.saveAndFlush(disaster);
 
@@ -189,9 +189,9 @@ public class ActionResource {
 
         for (int i = 0; i < disasterList.size(); i++) {
             Disaster disaster = disasterList.get(i);
-            Long disasterLon = disaster.getLon();
-            Long disasterLat = disaster.getLat();
-            float distanceBetween = getDistance(lat, lon, disasterLat.floatValue(), disasterLon.floatValue());
+            Float disasterLon = disaster.getLon();
+            Float disasterLat = disaster.getLat();
+            float distanceBetween = getDistance(lat, lon, disasterLat, disasterLon);
             if (distanceBetween < 15000) {
                 if (distanceBetween < distance) {
                     distance = distanceBetween;

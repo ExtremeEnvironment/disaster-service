@@ -96,12 +96,12 @@ public class MatchingIntTest {
     public void initTest() {
         userRepository.saveAndFlush(new User());
         Disaster d1 = new Disaster();
-        d1.setLat(23L);
-        d1.setLon(23L);
+        d1.setLat(23F);
+        d1.setLon(23F);
         disasterRepository.saveAndFlush(d1);
         Disaster d2 = new Disaster();
-        d2.setLat(23L);
-        d2.setLon(23L);
+        d2.setLat(23F);
+        d2.setLon(23F);
         disasterRepository.saveAndFlush(d2);
 
 
