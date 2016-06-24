@@ -111,8 +111,10 @@ public class ActionResourceIntTest {
 
         user = new User();
         userRepository.saveAndFlush(user);
-        disaster = new Disaster(23L,23L);
-        disasterRepository.saveAndFlush(disaster);
+        Disaster d = new Disaster();
+        d.setLat(23L);
+        d.setLon(23L);
+        disasterRepository.saveAndFlush(d);
 
 
     }

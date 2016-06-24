@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="gereon (generated)" id="1466425629832-1">
+        <addColumn tableName="action">
+            <column name="match_id" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466425629832-2">
+        <addUniqueConstraint columnNames="match_id" constraintName="UC_ACTIONMATCH_ID_COL" tableName="action"/>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466425629832-3">
+        <addForeignKeyConstraint baseColumnNames="match_id" baseTableName="action" constraintName="FK_aksxuewrxjto77uy4d11caock" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="gereon (generated)" id="1466425629832-4">
+        <dropNotNullConstraint columnDataType="bigint" columnName="user_id" tableName="jhi_user"/>
+    </changeSet>
+</databaseChangeLog>

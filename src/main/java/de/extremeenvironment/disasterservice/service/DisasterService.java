@@ -21,10 +21,10 @@ public class DisasterService {
     private DisasterRepository disasterRepository;
 
 
-
-       public Disaster createDisater(Long lon, Long lat) {
-        Disaster disaster = new Disaster(lon, lat);
-
+    public Disaster createDisater(Long lat, Long lon) {
+        Disaster disaster = new Disaster();
+        disaster.setLat(lat);
+        disaster.setLon(lon);
 
         disasterRepository.save(disaster);
 

@@ -49,19 +49,20 @@ public class Action extends AbstractAuditingEntity implements Serializable {
 
     @ManyToMany
     @JoinTable(name = "action_action_object",
-               joinColumns = @JoinColumn(name="actions_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="action_objects_id", referencedColumnName="ID"))
+        joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
+        inverseJoinColumns = @JoinColumn(name = "action_objects_id", referencedColumnName = "ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
 
     @OneToOne
+    @JsonIgnore
     @JoinColumn(unique = true)
     private Action match;
 
     @ManyToMany
     @JsonIgnore
     @JoinTable(name = "action_rejected_matches",
-               joinColumns = @JoinColumn(name="actions_id", referencedColumnName="ID"),
-               inverseJoinColumns = @JoinColumn(name="rejected_matches_id", referencedColumnName="ID"))
+        joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
+        inverseJoinColumns = @JoinColumn(name = "rejected_matches_id", referencedColumnName = "ID"))
     private Set<Action> rejectedMatches = new HashSet<>();
 
     public Long getId() {
@@ -158,7 +159,7 @@ public class Action extends AbstractAuditingEntity implements Serializable {
             return false;
         }
         Action action = (Action) o;
-        if(action.id == null || id == null) {
+        if (action.id == null || id == null) {
             return false;
         }
         return Objects.equals(id, action.id);
