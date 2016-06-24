@@ -27,15 +27,11 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
     @Column(name = "lon")
     private Long lon;
 
-    public Disaster() {
+    @Column(name = "title")
+    private String title;
 
-    }
-
-    public Disaster(Long lon, Long lat ) {
-        this.lon=lon;
-        this.lat=lat;
-        isExpired=false;
-    }
+    @Column(name = "description")
+    private String description;
 
     public Long getId() {
         return id;
@@ -69,6 +65,22 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
         this.lon = lon;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -96,6 +108,8 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
             ", isExpired='" + isExpired + "'" +
             ", lat='" + lat + "'" +
             ", lon='" + lon + "'" +
+            ", title='" + title + "'" +
+            ", description='" + description + "'" +
             '}';
     }
 }

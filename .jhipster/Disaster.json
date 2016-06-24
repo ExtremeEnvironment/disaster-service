@@ -1,24 +1,35 @@
 {
-  "relationships": [],
-  "fields": [
-    {
-      "fieldId": 1,
-      "fieldName": "isExpired",
-      "fieldType": "Boolean"
-    },
-    {
-      "fieldId": 2,
-      "fieldName": "lat",
-      "fieldType": "Long"
-    },
-    {
-      "fieldId": 3,
-      "fieldName": "lon",
-      "fieldType": "Long"
-    }
-  ],
-  "changelogDate": "20160603162820",
-  "dto": "no",
-  "pagination": "no",
-  "service": "no"
+    "relationships": [],
+    "fields": [
+        {
+            "fieldId": 1,
+            "fieldName": "isExpired",
+            "fieldType": "Boolean"
+        },
+        {
+            "fieldId": 2,
+            "fieldName": "lat",
+            "fieldType": "Long"
+        },
+        {
+            "fieldId": 3,
+            "fieldName": "lon",
+            "fieldType": "Long"
+        },
+        {
+            "fieldName": "title",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20160603162820",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "disaster",
+    "pagination": "no",
+    "microserviceName": "DisasterService",
+    "searchEngine": "no"
 }
