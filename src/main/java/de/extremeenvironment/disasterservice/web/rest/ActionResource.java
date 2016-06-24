@@ -102,6 +102,10 @@ public class ActionResource {
         if (action.getId() == null) {
             return createAction(action);
         }
+
+        action = matchActions(action);
+
+
         Action result = actionRepository.save(action);
         return ResponseEntity.ok()
             .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))

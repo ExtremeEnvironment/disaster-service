@@ -29,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertFalse;
@@ -140,10 +142,13 @@ public class MatchingIntTest {
             .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
 
 
-//        System.out.println("\ncreated actions\n\n" + actionRepository.findAll().get(0).getMatch() + "\n");
+        List<Action> results = actionRepository.findAll();
 
-        assertThat(actionRepository.findActionById(1L).get().getMatch().equals(action2Offer));
-        assertThat(actionRepository.findActionById(2L).get().getMatch().equals(action1Seek));
+        assertThat(results.get(0).getMatch().equals(results.get(1)));
+        assertThat(results.get(1).getMatch().equals(results.get(0)));
+
+        actionRepository.delete(results.get(0));
+        actionRepository.delete(results.get(1));
     }
 
     @Test
@@ -179,9 +184,13 @@ public class MatchingIntTest {
             .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
 
 
+        List<Action> results = actionRepository.findAll();
 
-        assertThat(actionRepository.findActionById(1L).get().getMatch() == null);
-        assertThat(actionRepository.findActionById(2L).get().getMatch() == null);
+        assertThat(results.get(0).getMatch() == null);
+        assertThat(results.get(1).getMatch() == null);
+
+        actionRepository.delete(results.get(0));
+        actionRepository.delete(results.get(1));
     }
 
     @Test
@@ -217,9 +226,14 @@ public class MatchingIntTest {
             .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
 
 
+        List<Action> results = actionRepository.findAll();
 
-        assertNull(actionRepository.findActionById(1L).get().getMatch());
-        assertNull(actionRepository.findActionById(2L).get().getMatch());
+        assertThat(results.get(0).getMatch() == null);
+        assertThat(results.get(1).getMatch() == null);
+
+        actionRepository.delete(results.get(0));
+        actionRepository.delete(results.get(1));
+
     }
 
     @Test
@@ -270,9 +284,16 @@ public class MatchingIntTest {
             .content(TestUtil.convertObjectToJsonBytes(action3Seek)));
 
 
+        List<Action> results = actionRepository.findAll();
 
-        assertThat(actionRepository.findActionById(1L).get().getMatch().equals(action2Offer));
-        assertThat(actionRepository.findActionById(2L).get().getMatch().equals(action1Seek));
-        assertNull(actionRepository.findActionById(3L).get().getMatch());
+        assertThat(results.get(0).getMatch().equals(results.get(1)));
+        assertThat(results.get(1).getMatch().equals(results.get(0)));
+        assertThat(results.get(2).getMatch() == null);
+
+
+        actionRepository.delete(results.get(0));
+        actionRepository.delete(results.get(1));
+        actionRepository.delete(results.get(2));
+
     }
 }
