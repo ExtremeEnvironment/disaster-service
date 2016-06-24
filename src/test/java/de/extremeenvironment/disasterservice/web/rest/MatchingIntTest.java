@@ -95,8 +95,15 @@ public class MatchingIntTest {
     @Transactional
     public void initTest() {
         userRepository.saveAndFlush(new User());
-        disasterRepository.saveAndFlush(new Disaster(23L, 23L));
-        disasterRepository.saveAndFlush(new Disaster(50L, 50L));
+        Disaster d1 = new Disaster();
+        d1.setLat(23L);
+        d1.setLon(23L);
+        disasterRepository.saveAndFlush(d1);
+        Disaster d2 = new Disaster();
+        d2.setLat(23L);
+        d2.setLon(23L);
+        disasterRepository.saveAndFlush(d2);
+
 
         ActionObject actObj1 = new ActionObject();
         actObj1.setName("AAAA");
@@ -294,6 +301,5 @@ public class MatchingIntTest {
         actionRepository.delete(results.get(0));
         actionRepository.delete(results.get(1));
         actionRepository.delete(results.get(2));
-
     }
 }

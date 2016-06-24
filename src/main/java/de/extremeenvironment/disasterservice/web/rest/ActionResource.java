@@ -66,7 +66,9 @@ public class ActionResource {
         if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
             if (getDisasterForAction(action) == null) {
 
-                Disaster disaster = new Disaster(action.getLon().longValue(), action.getLat().longValue());
+                Disaster disaster = new Disaster();
+                disaster.setLat(action.getLat().longValue());
+                disaster.setLon(action.getLon().longValue());
                 action.setDisaster(disaster);
                 disasterRepository.saveAndFlush(disaster);
 
