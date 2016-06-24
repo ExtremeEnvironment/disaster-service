@@ -111,10 +111,10 @@ public class ActionResourceIntTest {
 
         user = new User();
         userRepository.saveAndFlush(user);
-        Disaster d = new Disaster();
-        d.setLat(23L);
-        d.setLon(23L);
-        disasterRepository.saveAndFlush(d);
+        disaster = new Disaster();
+        disaster.setLat(23L);
+        disaster.setLon(23L);
+        disasterRepository.saveAndFlush(disaster);
 
 
     }
@@ -353,7 +353,7 @@ public class ActionResourceIntTest {
 
         System.out.println(action.toString());
 
-        List<Action> actions = actionRepository.findByDisasterId(disaster.getId());
+
 
         Action testAction = actionRepository.findAll().get(0);
         Action testAction2 = actionRepository.findAll().get(1);

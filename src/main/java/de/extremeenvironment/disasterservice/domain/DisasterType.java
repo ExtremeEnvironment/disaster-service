@@ -21,13 +21,8 @@ public class DisasterType implements Serializable {
     @Column(name = "name")
     private String name;
 
-    public DisasterType() {
-
-    }
-
-    public DisasterType(String name) {
-        this.name=name;
-    }
+    @ManyToOne
+    private Disaster disasters;
 
     public Long getId() {
         return id;
@@ -43,6 +38,14 @@ public class DisasterType implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Disaster getDisasters() {
+        return disasters;
+    }
+
+    public void setDisasters(Disaster disaster) {
+        this.disasters = disaster;
     }
 
     @Override

@@ -6,6 +6,7 @@ import de.extremeenvironment.disasterservice.repository.DisasterTypeRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,10 +26,10 @@ import java.util.Optional;
 public class DisasterTypeResource {
 
     private final Logger log = LoggerFactory.getLogger(DisasterTypeResource.class);
-
+        
     @Inject
     private DisasterTypeRepository disasterTypeRepository;
-
+    
     /**
      * POST  /disaster-types : Create a new disasterType.
      *

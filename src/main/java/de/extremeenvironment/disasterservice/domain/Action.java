@@ -125,6 +125,8 @@ public class Action extends AbstractAuditingEntity implements Serializable {
         return actionObjects;
     }
 
+    public void addActionObject(ActionObject ao){actionObjects.add(ao);}
+
     public void setActionObjects(Set<ActionObject> actionObjects) {
         this.actionObjects = actionObjects;
     }
