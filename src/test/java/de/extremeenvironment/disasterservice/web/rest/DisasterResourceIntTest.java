@@ -3,15 +3,17 @@ package de.extremeenvironment.disasterservice.web.rest;
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -24,7 +26,6 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -49,6 +50,10 @@ public class DisasterResourceIntTest {
 
     private static final Long DEFAULT_LON = 1L;
     private static final Long UPDATED_LON = 2L;
+    private static final String DEFAULT_TITLE = "AAAAA";
+    private static final String UPDATED_TITLE = "BBBBB";
+    private static final String DEFAULT_DESCRIPTION = "AAAAA";
+    private static final String UPDATED_DESCRIPTION = "BBBBB";
 
     @Inject
     private DisasterRepository disasterRepository;
@@ -79,6 +84,8 @@ public class DisasterResourceIntTest {
         disaster.setIsExpired(DEFAULT_IS_EXPIRED);
         disaster.setLat(DEFAULT_LAT);
         disaster.setLon(DEFAULT_LON);
+        disaster.setTitle(DEFAULT_TITLE);
+        disaster.setDescription(DEFAULT_DESCRIPTION);
     }
 
     @Test
@@ -100,6 +107,8 @@ public class DisasterResourceIntTest {
         assertThat(testDisaster.isIsExpired()).isEqualTo(DEFAULT_IS_EXPIRED);
         assertThat(testDisaster.getLat()).isEqualTo(DEFAULT_LAT);
         assertThat(testDisaster.getLon()).isEqualTo(DEFAULT_LON);
+        assertThat(testDisaster.getTitle()).isEqualTo(DEFAULT_TITLE);
+        assertThat(testDisaster.getDescription()).isEqualTo(DEFAULT_DESCRIPTION);
     }
 
     @Test
@@ -115,7 +124,9 @@ public class DisasterResourceIntTest {
                 .andExpect(jsonPath("$.[*].id").value(hasItem(disaster.getId().intValue())))
                 .andExpect(jsonPath("$.[*].isExpired").value(hasItem(DEFAULT_IS_EXPIRED.booleanValue())))
                 .andExpect(jsonPath("$.[*].lat").value(hasItem(DEFAULT_LAT.intValue())))
-                .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.intValue())));
+                .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.intValue())))
+                .andExpect(jsonPath("$.[*].title").value(hasItem(DEFAULT_TITLE.toString())))
+                .andExpect(jsonPath("$.[*].description").value(hasItem(DEFAULT_DESCRIPTION.toString())));
     }
 
     @Test
@@ -131,7 +142,9 @@ public class DisasterResourceIntTest {
             .andExpect(jsonPath("$.id").value(disaster.getId().intValue()))
             .andExpect(jsonPath("$.isExpired").value(DEFAULT_IS_EXPIRED.booleanValue()))
             .andExpect(jsonPath("$.lat").value(DEFAULT_LAT.intValue()))
-            .andExpect(jsonPath("$.lon").value(DEFAULT_LON.intValue()));
+            .andExpect(jsonPath("$.lon").value(DEFAULT_LON.intValue()))
+            .andExpect(jsonPath("$.title").value(DEFAULT_TITLE.toString()))
+            .andExpect(jsonPath("$.description").value(DEFAULT_DESCRIPTION.toString()));
     }
 
     @Test
@@ -155,6 +168,8 @@ public class DisasterResourceIntTest {
         updatedDisaster.setIsExpired(UPDATED_IS_EXPIRED);
         updatedDisaster.setLat(UPDATED_LAT);
         updatedDisaster.setLon(UPDATED_LON);
+        updatedDisaster.setTitle(UPDATED_TITLE);
+        updatedDisaster.setDescription(UPDATED_DESCRIPTION);
 
         restDisasterMockMvc.perform(put("/api/disasters")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -168,6 +183,8 @@ public class DisasterResourceIntTest {
         assertThat(testDisaster.isIsExpired()).isEqualTo(UPDATED_IS_EXPIRED);
         assertThat(testDisaster.getLat()).isEqualTo(UPDATED_LAT);
         assertThat(testDisaster.getLon()).isEqualTo(UPDATED_LON);
+        assertThat(testDisaster.getTitle()).isEqualTo(UPDATED_TITLE);
+        assertThat(testDisaster.getDescription()).isEqualTo(UPDATED_DESCRIPTION);
     }
 
     @Test
