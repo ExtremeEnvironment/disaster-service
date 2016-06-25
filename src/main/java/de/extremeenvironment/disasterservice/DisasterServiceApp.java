@@ -3,7 +3,6 @@ package de.extremeenvironment.disasterservice;
 import de.extremeenvironment.disasterservice.config.Constants;
 import de.extremeenvironment.disasterservice.config.DefaultProfileUtil;
 import de.extremeenvironment.disasterservice.config.JHipsterProperties;
-import de.extremeenvironment.disasterservice.service.DummyData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -53,7 +52,6 @@ public class DisasterServiceApp {
             log.error("You have misconfigured your application! It should not" +
                 "run with both the 'dev' and 'cloud' profiles at the same time.");
         }
-
     }
 
     /**
@@ -79,8 +77,6 @@ public class DisasterServiceApp {
         log.info("\n----------------------------------------------------------\n\t" +
         "Config Server: \t{}\n----------------------------------------------------------",
             configServerStatus == null ? "Not found or not setup for this application" : configServerStatus);
-
-
     }
 
 }

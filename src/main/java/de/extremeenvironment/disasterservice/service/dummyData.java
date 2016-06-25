@@ -18,11 +18,12 @@ import javax.inject.Singleton;
  */
 
 
-
+@Service
 public class DummyData {
 
     @Inject
     DisasterTypeRepository disasterTypeRepository;
+
     @Inject
     ActionRepository actionRepository;
 
