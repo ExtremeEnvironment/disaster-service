@@ -1,11 +1,14 @@
 package de.extremeenvironment.disasterservice.service;
 
+import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.DisasterType;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.*;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -13,7 +16,13 @@ import javax.inject.Singleton;
 /**
  * Created by linus on 24.06.16.
  */
-public class dummyData {
+
+
+
+public class DummyData {
+
+    @Inject
+    DisasterTypeRepository disasterTypeRepository;
     @Inject
     ActionRepository actionRepository;
 
@@ -26,10 +35,15 @@ public class dummyData {
     @Inject
     DisasterRepository disasterRepository;
 
-    @Inject
-    DisasterTypeRepository disasterTypeRepository;
+//DummyData(ActionObjectRepository actionObjectRepository,UserRepository userRepository, DisasterRepository disasterRepository,DisasterTypeRepository disasterTypeRepository, ActionRepository actionRepository){
+//    this.actionRepository = actionRepository;
+//    this.actionObjectRepository = actionObjectRepository;
+//    this.disasterRepository = disasterRepository;
+//    this.disasterTypeRepository = disasterTypeRepository;
+//    this.userRepository = userRepository;
+//}
 
-    @Singleton
+
     public void dataCreate(){
         DisasterType disType = new DisasterType();
         disType.setName("Erdbeben");
@@ -84,13 +98,16 @@ public class dummyData {
         Disaster disaster = new Disaster();
         disaster.setLat(23F);
         disaster.setLon(23F);
+        disaster.setDisasterType(disType);
         disaster.setTitle("Berlin Erdbeben");
         Disaster disaster1 = new Disaster();
         disaster1.setTitle("New York Zombie-Angriff");
+        disaster1.setDisasterType(disasterType);
         disaster1.setLon(45F);
         disaster1.setLat(45F);
         Disaster disaster2 = new Disaster();
         disaster2.setTitle("London Brexit");
+        disaster2.setDisasterType(dt);
         disaster2.setLon(34F);
         disaster2.setLat(34F);
         disasterRepository.saveAndFlush(disaster);
@@ -137,6 +154,75 @@ public class dummyData {
         a5.setDisaster(disaster1);
         a5.setLat(45F);
         a5.setLon(45F);
+        Action a6 = new Action();
+        Action a15 = new Action();
+        Action a7 = new Action();
+        Action a8 = new Action();
+        Action a9 = new Action();
+        Action a10 = new Action();
+        Action a11 = new Action();
+        Action a12 = new Action();
+        Action a13 = new Action();
+        Action a14 = new Action();
+        a6.setDisaster(disaster2);
+        a7.setDisaster(disaster2);
+        a8.setDisaster(disaster2);
+        a9.setDisaster(disaster2);
+        a10.setDisaster(disaster2);
+        a11.setDisaster(disaster2);
+        a12.setDisaster(disaster2);
+        a13.setDisaster(disaster2);
+        a14.setDisaster(disaster2);
+        a15.setDisaster(disaster2);
+        a6.setActionType(ActionType.KNOWLEDGE);
+        a7.setActionType(ActionType.KNOWLEDGE);
+        a8.setActionType(ActionType.KNOWLEDGE);
+        a9.setActionType(ActionType.KNOWLEDGE);
+        a10.setActionType(ActionType.KNOWLEDGE);
+        a11.setActionType(ActionType.KNOWLEDGE);
+        a12.setActionType(ActionType.KNOWLEDGE);
+        a13.setActionType(ActionType.KNOWLEDGE);
+        a14.setActionType(ActionType.KNOWLEDGE);
+        a15.setActionType(ActionType.KNOWLEDGE);
+        a6.setLon(34.03F);
+        a6.setLat(34.03F);
+        a7.setLon(34.03F);
+        a7.setLat(34F);
+        a8.setLon(34.05F);
+        a8.setLat(34.03F);
+        a9.setLon(34F);
+        a9.setLat(34.03F);
+        a10.setLon(34.033F);
+        a10.setLat(34.03F);
+        a11.setLon(34.07F);
+        a11.setLat(34.00F);
+        a12.setLon(34.03F);
+        a12.setLat(34.04F);
+        a13.setLon(34.05F);
+        a13.setLat(34.03F);
+        a14.setLon(34.02F);
+        a14.setLat(34.03F);
+        a15.setLon(34.01F);
+        a15.setLat(34.03F);
+        actionRepository.save(a);
+        actionRepository.save(a2);
+        actionRepository.save(a3);
+        actionRepository.save(a4);
+        actionRepository.save(a5);
+        actionRepository.save(a6);
+        actionRepository.save(a7);
+        actionRepository.save(a8);
+        actionRepository.save(a9);
+        actionRepository.save(a10);
+        actionRepository.save(a11);
+        actionRepository.save(a12);
+        actionRepository.save(a13);
+        actionRepository.save(a14);
+        actionRepository.save(a15);
+        actionRepository.flush();
+
+
+
 
 
 

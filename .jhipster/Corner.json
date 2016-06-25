@@ -1,0 +1,27 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "area",
+            "otherEntityName": "area",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "lat",
+            "fieldType": "Float"
+        },
+        {
+            "fieldName": "lon",
+            "fieldType": "Float"
+        }
+    ],
+    "changelogDate": "20160625072724",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "corner",
+    "pagination": "no",
+    "microserviceName": "DisasterService",
+    "searchEngine": "no"
+}

@@ -1,0 +1,19 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "area",
+            "otherEntityName": "area",
+            "relationshipType": "one-to-one",
+            "ownerSide": false,
+            "otherEntityRelationshipName": "ngo"
+        }
+    ],
+    "fields": [],
+    "changelogDate": "20160625072347",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "ngo",
+    "pagination": "no",
+    "microserviceName": "DisasterService",
+    "searchEngine": "no"
+}

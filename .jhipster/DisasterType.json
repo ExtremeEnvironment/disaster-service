@@ -1,10 +1,10 @@
 {
     "relationships": [
         {
-            "relationshipName": "disasters",
+            "relationshipName": "disaster",
             "otherEntityName": "disaster",
-            "relationshipType": "many-to-one",
-            "otherEntityField": "id"
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "disasterType"
         }
     ],
     "fields": [

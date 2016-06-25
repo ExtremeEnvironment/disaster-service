@@ -1,0 +1,32 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "corner",
+            "otherEntityName": "corner",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "area"
+        },
+        {
+            "relationshipName": "ngo",
+            "otherEntityName": "ngo",
+            "relationshipType": "one-to-one",
+            "otherEntityField": "id",
+            "ownerSide": true,
+            "otherEntityRelationshipName": "area"
+        },
+        {
+            "relationshipName": "disaster",
+            "otherEntityName": "disaster",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "area"
+        }
+    ],
+    "fields": [],
+    "changelogDate": "20160625072226",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "area",
+    "pagination": "no",
+    "microserviceName": "DisasterService",
+    "searchEngine": "no"
+}

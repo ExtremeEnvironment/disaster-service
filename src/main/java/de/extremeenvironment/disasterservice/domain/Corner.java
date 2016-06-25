@@ -6,11 +6,11 @@ import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * A Disaster.
+ * A Corner.
  */
 @Entity
-@Table(name = "disaster")
-public class Disaster extends AbstractAuditingEntity implements Serializable {
+@Table(name = "corner")
+public class Corner implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -18,23 +18,11 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "is_expired")
-    private Boolean isExpired;
-
     @Column(name = "lat")
     private Float lat;
 
     @Column(name = "lon")
     private Float lon;
-
-    @Column(name = "title")
-    private String title;
-
-    @Column(name = "description")
-    private String description;
-
-    @ManyToOne
-    private DisasterType disasterType;
 
     @ManyToOne
     private Area area;
@@ -45,14 +33,6 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public Boolean isIsExpired() {
-        return isExpired;
-    }
-
-    public void setIsExpired(Boolean isExpired) {
-        this.isExpired = isExpired;
     }
 
     public Float getLat() {
@@ -71,30 +51,6 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
         this.lon = lon;
     }
 
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public DisasterType getDisasterType() {
-        return disasterType;
-    }
-
-    public void setDisasterType(DisasterType disasterType) {
-        this.disasterType = disasterType;
-    }
-
     public Area getArea() {
         return area;
     }
@@ -111,11 +67,11 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Disaster disaster = (Disaster) o;
-        if(disaster.id == null || id == null) {
+        Corner corner = (Corner) o;
+        if(corner.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, disaster.id);
+        return Objects.equals(id, corner.id);
     }
 
     @Override
@@ -125,13 +81,10 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Disaster{" +
+        return "Corner{" +
             "id=" + id +
-            ", isExpired='" + isExpired + "'" +
             ", lat='" + lat + "'" +
             ", lon='" + lon + "'" +
-            ", title='" + title + "'" +
-            ", description='" + description + "'" +
             '}';
     }
 }

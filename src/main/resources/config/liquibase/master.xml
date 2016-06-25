@@ -10,9 +10,14 @@
     <include file="classpath:config/liquibase/changelog/20160603162818_added_entity_DisasterType.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20160603162819_added_entity_ActionObject.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20160603162820_added_entity_Disaster.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20160625072226_added_entity_Area.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20160625072347_added_entity_NGO.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20160625072724_added_entity_Corner.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-changelog - JHipster will add liquibase changelogs here -->
     <include file="classpath:config/liquibase/changelog/20160603162720_added_entity_constraints_Action.xml" relativeToChangelogFile="false"/>
-    <include file="classpath:config/liquibase/changelog/20160603162818_added_entity_constraints_DisasterType.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20160603162820_added_entity_constraints_Disaster.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20160625072226_added_entity_constraints_Area.xml" relativeToChangelogFile="false"/>
+    <include file="classpath:config/liquibase/changelog/20160625072724_added_entity_constraints_Corner.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <include file="classpath:config/liquibase/changelog/20160621142500_rejected_matches.xml" relativeToChangelogFile="false"/>
     <include file="classpath:config/liquibase/changelog/20160621162600_auditing_action.xml" relativeToChangelogFile="false"/>

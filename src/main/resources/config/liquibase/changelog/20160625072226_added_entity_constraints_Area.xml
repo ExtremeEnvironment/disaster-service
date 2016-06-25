@@ -4,15 +4,15 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
     <!--
-        Added the constraints for entity DisasterType.
+        Added the constraints for entity Area.
     -->
-    <changeSet id="20160603162818-2" author="jhipster">
+    <changeSet id="20160625072226-2" author="jhipster">
         
-        <addForeignKeyConstraint baseColumnNames="disasters_id"
-                                 baseTableName="disaster_type"
-                                 constraintName="fk_disastertype_disasters_id"
+        <addForeignKeyConstraint baseColumnNames="ngo_id"
+                                 baseTableName="area"
+                                 constraintName="fk_area_ngo_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="disaster"/>
+                                 referencedTableName="ngo"/>
 
     </changeSet>
 </databaseChangeLog>

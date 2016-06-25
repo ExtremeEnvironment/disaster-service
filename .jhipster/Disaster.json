@@ -1,5 +1,18 @@
 {
-    "relationships": [],
+    "relationships": [
+        {
+            "relationshipName": "disasterType",
+            "otherEntityName": "disasterType",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id"
+        },
+        {
+            "relationshipName": "area",
+            "otherEntityName": "area",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id"
+        }
+    ],
     "fields": [
         {
             "fieldId": 1,

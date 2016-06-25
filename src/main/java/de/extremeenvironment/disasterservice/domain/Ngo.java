@@ -4,16 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.Objects;
 
 /**
- * A DisasterType.
+ * A Ngo.
  */
 @Entity
-@Table(name = "disaster_type")
-public class DisasterType implements Serializable {
+@Table(name = "ngo")
+public class Ngo implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,12 +19,9 @@ public class DisasterType implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(name = "name")
-    private String name;
-
-    @OneToMany(mappedBy = "disasterType")
+    @OneToOne(mappedBy = "ngo")
     @JsonIgnore
-    private Set<Disaster> disasters = new HashSet<>();
+    private Area area;
 
     public Long getId() {
         return id;
@@ -36,20 +31,12 @@ public class DisasterType implements Serializable {
         this.id = id;
     }
 
-    public String getName() {
-        return name;
+    public Area getArea() {
+        return area;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public Set<Disaster> getDisasters() {
-        return disasters;
-    }
-
-    public void setDisasters(Set<Disaster> disasters) {
-        this.disasters = disasters;
+    public void setArea(Area area) {
+        this.area = area;
     }
 
     @Override
@@ -60,11 +47,11 @@ public class DisasterType implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        DisasterType disasterType = (DisasterType) o;
-        if(disasterType.id == null || id == null) {
+        Ngo nGO = (Ngo) o;
+        if(nGO.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, disasterType.id);
+        return Objects.equals(id, nGO.id);
     }
 
     @Override
@@ -74,9 +61,8 @@ public class DisasterType implements Serializable {
 
     @Override
     public String toString() {
-        return "DisasterType{" +
+        return "Ngo{" +
             "id=" + id +
-            ", name='" + name + "'" +
             '}';
     }
 }
