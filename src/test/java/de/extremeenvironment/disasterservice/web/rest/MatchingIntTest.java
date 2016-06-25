@@ -151,11 +151,11 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(15).getMatch().equals(results.get(16)));
-        assertThat(results.get(16).getMatch().equals(results.get(15)));
+        assertThat(results.get(results.size() -2).getMatch().equals(results.get(16)));
+        assertThat(results.get(results.size() -1).getMatch().equals(results.get(15)));
 
-        actionRepository.delete(results.get(15));
-        actionRepository.delete(results.get(16));
+        actionRepository.delete(results.get(results.size() -2));
+        actionRepository.delete(results.get(results.size() -1));
     }
 
     @Test
@@ -193,11 +193,11 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(15).getMatch() == null);
-        assertThat(results.get(16).getMatch() == null);
+        assertThat(results.get(results.size() -2).getMatch() == null);
+        assertThat(results.get(results.size() -1).getMatch() == null);
 
-        actionRepository.delete(results.get(15));
-        actionRepository.delete(results.get(16));
+        actionRepository.delete(results.get(results.size() -2));
+        actionRepository.delete(results.get(results.size() -1));
     }
 
     @Test
