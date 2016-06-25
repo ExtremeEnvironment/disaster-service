@@ -112,8 +112,8 @@ public class ActionResourceIntTest {
         user = new User();
         userRepository.saveAndFlush(user);
         disaster = new Disaster();
-        disaster.setLat(23F);
-        disaster.setLon(23F);
+        disaster.setLat(64F);
+        disaster.setLon(64F);
         disasterRepository.saveAndFlush(disaster);
 
 
@@ -324,8 +324,8 @@ public class ActionResourceIntTest {
     @Test
     @Transactional
     public void testActionIsMatchWithCatastrophy () throws Exception {
-        Float lat = 23F;
-        Float lon = 23F;
+        Float lat = 64F;
+        Float lon = 64F;
         Action actionT = new Action();
         Action actionT2 = new Action();
         actionT2.setLat(84F);
@@ -353,10 +353,10 @@ public class ActionResourceIntTest {
 
         System.out.println(action.toString());
 
+        List<Action> actions = actionRepository.findAll();
 
-
-        Action testAction = actionRepository.findAll().get(0);
-        Action testAction2 = actionRepository.findAll().get(1);
+        Action testAction = actions.get(actions.size() -2);
+        Action testAction2 = actions.get(actions.size() -1) ;
 
 
         assertTrue(testAction.getDisaster().equals(disaster));

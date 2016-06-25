@@ -151,11 +151,11 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(0).getMatch().equals(results.get(1)));
-        assertThat(results.get(1).getMatch().equals(results.get(0)));
+        assertThat(results.get(15).getMatch().equals(results.get(16)));
+        assertThat(results.get(16).getMatch().equals(results.get(15)));
 
-        actionRepository.delete(results.get(0));
-        actionRepository.delete(results.get(1));
+        actionRepository.delete(results.get(15));
+        actionRepository.delete(results.get(16));
     }
 
     @Test
@@ -193,11 +193,11 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(0).getMatch() == null);
-        assertThat(results.get(1).getMatch() == null);
+        assertThat(results.get(15).getMatch() == null);
+        assertThat(results.get(16).getMatch() == null);
 
-        actionRepository.delete(results.get(0));
-        actionRepository.delete(results.get(1));
+        actionRepository.delete(results.get(15));
+        actionRepository.delete(results.get(16));
     }
 
     @Test
@@ -235,11 +235,11 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(0).getMatch() == null);
-        assertThat(results.get(1).getMatch() == null);
+        assertThat(results.get(results.size() -2).getMatch() == null);
+        assertThat(results.get(results.size() -1).getMatch() == null);
 
-        actionRepository.delete(results.get(0));
-        actionRepository.delete(results.get(1));
+        actionRepository.delete(results.get(results.size() -2));
+        actionRepository.delete(results.get(results.size() -1));
 
     }
 
@@ -293,13 +293,13 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(0).getMatch().equals(results.get(1)));
-        assertThat(results.get(1).getMatch().equals(results.get(0)));
-        assertThat(results.get(2).getMatch() == null);
+        assertThat(results.get(results.size() -3).getMatch().equals(results.get(1)));
+        assertThat(results.get(results.size() -2).getMatch().equals(results.get(0)));
+        assertThat(results.get(results.size() -1).getMatch() == null);
 
 
-        actionRepository.delete(results.get(0));
-        actionRepository.delete(results.get(1));
-        actionRepository.delete(results.get(2));
+        actionRepository.delete(results.get(results.size() -3));
+        actionRepository.delete(results.get(results.size() -2));
+        actionRepository.delete(results.get(results.size() -1));
     }
 }
