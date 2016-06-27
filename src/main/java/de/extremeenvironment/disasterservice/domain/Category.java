@@ -24,7 +24,7 @@ public class Category implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "category")
+    @OneToMany(mappedBy = "category",fetch=FetchType.EAGER)
     @JsonIgnore
     private Set<ActionObject> actionObjects = new HashSet<>();
 

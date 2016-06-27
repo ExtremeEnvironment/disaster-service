@@ -21,15 +21,15 @@ public class Area implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(mappedBy = "area")
+    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER)
     @JsonIgnore
     private Set<Corner> corners = new HashSet<>();
 
-    @OneToOne
+    @OneToOne(fetch=FetchType.EAGER)
     @JoinColumn(unique = true)
     private Ngo ngo;
 
-    @OneToMany(mappedBy = "area")
+    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER)
     @JsonIgnore
     private Set<Disaster> disasters = new HashSet<>();
 

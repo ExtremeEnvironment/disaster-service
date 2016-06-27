@@ -19,7 +19,7 @@ public class Ngo implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(mappedBy = "ngo")
+    @OneToOne(mappedBy = "ngo",fetch=FetchType.EAGER)
     @JsonIgnore
     private Area area;
 

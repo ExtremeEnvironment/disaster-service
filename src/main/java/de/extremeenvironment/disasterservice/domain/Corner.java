@@ -24,7 +24,7 @@ public class Corner implements Serializable {
     @Column(name = "lon")
     private Float lon;
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     private Area area;
 
     public Long getId() {

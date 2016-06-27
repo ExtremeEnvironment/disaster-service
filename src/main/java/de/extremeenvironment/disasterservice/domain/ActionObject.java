@@ -10,8 +10,8 @@ import java.util.Set;
 import java.util.Objects;
 
 /**
- * was in einer Aktion angeboten/gesucht wird                                  
- * 
+ * was in einer Aktion angeboten/gesucht wird
+ *
  */
 @ApiModel(description = ""
     + "was in einer Aktion angeboten/gesucht wird                             "
@@ -29,11 +29,11 @@ public class ActionObject implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "actionObjects")
+    @ManyToMany(mappedBy = "actionObjects",fetch=FetchType.EAGER)
     @JsonIgnore
     private Set<Action> actions = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne(fetch=FetchType.EAGER)
     private Category category;
 
     public Long getId() {
