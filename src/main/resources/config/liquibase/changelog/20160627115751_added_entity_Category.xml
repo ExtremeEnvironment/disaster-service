@@ -14,10 +14,10 @@
     <property name="floatType" value="float" dbms="mysql, oracle"/>
 
     <!--
-        Added the entity ActionObject.
+        Added the entity Category.
     -->
-    <changeSet id="20160603162819-1" author="jhipster">
-        <createTable tableName="action_object">
+    <changeSet id="20160627115751-1" author="jhipster">
+        <createTable tableName="category">
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
@@ -25,10 +25,6 @@
                 <constraints nullable="true" />
             </column>
             
-            <column name="category_id" type="bigint">
-                <constraints nullable="true" />
-            </column>
-
             <!-- jhipster-needle-liquibase-add-column - Jhipster will add columns here, do not remove-->
         </createTable>
         

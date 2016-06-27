@@ -1,7 +1,6 @@
 package de.extremeenvironment.disasterservice.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import io.swagger.annotations.ApiModel;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -10,15 +9,11 @@ import java.util.Set;
 import java.util.Objects;
 
 /**
- * was in einer Aktion angeboten/gesucht wird                                  
- * 
+ * A Category.
  */
-@ApiModel(description = ""
-    + "was in einer Aktion angeboten/gesucht wird                             "
-    + "")
 @Entity
-@Table(name = "action_object")
-public class ActionObject implements Serializable {
+@Table(name = "category")
+public class Category implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -29,12 +24,9 @@ public class ActionObject implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "actionObjects")
+    @OneToMany(mappedBy = "category")
     @JsonIgnore
-    private Set<Action> actions = new HashSet<>();
-
-    @ManyToOne
-    private Category category;
+    private Set<ActionObject> actionObjects = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -52,20 +44,12 @@ public class ActionObject implements Serializable {
         this.name = name;
     }
 
-    public Set<Action> getActions() {
-        return actions;
+    public Set<ActionObject> getActionObjects() {
+        return actionObjects;
     }
 
-    public void setActions(Set<Action> actions) {
-        this.actions = actions;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setActionObjects(Set<ActionObject> actionObjects) {
+        this.actionObjects = actionObjects;
     }
 
     @Override
@@ -76,11 +60,11 @@ public class ActionObject implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        ActionObject actionObject = (ActionObject) o;
-        if(actionObject.id == null || id == null) {
+        Category category = (Category) o;
+        if(category.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, actionObject.id);
+        return Objects.equals(id, category.id);
     }
 
     @Override
@@ -90,7 +74,7 @@ public class ActionObject implements Serializable {
 
     @Override
     public String toString() {
-        return "ActionObject{" +
+        return "Category{" +
             "id=" + id +
             ", name='" + name + "'" +
             '}';

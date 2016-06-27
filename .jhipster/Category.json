@@ -1,0 +1,23 @@
+{
+    "relationships": [
+        {
+            "relationshipName": "actionObject",
+            "otherEntityName": "actionObject",
+            "relationshipType": "one-to-many",
+            "otherEntityRelationshipName": "category"
+        }
+    ],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20160627115751",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "category",
+    "pagination": "no",
+    "microserviceName": "DisasterService",
+    "searchEngine": "no"
+}

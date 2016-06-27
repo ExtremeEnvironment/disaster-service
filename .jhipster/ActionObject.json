@@ -1,24 +1,33 @@
 {
-  "relationships": [
-    {
-      "relationshipId": 1,
-      "relationshipName": "action",
-      "otherEntityName": "action",
-      "relationshipType": "many-to-many",
-      "ownerSide": false,
-      "otherEntityRelationshipName": "actionObject"
-    }
-  ],
-  "fields": [
-    {
-      "fieldId": 1,
-      "fieldName": "name",
-      "fieldType": "String"
-    }
-  ],
-  "changelogDate": "20160603162819",
-  "dto": "no",
-  "pagination": "no",
-  "service": "no",
-  "javadoc": "was in einer Aktion angeboten/gesucht wird"
+    "relationships": [
+        {
+            "relationshipId": 1,
+            "relationshipName": "action",
+            "otherEntityName": "action",
+            "relationshipType": "many-to-many",
+            "ownerSide": false,
+            "otherEntityRelationshipName": "actionObject"
+        },
+        {
+            "relationshipName": "category",
+            "otherEntityName": "category",
+            "relationshipType": "many-to-one",
+            "otherEntityField": "id"
+        }
+    ],
+    "fields": [
+        {
+            "fieldId": 1,
+            "fieldName": "name",
+            "fieldType": "String"
+        }
+    ],
+    "changelogDate": "20160603162819",
+    "dto": "no",
+    "service": "no",
+    "entityTableName": "action_object",
+    "pagination": "no",
+    "javadoc": "was in einer Aktion angeboten/gesucht wird",
+    "microserviceName": "DisasterService",
+    "searchEngine": "no"
 }
