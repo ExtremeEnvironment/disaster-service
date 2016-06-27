@@ -12,4 +12,6 @@ import java.util.List;
 @SuppressWarnings("unused")
 public interface CornerRepository extends JpaRepository<Corner,Long> {
 
+    List<Corner> findByAreaId(Long id);
+
 }
