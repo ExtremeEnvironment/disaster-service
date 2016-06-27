@@ -81,9 +81,9 @@ public class DisasterTypeResourceIntTest {
         // Create the DisasterType
 
         restDisasterTypeMockMvc.perform(post("/api/disaster-types")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(disasterType)))
-                .andExpect(status().isCreated());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(disasterType)))
+            .andExpect(status().isCreated());
 
         // Validate the DisasterType in the database
         List<DisasterType> disasterTypes = disasterTypeRepository.findAll();
@@ -100,10 +100,10 @@ public class DisasterTypeResourceIntTest {
 
         // Get all the disasterTypes
         restDisasterTypeMockMvc.perform(get("/api/disaster-types?sort=id,desc"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(disasterType.getId().intValue())))
-                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(disasterType.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
     }
 
     @Test
@@ -125,7 +125,7 @@ public class DisasterTypeResourceIntTest {
     public void getNonExistingDisasterType() throws Exception {
         // Get the disasterType
         restDisasterTypeMockMvc.perform(get("/api/disaster-types/{id}", Long.MAX_VALUE))
-                .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -141,9 +141,9 @@ public class DisasterTypeResourceIntTest {
         updatedDisasterType.setName(UPDATED_NAME);
 
         restDisasterTypeMockMvc.perform(put("/api/disaster-types")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedDisasterType)))
-                .andExpect(status().isOk());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(updatedDisasterType)))
+            .andExpect(status().isOk());
 
         // Validate the DisasterType in the database
         List<DisasterType> disasterTypes = disasterTypeRepository.findAll();
@@ -161,11 +161,14 @@ public class DisasterTypeResourceIntTest {
 
         // Get the disasterType
         restDisasterTypeMockMvc.perform(delete("/api/disaster-types/{id}", disasterType.getId())
-                .accept(TestUtil.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk());
+            .accept(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
 
         // Validate the database is empty
         List<DisasterType> disasterTypes = disasterTypeRepository.findAll();
         assertThat(disasterTypes).hasSize(databaseSizeBeforeDelete - 1);
     }
+
 }
+
+

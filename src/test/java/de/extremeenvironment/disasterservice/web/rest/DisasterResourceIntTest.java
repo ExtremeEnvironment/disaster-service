@@ -2,6 +2,7 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Disaster;
+import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 
 import org.junit.Before;
@@ -59,6 +60,9 @@ public class DisasterResourceIntTest {
     private DisasterRepository disasterRepository;
 
     @Inject
+    private ActionRepository actionRepository;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -71,7 +75,7 @@ public class DisasterResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        DisasterResource disasterResource = new DisasterResource();
+        DisasterResource disasterResource = new DisasterResource(actionRepository,disasterRepository);
         ReflectionTestUtils.setField(disasterResource, "disasterRepository", disasterRepository);
         this.restDisasterMockMvc = MockMvcBuilders.standaloneSetup(disasterResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -203,4 +207,11 @@ public class DisasterResourceIntTest {
         List<Disaster> disasters = disasterRepository.findAll();
         assertThat(disasters).hasSize(databaseSizeBeforeDelete - 1);
     }
+
+    @Test
+    @Transactional
+    public void name() throws  Exception {
+
+    }
 }
+

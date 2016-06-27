@@ -6,8 +6,8 @@ import io.swagger.annotations.ApiModel;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
+import java.util.Objects;
 
 /**
  * was in einer Aktion angeboten/gesucht wird
@@ -29,9 +29,12 @@ public class ActionObject implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "actionObjects")
+    @ManyToMany(mappedBy = "actionObjects",fetch=FetchType.EAGER)
     @JsonIgnore
     private Set<Action> actions = new HashSet<>();
+
+    @ManyToOne(fetch=FetchType.EAGER)
+    private Category category;
 
     public Long getId() {
         return id;
@@ -55,6 +58,14 @@ public class ActionObject implements Serializable {
 
     public void setActions(Set<Action> actions) {
         this.actions = actions;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     @Override

@@ -9,11 +9,11 @@ import java.util.Set;
 import java.util.Objects;
 
 /**
- * A Area.
+ * A Category.
  */
 @Entity
-@Table(name = "area")
-public class Area implements Serializable {
+@Table(name = "category")
+public class Category implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -21,17 +21,12 @@ public class Area implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER)
-    @JsonIgnore
-    private Set<Corner> corners = new HashSet<>();
+    @Column(name = "name")
+    private String name;
 
-    @OneToOne(fetch=FetchType.EAGER)
-    @JoinColumn(unique = true)
-    private Ngo ngo;
-
-    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER)
+    @OneToMany(mappedBy = "category",fetch=FetchType.EAGER)
     @JsonIgnore
-    private Set<Disaster> disasters = new HashSet<>();
+    private Set<ActionObject> actionObjects = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -41,28 +36,20 @@ public class Area implements Serializable {
         this.id = id;
     }
 
-    public Set<Corner> getCorners() {
-        return corners;
+    public String getName() {
+        return name;
     }
 
-    public void setCorners(Set<Corner> corners) {
-        this.corners = corners;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public Ngo getNgo() {
-        return ngo;
+    public Set<ActionObject> getActionObjects() {
+        return actionObjects;
     }
 
-    public void setNgo(Ngo ngo) {
-        this.ngo = ngo;
-    }
-
-    public Set<Disaster> getDisasters() {
-        return disasters;
-    }
-
-    public void setDisasters(Set<Disaster> disasters) {
-        this.disasters = disasters;
+    public void setActionObjects(Set<ActionObject> actionObjects) {
+        this.actionObjects = actionObjects;
     }
 
     @Override
@@ -73,11 +60,11 @@ public class Area implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Area area = (Area) o;
-        if(area.id == null || id == null) {
+        Category category = (Category) o;
+        if(category.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, area.id);
+        return Objects.equals(id, category.id);
     }
 
     @Override
@@ -87,8 +74,9 @@ public class Area implements Serializable {
 
     @Override
     public String toString() {
-        return "Area{" +
+        return "Category{" +
             "id=" + id +
+            ", name='" + name + "'" +
             '}';
     }
 }

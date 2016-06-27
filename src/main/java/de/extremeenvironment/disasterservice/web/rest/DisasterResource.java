@@ -1,11 +1,15 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
+import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -15,6 +19,8 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -26,10 +32,18 @@ import java.util.Optional;
 public class DisasterResource {
 
     private final Logger log = LoggerFactory.getLogger(DisasterResource.class);
-        
+
     @Inject
-    private DisasterRepository disasterRepository;
-    
+    private ActionRepository actionRepository;
+    @Inject
+    private  DisasterRepository disasterRepository;
+
+    @Autowired
+    public DisasterResource(ActionRepository actionRepositoryRepository,
+                          DisasterRepository disasterRepository) {
+        this.actionRepository = actionRepositoryRepository;
+        this.disasterRepository = disasterRepository;
+    }
     /**
      * POST  /disasters : Create a new disaster.
      *
@@ -46,10 +60,26 @@ public class DisasterResource {
         if (disaster.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "idexists", "A new disaster cannot already have an ID")).body(null);
         }
-        Disaster result = disasterRepository.save(disaster);
-        return ResponseEntity.created(new URI("/api/disasters/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert("disaster", result.getId().toString()))
-            .body(result);
+        Disaster dis = getDisasterForDisaster(disaster);
+
+        if (dis != null && (dis.getDisasterType() == disaster.getDisasterType())&& (dis.isIsExpired()==false)) {
+            Action action = new Action();
+            action.setActionType(ActionType.KNOWLEDGE);
+            action.setLat(disaster.getLat());
+            action.setLon(disaster.getLon());
+            actionRepository.saveAndFlush(action);
+
+            return ResponseEntity.ok()
+                .headers(HeaderUtil.createEntityUpdateAlert("disaster", disaster.getId().toString()))
+                .body(dis);
+        } else {
+            Disaster result = disasterRepository.save(disaster);
+
+            return ResponseEntity.created(new URI("/api/disasters/" + result.getId()))
+                .headers(HeaderUtil.createEntityCreationAlert("disaster", result.getId().toString()))
+                .body(result);
+
+        }
     }
 
     /**
@@ -127,4 +157,64 @@ public class DisasterResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("disaster", id.toString())).build();
     }
 
+    /**
+     * @param disaster
+     * @return the nearest disaster of an action location, in a radius of 15000km
+     */
+    public Disaster getDisasterForDisaster(Disaster disaster) {
+        float distance = 15000;
+        Disaster disasterReturn = null;
+        float lon = disaster.getLon();
+        float lat = disaster.getLat();
+
+        List<Disaster> disasterList = disasterRepository.findAll();
+
+        for (int i = 0; i < disasterList.size(); i++) {
+            Disaster disaster1 = disasterList.get(i);
+            Float disasterLon = disaster1.getLon();
+            Float disasterLat = disaster1.getLat();
+            float distanceBetween = getDistance(lat, lon, disasterLat, disasterLon);
+            if (distanceBetween < 15000) {
+                if (distanceBetween < distance) {
+                    distance = distanceBetween;
+                    disasterReturn = disaster;
+                }
+            }
+
+        }
+        return disasterReturn;
+    }
+
+
+
+    public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
+        Duration d = Duration.between(seekDate, ZonedDateTime.now());
+        long waitingDuration = d.getSeconds();
+
+        final float BONUS = 1 / (60 * 60 * 24); // 1 km per day waited
+        //TODO set bonus via web interface
+
+        double earthRadius = 6371000; //meters
+        double dLat = Math.toRadians(lat2 - lat1);
+        double dLng = Math.toRadians(lon2 - lon1);
+        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
+                Math.sin(dLng / 2) * Math.sin(dLng / 2);
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        float dist = (float) (earthRadius * c);
+
+        return dist - (waitingDuration * BONUS);
+    }
+
+
+    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
+        return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
+    }
+
+
 }
+
+
+
+
+
