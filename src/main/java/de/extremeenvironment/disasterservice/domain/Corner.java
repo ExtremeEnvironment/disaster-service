@@ -2,6 +2,7 @@ package de.extremeenvironment.disasterservice.domain;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -25,6 +26,7 @@ public class Corner implements Serializable {
     private Float lon;
 
     @ManyToOne(fetch=FetchType.EAGER)
+    @NotNull
     private Area area;
 
     public Long getId() {

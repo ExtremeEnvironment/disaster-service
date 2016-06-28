@@ -206,4 +206,6 @@ public class AreaResource {
 
         return new java.awt.geom.Area(new Polygon(lat, lon, cList.size()));
     }
+
+
 }

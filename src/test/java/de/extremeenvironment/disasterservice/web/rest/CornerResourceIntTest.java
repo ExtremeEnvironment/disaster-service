@@ -1,7 +1,9 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.domain.Area;
 import de.extremeenvironment.disasterservice.domain.Corner;
+import de.extremeenvironment.disasterservice.repository.AreaRepository;
 import de.extremeenvironment.disasterservice.repository.CornerRepository;
 
 import org.junit.Before;
@@ -52,6 +54,9 @@ public class CornerResourceIntTest {
     private CornerRepository cornerRepository;
 
     @Inject
+    private AreaRepository areaRepository;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -60,6 +65,8 @@ public class CornerResourceIntTest {
     private MockMvc restCornerMockMvc;
 
     private Corner corner;
+
+    private Area a;
 
     @PostConstruct
     public void setup() {
@@ -73,9 +80,14 @@ public class CornerResourceIntTest {
 
     @Before
     public void initTest() {
+        a = new Area();
+        areaRepository.saveAndFlush(a);
+
+
         corner = new Corner();
         corner.setLat(DEFAULT_LAT);
         corner.setLon(DEFAULT_LON);
+        corner.setArea(areaRepository.findAll().get(0));
     }
 
     @Test
@@ -148,6 +160,7 @@ public class CornerResourceIntTest {
         updatedCorner.setId(corner.getId());
         updatedCorner.setLat(UPDATED_LAT);
         updatedCorner.setLon(UPDATED_LON);
+        updatedCorner.setArea(a);
 
         restCornerMockMvc.perform(put("/api/corners")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
