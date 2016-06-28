@@ -6,6 +6,7 @@ import de.extremeenvironment.disasterservice.repository.NGORepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,91 +30,91 @@ public class NGOResource {
     private final Logger log = LoggerFactory.getLogger(NGOResource.class);
 
     @Inject
-    private NGORepository nGORepository;
+    private NGORepository ngoRepository;
 
     /**
-     * POST  /n-gos : Create a new nGO.
+     * POST  /ngos : Create a new ngo.
      *
-     * @param nGO the nGO to create
-     * @return the ResponseEntity with status 201 (Created) and with body the new nGO, or with status 400 (Bad Request) if the nGO has already an ID
+     * @param ngo the ngo to create
+     * @return the ResponseEntity with status 201 (Created) and with body the new ngo, or with status 400 (Bad Request) if the ngo has already an ID
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/n-gos",
+    @RequestMapping(value = "/ngos",
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<Ngo> createNGO(@RequestBody Ngo nGO) throws URISyntaxException {
-        log.debug("REST request to save Ngo : {}", nGO);
-        if (nGO.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("nGO", "idexists", "A new nGO cannot already have an ID")).body(null);
+    public ResponseEntity<Ngo> createNgo(@RequestBody Ngo ngo) throws URISyntaxException {
+        log.debug("REST request to save Ngo : {}", ngo);
+        if (ngo.getId() != null) {
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("ngo", "idexists", "A new ngo cannot already have an ID")).body(null);
         }
-        Ngo result = nGORepository.save(nGO);
-        return ResponseEntity.created(new URI("/api/n-gos/" + result.getId()))
-            .headers(HeaderUtil.createEntityCreationAlert("nGO", result.getId().toString()))
+        Ngo result = ngoRepository.save(ngo);
+        return ResponseEntity.created(new URI("/api/ngos/" + result.getId()))
+            .headers(HeaderUtil.createEntityCreationAlert("ngo", result.getId().toString()))
             .body(result);
     }
 
     /**
-     * PUT  /n-gos : Updates an existing nGO.
+     * PUT  /ngos : Updates an existing ngo.
      *
-     * @param nGO the nGO to update
-     * @return the ResponseEntity with status 200 (OK) and with body the updated nGO,
-     * or with status 400 (Bad Request) if the nGO is not valid,
-     * or with status 500 (Internal Server Error) if the nGO couldnt be updated
+     * @param ngo the ngo to update
+     * @return the ResponseEntity with status 200 (OK) and with body the updated ngo,
+     * or with status 400 (Bad Request) if the ngo is not valid,
+     * or with status 500 (Internal Server Error) if the ngo couldnt be updated
      * @throws URISyntaxException if the Location URI syntax is incorrect
      */
-    @RequestMapping(value = "/n-gos",
+    @RequestMapping(value = "/ngos",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<Ngo> updateNGO(@RequestBody Ngo nGO) throws URISyntaxException {
-        log.debug("REST request to update Ngo : {}", nGO);
-        if (nGO.getId() == null) {
-            return createNGO(nGO);
+    public ResponseEntity<Ngo> updateNgo(@RequestBody Ngo ngo) throws URISyntaxException {
+        log.debug("REST request to update Ngo : {}", ngo);
+        if (ngo.getId() == null) {
+            return createNgo(ngo);
         }
-        Ngo result = nGORepository.save(nGO);
+        Ngo result = ngoRepository.save(ngo);
         return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("nGO", nGO.getId().toString()))
+            .headers(HeaderUtil.createEntityUpdateAlert("ngo", ngo.getId().toString()))
             .body(result);
     }
 
     /**
-     * GET  /n-gos : get all the nGOS.
+     * GET  /ngos : get all the ngos.
      *
      * @param filter the filter of the request
-     * @return the ResponseEntity with status 200 (OK) and the list of nGOS in body
+     * @return the ResponseEntity with status 200 (OK) and the list of ngos in body
      */
-    @RequestMapping(value = "/n-gos",
+    @RequestMapping(value = "/ngos",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public List<Ngo> getAllNGOS(@RequestParam(required = false) String filter) {
+    public List<Ngo> getAllNgos(@RequestParam(required = false) String filter) {
         if ("area-is-null".equals(filter)) {
-            log.debug("REST request to get all NGOs where area is null");
+            log.debug("REST request to get all Ngos where area is null");
             return StreamSupport
-                .stream(nGORepository.findAll().spliterator(), false)
-                .filter(nGO -> nGO.getArea() == null)
+                .stream(ngoRepository.findAll().spliterator(), false)
+                .filter(ngo -> ngo.getArea() == null)
                 .collect(Collectors.toList());
         }
-        log.debug("REST request to get all NGOS");
-        List<Ngo> nGOS = nGORepository.findAll();
-        return nGOS;
+        log.debug("REST request to get all Ngos");
+        List<Ngo> ngos = ngoRepository.findAll();
+        return ngos;
     }
 
     /**
-     * GET  /n-gos/:id : get the "id" nGO.
+     * GET  /ngos/:id : get the "id" ngo.
      *
-     * @param id the id of the nGO to retrieve
-     * @return the ResponseEntity with status 200 (OK) and with body the nGO, or with status 404 (Not Found)
+     * @param id the id of the ngo to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the ngo, or with status 404 (Not Found)
      */
-    @RequestMapping(value = "/n-gos/{id}",
+    @RequestMapping(value = "/ngos/{id}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<Ngo> getNGO(@PathVariable Long id) {
+    public ResponseEntity<Ngo> getNgo(@PathVariable Long id) {
         log.debug("REST request to get Ngo : {}", id);
-        Ngo nGO = nGORepository.findOne(id);
-        return Optional.ofNullable(nGO)
+        Ngo ngo = ngoRepository.findOne(id);
+        return Optional.ofNullable(ngo)
             .map(result -> new ResponseEntity<>(
                 result,
                 HttpStatus.OK))
@@ -121,19 +122,19 @@ public class NGOResource {
     }
 
     /**
-     * DELETE  /n-gos/:id : delete the "id" nGO.
+     * DELETE  /ngos/:id : delete the "id" ngo.
      *
-     * @param id the id of the nGO to delete
+     * @param id the id of the ngo to delete
      * @return the ResponseEntity with status 200 (OK)
      */
-    @RequestMapping(value = "/n-gos/{id}",
+    @RequestMapping(value = "/ngos/{id}",
         method = RequestMethod.DELETE,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<Void> deleteNGO(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteNgo(@PathVariable Long id) {
         log.debug("REST request to delete Ngo : {}", id);
-        nGORepository.delete(id);
-        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("nGO", id.toString())).build();
+        ngoRepository.delete(id);
+        return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("ngo", id.toString())).build();
     }
 
 }

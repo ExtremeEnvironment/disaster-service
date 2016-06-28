@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="linus (generated)" id="1467120162493-1">
+        <addColumn tableName="ngo">
+            <column name="name" type="varchar(255)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-2">
+        <dropColumn columnName="ID" tableName="ACTION_ACTION_OBJECT"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-3">
+        <dropColumn columnName="ID" tableName="ACTION_REJECTED_MATCHES"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-4">
+        <dropColumn columnName="RESET_DATE" tableName="ACTION"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-5">
+        <dropColumn columnName="RESET_DATE" tableName="DISASTER"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-6">
+        <dropDefaultValue columnDataType="timestamp" columnName="created_date" tableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-7">
+        <dropDefaultValue columnDataType="timestamp" columnName="created_date" tableName="disaster"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-8">
+        <dropNotNullConstraint columnDataType="bigint" columnName="user_id" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-9">
+        <dropPrimaryKey tableName="action_action_object"/>
+        <addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467120162493-10">
+        <dropPrimaryKey tableName="action_rejected_matches"/>
+        <addPrimaryKey columnNames="actions_id, rejected_matches_id" tableName="action_rejected_matches"/>
+    </changeSet>
+</databaseChangeLog>

@@ -29,7 +29,7 @@ public class ActionObject implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @ManyToMany(mappedBy = "actionObjects",fetch=FetchType.EAGER)
+    @ManyToMany(mappedBy = "actionObjects",fetch = FetchType.EAGER,cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<Action> actions = new HashSet<>();
 

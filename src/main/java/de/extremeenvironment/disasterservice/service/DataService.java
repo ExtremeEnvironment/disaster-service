@@ -1,9 +1,6 @@
 package de.extremeenvironment.disasterservice.service;
 
-import de.extremeenvironment.disasterservice.domain.Action;
-import de.extremeenvironment.disasterservice.domain.ActionObject;
-import de.extremeenvironment.disasterservice.domain.Disaster;
-import de.extremeenvironment.disasterservice.domain.DisasterType;
+import de.extremeenvironment.disasterservice.domain.*;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.*;
 import org.springframework.stereotype.Service;
@@ -26,9 +23,31 @@ public class DataService {
     ActionObjectRepository actionObjectRepository;
     @Inject
     UserRepository userRepository;
+    @Inject
+    CategoryRepository categoryRepository;
 
-    @PostConstruct
+
     public void dataCreate() {
+        Category category = new Category();
+        Category category2 = new Category();
+        Category category3 = new Category();
+        Category category4 = new Category();
+        Category category5 = new Category();
+        Category category6 = new Category();
+        category.setName("Nahrung");
+        category2.setName("Waffen");
+        category3.setName("Erste-Hilfe");
+        category4.setName("Hilfsmittel");
+        category5.setName("Baumittel");
+        category6.setName("Anziehsachen");
+        categoryRepository.save(category);
+        categoryRepository.save(category2);
+        categoryRepository.save(category3);
+        categoryRepository.save(category4);
+        categoryRepository.save(category5);
+        categoryRepository.save(category6);
+        categoryRepository.flush();
+
         DisasterType disType = new DisasterType();
         disType.setName("Erdbeben");
         DisasterType dT = new DisasterType();
@@ -43,28 +62,40 @@ public class DataService {
         disasterTypeRepository.saveAndFlush(dt);
         ActionObject ao = new ActionObject();
         ao.setName("Schmerzmittel");
+        ao.setCategory(category3);
         ActionObject ao1 = new ActionObject();
         ao1.setName("Holz");
+        ao1.setCategory(category5);
         ActionObject ao2 = new ActionObject();
         ao2.setName("Generator");
+        ao2.setCategory(category4);
         ActionObject ao3 = new ActionObject();
         ao3.setName("Verbandszeug");
+        ao3.setCategory(category3);
         ActionObject ao4 = new ActionObject();
         ao4.setName("Rollstuhl");
+        ao4.setCategory(category4);
         ActionObject ao5 = new ActionObject();
         ao5.setName("Standardessen");
+        ao5.setCategory(category);
         ActionObject ao6 = new ActionObject();
         ao6.setName("Wasser");
+        ao6.setCategory(category);
         ActionObject ao7 = new ActionObject();
         ao7.setName("Supplemente");
+        ao7.setCategory(category3);
         ActionObject ao8 = new ActionObject();
         ao8.setName("Zelt");
+        ao8.setCategory(category4);
         ActionObject ao9 = new ActionObject();
         ao9.setName("Betten");
+        ao9.setCategory(category4);
         ActionObject ao10 = new ActionObject();
         ao10.setName("Jacken");
+        ao10.setCategory(category6);
         ActionObject ao11 = new ActionObject();
         ao11.setName("Schrottflinte");
+        ao11.setCategory(category2);
         actionObjectRepository.save(ao);
         actionObjectRepository.save(ao1);
         actionObjectRepository.save(ao2);

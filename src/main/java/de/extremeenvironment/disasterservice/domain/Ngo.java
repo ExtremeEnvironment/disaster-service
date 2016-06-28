@@ -19,7 +19,10 @@ public class Ngo implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToOne(mappedBy = "ngo",fetch=FetchType.EAGER)
+    @Column(name = "name")
+    private String name;
+
+    @OneToOne(mappedBy = "ngo")
     @JsonIgnore
     private Area area;
 
@@ -29,6 +32,14 @@ public class Ngo implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public Area getArea() {
@@ -47,11 +58,11 @@ public class Ngo implements Serializable {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        Ngo nGO = (Ngo) o;
-        if(nGO.id == null || id == null) {
+        Ngo ngo = (Ngo) o;
+        if(ngo.id == null || id == null) {
             return false;
         }
-        return Objects.equals(id, nGO.id);
+        return Objects.equals(id, ngo.id);
     }
 
     @Override
@@ -63,6 +74,7 @@ public class Ngo implements Serializable {
     public String toString() {
         return "Ngo{" +
             "id=" + id +
+            ", name='" + name + "'" +
             '}';
     }
 }
