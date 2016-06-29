@@ -66,7 +66,7 @@ public class AreaResourceIntTest {
     private UserRepository userRepository;
 
     @Inject
-    private NGORepository ngoRepository;
+    private NgoRepository ngoRepository;
 
     @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
