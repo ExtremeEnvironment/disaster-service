@@ -24,7 +24,7 @@ public class DisasterType implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @OneToMany(mappedBy = "disasterType",fetch=FetchType.EAGER)
+    @OneToMany(mappedBy = "disasterType",fetch=FetchType.EAGER,cascade = CascadeType.REMOVE)
     @JsonIgnore
     private Set<Disaster> disasters = new HashSet<>();
 

@@ -2,7 +2,7 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Ngo;
-import de.extremeenvironment.disasterservice.repository.NGORepository;
+import de.extremeenvironment.disasterservice.repository.NgoRepository;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,9 +31,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 /**
- * Test class for the NGOResource REST controller.
+ * Test class for the NgoResource REST controller.
  *
- * @see NGOResource
+ * @see NgoResource
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DisasterServiceApp.class)
@@ -41,9 +41,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTest
 public class NgoResourceIntTest {
 
+    private static final String DEFAULT_NAME = "AAAAA";
+    private static final String UPDATED_NAME = "BBBBB";
 
     @Inject
-    private NGORepository nGORepository;
+    private NgoRepository ngoRepository;
 
     @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -51,113 +53,119 @@ public class NgoResourceIntTest {
     @Inject
     private PageableHandlerMethodArgumentResolver pageableArgumentResolver;
 
-    private MockMvc restNGOMockMvc;
+    private MockMvc restNgoMockMvc;
 
-    private Ngo nGO;
+    private Ngo ngo;
 
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        NGOResource nGOResource = new NGOResource();
-        ReflectionTestUtils.setField(nGOResource, "nGORepository", nGORepository);
-        this.restNGOMockMvc = MockMvcBuilders.standaloneSetup(nGOResource)
+        NgoResource ngoResource = new NgoResource();
+        ReflectionTestUtils.setField(ngoResource, "ngoRepository", ngoRepository);
+        this.restNgoMockMvc = MockMvcBuilders.standaloneSetup(ngoResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
     }
 
     @Before
     public void initTest() {
-        nGO = new Ngo();
+        ngo = new Ngo();
+        ngo.setName(DEFAULT_NAME);
     }
 
     @Test
     @Transactional
-    public void createNGO() throws Exception {
-        int databaseSizeBeforeCreate = nGORepository.findAll().size();
+    public void createNgo() throws Exception {
+        int databaseSizeBeforeCreate = ngoRepository.findAll().size();
 
         // Create the Ngo
 
-        restNGOMockMvc.perform(post("/api/n-gos")
+        restNgoMockMvc.perform(post("/api/ngos")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(nGO)))
+                .content(TestUtil.convertObjectToJsonBytes(ngo)))
                 .andExpect(status().isCreated());
 
         // Validate the Ngo in the database
-        List<Ngo> nGOS = nGORepository.findAll();
-        assertThat(nGOS).hasSize(databaseSizeBeforeCreate + 1);
-        Ngo testNgo = nGOS.get(nGOS.size() - 1);
+        List<Ngo> ngos = ngoRepository.findAll();
+        assertThat(ngos).hasSize(databaseSizeBeforeCreate + 1);
+        Ngo testNgo = ngos.get(ngos.size() - 1);
+        assertThat(testNgo.getName()).isEqualTo(DEFAULT_NAME);
     }
 
     @Test
     @Transactional
-    public void getAllNGOS() throws Exception {
+    public void getAllNgos() throws Exception {
         // Initialize the database
-        nGORepository.saveAndFlush(nGO);
+        ngoRepository.saveAndFlush(ngo);
 
-        // Get all the nGOS
-        restNGOMockMvc.perform(get("/api/n-gos?sort=id,desc"))
+        // Get all the ngos
+        restNgoMockMvc.perform(get("/api/ngos?sort=id,desc"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(nGO.getId().intValue())));
+                .andExpect(jsonPath("$.[*].id").value(hasItem(ngo.getId().intValue())))
+                .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME.toString())));
     }
 
     @Test
     @Transactional
-    public void getNGO() throws Exception {
+    public void getNgo() throws Exception {
         // Initialize the database
-        nGORepository.saveAndFlush(nGO);
+        ngoRepository.saveAndFlush(ngo);
 
-        // Get the nGO
-        restNGOMockMvc.perform(get("/api/n-gos/{id}", nGO.getId()))
+        // Get the ngo
+        restNgoMockMvc.perform(get("/api/ngos/{id}", ngo.getId()))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.id").value(nGO.getId().intValue()));
+            .andExpect(jsonPath("$.id").value(ngo.getId().intValue()))
+            .andExpect(jsonPath("$.name").value(DEFAULT_NAME.toString()));
     }
 
     @Test
     @Transactional
-    public void getNonExistingNGO() throws Exception {
-        // Get the nGO
-        restNGOMockMvc.perform(get("/api/n-gos/{id}", Long.MAX_VALUE))
+    public void getNonExistingNgo() throws Exception {
+        // Get the ngo
+        restNgoMockMvc.perform(get("/api/ngos/{id}", Long.MAX_VALUE))
                 .andExpect(status().isNotFound());
     }
 
     @Test
     @Transactional
-    public void updateNGO() throws Exception {
+    public void updateNgo() throws Exception {
         // Initialize the database
-        nGORepository.saveAndFlush(nGO);
-        int databaseSizeBeforeUpdate = nGORepository.findAll().size();
+        ngoRepository.saveAndFlush(ngo);
+        int databaseSizeBeforeUpdate = ngoRepository.findAll().size();
 
-        // Update the nGO
+        // Update the ngo
         Ngo updatedNgo = new Ngo();
-        updatedNgo.setId(nGO.getId());
+        updatedNgo.setId(ngo.getId());
+        updatedNgo.setName(UPDATED_NAME);
 
-        restNGOMockMvc.perform(put("/api/n-gos")
+        restNgoMockMvc.perform(put("/api/ngos")
                 .contentType(TestUtil.APPLICATION_JSON_UTF8)
                 .content(TestUtil.convertObjectToJsonBytes(updatedNgo)))
                 .andExpect(status().isOk());
 
         // Validate the Ngo in the database
-        List<Ngo> nGOS = nGORepository.findAll();
-        assertThat(nGOS).hasSize(databaseSizeBeforeUpdate);
-        Ngo testNgo = nGOS.get(nGOS.size() - 1);
+        List<Ngo> ngos = ngoRepository.findAll();
+        assertThat(ngos).hasSize(databaseSizeBeforeUpdate);
+        Ngo testNgo = ngos.get(ngos.size() - 1);
+        assertThat(testNgo.getName()).isEqualTo(UPDATED_NAME);
     }
 
     @Test
     @Transactional
-    public void deleteNGO() throws Exception {
+    public void deleteNgo() throws Exception {
         // Initialize the database
-        nGORepository.saveAndFlush(nGO);
-        int databaseSizeBeforeDelete = nGORepository.findAll().size();
+        ngoRepository.saveAndFlush(ngo);
+        int databaseSizeBeforeDelete = ngoRepository.findAll().size();
 
-        // Get the nGO
-        restNGOMockMvc.perform(delete("/api/n-gos/{id}", nGO.getId())
+        // Get the ngo
+        restNgoMockMvc.perform(delete("/api/ngos/{id}", ngo.getId())
                 .accept(TestUtil.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk());
 
         // Validate the database is empty
-        List<Ngo> nGOS = nGORepository.findAll();
-        assertThat(nGOS).hasSize(databaseSizeBeforeDelete - 1);
+        List<Ngo> ngos = ngoRepository.findAll();
+        assertThat(ngos).hasSize(databaseSizeBeforeDelete - 1);
     }
 }

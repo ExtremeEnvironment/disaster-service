@@ -8,7 +8,12 @@
             "otherEntityRelationshipName": "ngo"
         }
     ],
-    "fields": [],
+    "fields": [
+        {
+            "fieldName": "name",
+            "fieldType": "String"
+        }
+    ],
     "changelogDate": "20160625072347",
     "dto": "no",
     "service": "no",

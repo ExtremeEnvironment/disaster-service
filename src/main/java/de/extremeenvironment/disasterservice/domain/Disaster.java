@@ -36,7 +36,7 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
     @ManyToOne(fetch=FetchType.EAGER)
     private DisasterType disasterType;
 
-    @ManyToOne(fetch=FetchType.EAGER)
+    @ManyToOne(fetch=FetchType.EAGER,cascade = CascadeType.REMOVE)
     private Area area;
 
     public Long getId() {

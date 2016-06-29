@@ -151,8 +151,8 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(results.size() -2).getMatch().equals(results.get(16)));
-        assertThat(results.get(results.size() -1).getMatch().equals(results.get(15)));
+        assertThat(results.get(results.size() -2).getMatch().equals(results.size() -1));
+        assertThat(results.get(results.size() -1).getMatch().equals(results.size() -2));
 
         actionRepository.delete(results.get(results.size() -2));
         actionRepository.delete(results.get(results.size() -1));
