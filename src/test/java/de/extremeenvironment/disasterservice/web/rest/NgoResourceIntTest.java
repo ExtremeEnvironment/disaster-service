@@ -2,7 +2,7 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Ngo;
-import de.extremeenvironment.disasterservice.repository.NGORepository;
+import de.extremeenvironment.disasterservice.repository.NgoRepository;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -45,7 +45,7 @@ public class NgoResourceIntTest {
     private static final String UPDATED_NAME = "BBBBB";
 
     @Inject
-    private NGORepository ngoRepository;
+    private NgoRepository ngoRepository;
 
     @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -60,7 +60,7 @@ public class NgoResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        NGOResource ngoResource = new NGOResource();
+        NgoResource ngoResource = new NgoResource();
         ReflectionTestUtils.setField(ngoResource, "ngoRepository", ngoRepository);
         this.restNgoMockMvc = MockMvcBuilders.standaloneSetup(ngoResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)

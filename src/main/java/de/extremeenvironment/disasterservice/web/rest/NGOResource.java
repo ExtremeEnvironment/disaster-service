@@ -2,7 +2,7 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
 import de.extremeenvironment.disasterservice.domain.Ngo;
-import de.extremeenvironment.disasterservice.repository.NGORepository;
+import de.extremeenvironment.disasterservice.repository.NgoRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,13 +25,13 @@ import java.util.stream.StreamSupport;
  */
 @RestController
 @RequestMapping("/api")
-public class NGOResource {
+public class NgoResource {
 
-    private final Logger log = LoggerFactory.getLogger(NGOResource.class);
-
+    private final Logger log = LoggerFactory.getLogger(NgoResource.class);
+        
     @Inject
-    private NGORepository ngoRepository;
-
+    private NgoRepository ngoRepository;
+    
     /**
      * POST  /ngos : Create a new ngo.
      *
