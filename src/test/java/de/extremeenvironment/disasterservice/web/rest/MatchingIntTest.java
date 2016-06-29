@@ -100,8 +100,8 @@ public class MatchingIntTest {
         d1.setLon(23F);
         disasterRepository.saveAndFlush(d1);
         Disaster d2 = new Disaster();
-        d2.setLat(23F);
-        d2.setLon(23F);
+        d2.setLat(24F);
+        d2.setLon(24F);
         disasterRepository.saveAndFlush(d2);
 
 

@@ -21,7 +21,7 @@ public class Area implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER, cascade = CascadeType.ALL)
     @JsonIgnore
     private Set<Corner> corners = new HashSet<>();
 
