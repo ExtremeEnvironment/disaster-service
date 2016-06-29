@@ -13,6 +13,8 @@ import org.junit.runner.RunWith;
 import static org.hamcrest.Matchers.hasItem;
 
 import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
@@ -49,6 +51,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @IntegrationTest
 public class AreaResourceIntTest {
 
+    Logger log = LoggerFactory.getLogger(getClass());
 
     @Inject
     private AreaRepository areaRepository;
@@ -106,6 +109,14 @@ public class AreaResourceIntTest {
     @Transactional
     public void createArea() throws Exception {
         int databaseSizeBeforeCreate = areaRepository.findAll().size();
+
+        Corner c = new Corner();
+        c.setArea(area);
+
+        Set<Corner> cornerSet = new HashSet<>();
+        cornerSet.add(c);
+        area.setCorners(cornerSet);
+
 
         // Create the Area
 
@@ -192,56 +203,149 @@ public class AreaResourceIntTest {
         List<Area> areas = areaRepository.findAll();
         assertThat(areas).hasSize(databaseSizeBeforeDelete - 1);
     }
-//
-//    @Test
-//    @Transactional
-//    public void createAreaWithCorners() throws Exception {
-//        Set<Corner> cornerList = new HashSet<>();
-//
-//        Corner c11 = new Corner();
-//        c11.setLat(1F);
-//        c11.setLon(1F);
-//        cornerList.add(c11);
-////        cornerRepository.save(c11);
-//
-//        Corner c12 = new Corner();
-//        c12.setLat(2F);
-//        c12.setLon(1F);
-//        cornerList.add(c12);
-////        cornerRepository.save(c12);
-//
-//
-//        Corner c13 = new Corner();
-//        c13.setLat(2F);
-//        c13.setLon(2F);
-//        cornerList.add(c13);
-////        cornerRepository.save(c13);
-//
-//
-//        Corner c14 = new Corner();
-//        c14.setLat(1F);
-//        c14.setLon(2F);
-//        cornerList.add(c14);
-////        cornerRepository.save(c14);
-//
-//
-//        Area a = new Area();
-//        a.setCorners(cornerList);
-//
+
+    @Test
+    @Transactional
+    public void createAreaWithCorners() throws Exception {
+        Set<Corner> cornerSet = new HashSet<>();
+
+        Area a = new Area();
+
+        Corner c11 = new Corner();
+        c11.setLat(1F);
+        c11.setLon(1F);
+        cornerSet.add(c11);
+        c11.setArea(a);
+
+        Corner c12 = new Corner();
+        c12.setLat(2F);
+        c12.setLon(1F);
+        cornerSet.add(c12);
+        c12.setArea(a);
+
+
+        Corner c13 = new Corner();
+        c13.setLat(2F);
+        c13.setLon(2F);
+        cornerSet.add(c13);
+        c13.setArea(a);
+
+
+        Corner c14 = new Corner();
+        c14.setLat(1F);
+        c14.setLon(2F);
+        cornerSet.add(c14);
+        c14.setArea(a);
+
+
+        a.setCorners(cornerSet);
+
+        System.out.println(a.getCorners());
+
+
+        log.debug("area {}", TestUtil.convertObjectToJsonBytes(a));
+
+        restAreaMockMvc.perform(post("/api/areas")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(a)))
+            .andExpect(status().isCreated());
+
+        List<Area> results = areaRepository.findAll();
+
+        assertThat(results.get(0).getCorners().contains(c11));
+        assertThat(results.get(0).getCorners().contains(c12));
+        assertThat(results.get(0).getCorners().contains(c13));
+        assertThat(results.get(0).getCorners().contains(c14));
+
+        areaRepository.delete(results.get(0));
+
+    }
+
+    @Test
+    @Transactional
+    public void createOverlappingArea() throws Exception {
+        Set<Corner> cornerSet1 = new HashSet<>();
+        Set<Corner> cornerSet2 = new HashSet<>();
+
+
+        Area a1 = new Area();
+        Area a2 = new Area();
+
+
+        Corner c11 = new Corner();
+        c11.setLat(1F);
+        c11.setLon(1F);
+        cornerSet1.add(c11);
+        c11.setArea(a1);
+
+        Corner c12 = new Corner();
+        c12.setLat(2F);
+        c12.setLon(1F);
+        cornerSet1.add(c12);
+        c12.setArea(a1);
+
+        Corner c13 = new Corner();
+        c13.setLat(2F);
+        c13.setLon(2F);
+        cornerSet1.add(c13);
+        c13.setArea(a1);
+
+        Corner c14 = new Corner();
+        c14.setLat(1F);
+        c14.setLon(2F);
+        cornerSet1.add(c14);
+        c14.setArea(a1);
+
+
+
+        Corner c21 = new Corner();
+        c21.setLat(1.5F);
+        c21.setLon(1.5F);
+        cornerSet2.add(c21);
+        c21.setArea(a2);
+
+        Corner c22 = new Corner();
+        c22.setLat(3F);
+        c22.setLon(1.5F);
+        cornerSet2.add(c22);
+        c22.setArea(a2);
+
+        Corner c23 = new Corner();
+        c23.setLat(3F);
+        c23.setLon(3F);
+        cornerSet2.add(c23);
+        c23.setArea(a2);
+
+        Corner c24 = new Corner();
+        c24.setLat(1.5F);
+        c24.setLon(3F);
+        cornerSet2.add(c24);
+        c24.setArea(a2);
+
+
+        a1.setCorners(cornerSet1);
+        a2.setCorners(cornerSet2);
+
 //        System.out.println(a.getCorners());
-//
-//        System.out.println("\n\nArea: \n" + TestUtil.convertObjectToJsonBytes(a) + "\n\n");
-//
-//        restAreaMockMvc.perform(post("/api/actions")
-//            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-//            .content(TestUtil.convertObjectToJsonBytes(a)));
-//
-//        List<Area> results = areaRepository.findAll();
-//
-//        assertThat(results.get(0).getCorners().contains(c11));
-//        assertThat(results.get(0).getCorners().contains(c12));
-//        assertThat(results.get(0).getCorners().contains(c13));
-//        assertThat(results.get(0).getCorners().contains(c14));
-//
-//    }
+
+
+        log.debug("area {}", TestUtil.convertObjectToJsonBytes(a1));
+        log.debug("area {}", TestUtil.convertObjectToJsonBytes(a2));
+
+
+        restAreaMockMvc.perform(post("/api/areas")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(a1)))
+            .andExpect(status().isCreated());
+
+        log.debug("first insert finished");
+
+
+        restAreaMockMvc.perform(post("/api/areas")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(a2)))
+            .andExpect(status().isBadRequest());
+
+
+    }
 }

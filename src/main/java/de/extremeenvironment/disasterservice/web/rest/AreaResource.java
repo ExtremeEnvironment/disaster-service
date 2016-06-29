@@ -57,6 +57,7 @@ public class AreaResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("area", "areaoverlaps", "This area overlaps with an already existing area")).body(null);
         }
 
+
         Area result = areaRepository.save(area);
         return ResponseEntity.created(new URI("/api/areas/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("area", result.getId().toString()))
@@ -162,8 +163,12 @@ public class AreaResource {
         java.awt.geom.Area thisArea = cornersToArea(cornerList);
 
 
+//        log.debug("cornerRepository : ", cornerRepository);
+//        log.debug("corners of area : ", cornerRepository.findByAreaId(area.getId()));
+
+
         for (Area a : areaRepository.findAll()) {
-            List<Corner> cList = cornerRepository.findByAreaId(a.getId());
+            List<Corner> cList = new ArrayList<>(a.getCorners());
 
             allAreas.put(a, cornersToArea(cList));
         }

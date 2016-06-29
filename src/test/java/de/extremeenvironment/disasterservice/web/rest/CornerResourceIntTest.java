@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -81,13 +83,15 @@ public class CornerResourceIntTest {
     @Before
     public void initTest() {
         a = new Area();
-        areaRepository.saveAndFlush(a);
-
 
         corner = new Corner();
         corner.setLat(DEFAULT_LAT);
         corner.setLon(DEFAULT_LON);
-        corner.setArea(areaRepository.findAll().get(0));
+        corner.setArea(a);
+
+        Set<Corner> cornerList = new HashSet<>();
+        cornerList.add(corner);
+        a.setCorners(cornerList);
     }
 
     @Test
