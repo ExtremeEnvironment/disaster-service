@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.config;
 
 import de.extremeenvironment.disasterservice.config.locale.AngularCookieLocaleResolver;
+
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;

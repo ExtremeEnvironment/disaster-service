@@ -1,6 +1,6 @@
 {
   "generator-jhipster": {
-    "jhipsterVersion": "3.3.0",
+    "jhipsterVersion": "3.4.0",
     "baseName": "DisasterService",
     "packageName": "de.extremeenvironment.disasterservice",
     "packageFolder": "de/extremeenvironment/disasterservice",

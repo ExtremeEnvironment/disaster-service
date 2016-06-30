@@ -1,14 +1,12 @@
 package de.extremeenvironment.disasterservice.config;
 
+import de.extremeenvironment.disasterservice.domain.util.*;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import de.extremeenvironment.disasterservice.domain.util.JSR310DateTimeSerializer;
-import de.extremeenvironment.disasterservice.domain.util.JSR310LocalDateDeserializer;
+import java.time.*;
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
-
-import java.time.*;
 
 @Configuration
 public class JacksonConfiguration {
