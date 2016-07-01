@@ -184,7 +184,8 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-
+        assertTrue(results.get(results.size() -2).getMatch() == null);
+        assertTrue(results.get(results.size() -1).getMatch() == null);
 
 
     }
