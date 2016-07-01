@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="linus (generated)" id="1467352483091-1">
+        <addColumn tableName="ngo">
+            <column name="area_id" type="bigint"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-2">
+        <addUniqueConstraint columnNames="area_id" constraintName="UC_NGOAREA_ID_COL" tableName="ngo"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-3">
+        <addForeignKeyConstraint baseColumnNames="area_id" baseTableName="ngo" constraintName="FK_mnt9r3qeeq0a6e2w8nocivgx" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="area"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-4">
+        <dropForeignKeyConstraint baseTableName="AREA" constraintName="FK_AREA_NGO_ID"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-5">
+        <dropUniqueConstraint constraintName="CONSTRAINT_1" tableName="AREA"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-6">
+        <dropColumn columnName="ID" tableName="ACTION_ACTION_OBJECT"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-7">
+        <dropColumn columnName="ID" tableName="ACTION_REJECTED_MATCHES"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-8">
+        <dropColumn columnName="NGO_ID" tableName="AREA"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-9">
+        <dropColumn columnName="RESET_DATE" tableName="ACTION"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-10">
+        <dropColumn columnName="RESET_DATE" tableName="DISASTER"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-11">
+        <dropDefaultValue columnDataType="timestamp" columnName="created_date" tableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-12">
+        <dropDefaultValue columnDataType="timestamp" columnName="created_date" tableName="disaster"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-13">
+        <addNotNullConstraint columnDataType="float" columnName="lat" tableName="disaster"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-14">
+        <addNotNullConstraint columnDataType="float" columnName="lon" tableName="disaster"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-15">
+        <dropNotNullConstraint columnDataType="bigint" columnName="user_id" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-16">
+        <dropPrimaryKey tableName="action_action_object"/>
+        <addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467352483091-17">
+        <dropPrimaryKey tableName="action_rejected_matches"/>
+        <addPrimaryKey columnNames="actions_id, rejected_matches_id" tableName="action_rejected_matches"/>
+    </changeSet>
+</databaseChangeLog>

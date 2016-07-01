@@ -2,12 +2,16 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.domain.Disaster;
+import de.extremeenvironment.disasterservice.domain.DisasterType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 
+import de.extremeenvironment.disasterservice.repository.DisasterTypeRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
@@ -60,6 +64,9 @@ public class DisasterResourceIntTest {
     private DisasterRepository disasterRepository;
 
     @Inject
+    private DisasterTypeRepository disasterTypeRepository;
+
+    @Inject
     private ActionRepository actionRepository;
 
     @Inject
@@ -71,6 +78,8 @@ public class DisasterResourceIntTest {
     private MockMvc restDisasterMockMvc;
 
     private Disaster disaster;
+
+    private DisasterType diTy;
 
     @PostConstruct
     public void setup() {
@@ -84,12 +93,16 @@ public class DisasterResourceIntTest {
 
     @Before
     public void initTest() {
+        diTy = new DisasterType();
+        diTy.setName("A");
+        disasterTypeRepository.saveAndFlush(diTy);
         disaster = new Disaster();
         disaster.setIsExpired(DEFAULT_IS_EXPIRED);
         disaster.setLat(DEFAULT_LAT);
         disaster.setLon(DEFAULT_LON);
         disaster.setTitle(DEFAULT_TITLE);
         disaster.setDescription(DEFAULT_DESCRIPTION);
+        disaster.setDisasterType(diTy);
     }
 
     @Test
@@ -208,10 +221,32 @@ public class DisasterResourceIntTest {
         assertThat(disasters).hasSize(databaseSizeBeforeDelete - 1);
     }
 
+    /**
+     * Test
+     * If a Disaster with the same Type in a 15km radius exist which is not expired, the create method will create a Action which the type knowlege
+     * @throws Exception
+     */
     @Test
     @Transactional
-    public void name() throws  Exception {
+    public void noDoubleDisaster() throws  Exception {
+        disasterRepository.saveAndFlush(disaster);
+        int sizeD = disasterRepository.findAll().size();
+        int sizeA = actionRepository.findAll().size();
 
+        Disaster di = new Disaster();
+        di.setDisasterType(diTy);
+        di.setIsExpired(false);
+
+        di.setLat(1F);
+        di.setLon(1F);
+
+        restDisasterMockMvc.perform(post("/api/disasters")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(di)));
+
+
+        assertTrue(sizeD==disasterRepository.findAll().size());
+        assertTrue(sizeA==(actionRepository.findAll().size()-1));
     }
 }
 
