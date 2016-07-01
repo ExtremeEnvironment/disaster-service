@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.hasItem;
 
 import org.mockito.MockitoAnnotations;
@@ -88,11 +89,11 @@ public class AreaResourceIntTest {
         this.restAreaMockMvc = MockMvcBuilders.standaloneSetup(areaResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
-    }
-
-    @Before
-    public void initTest() {
-        userRepository.saveAndFlush(new User());
+//    }
+//
+//    @Before
+//    public void initTest() {
+//        userRepository.saveAndFlush(new User());
         area = new Area();
 
         disaster = new Disaster();
@@ -250,14 +251,18 @@ public class AreaResourceIntTest {
             .content(TestUtil.convertObjectToJsonBytes(a)))
             .andExpect(status().isCreated());
 
-        List<Area> results = areaRepository.findAll();
+        List<Area> resultsArea = areaRepository.findAll();
 
-        assertThat(results.get(0).getCorners().contains(c11));
-        assertThat(results.get(0).getCorners().contains(c12));
-        assertThat(results.get(0).getCorners().contains(c13));
-        assertThat(results.get(0).getCorners().contains(c14));
+        List<Corner> resultsCorner = cornerRepository.findAll();
 
-        areaRepository.delete(results.get(0));
+        resultsCorner.forEach(c -> assertTrue(c.getArea().equals(resultsArea.get(resultsArea.size() - 1))));
+
+//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c11));
+//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c12));
+//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c13));
+//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c14));
+
+//        areaRepository.delete(results.get(0));
 
     }
 

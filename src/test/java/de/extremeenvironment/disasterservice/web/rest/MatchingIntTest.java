@@ -89,12 +89,6 @@ public class MatchingIntTest {
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
-    }
-
-    @Before
-    @Transactional
-    public void initTest() {
-        userRepository.saveAndFlush(new User());
         Disaster d1 = new Disaster();
         d1.setLat(23F);
         d1.setLon(23F);
@@ -112,8 +106,8 @@ public class MatchingIntTest {
         ActionObject actObj2 = new ActionObject();
         actObj2.setName("BBBB");
         actionObjectRepository.saveAndFlush(actObj2);
-
     }
+
 
     @Test
     @Transactional
@@ -123,10 +117,11 @@ public class MatchingIntTest {
         action1Seek.setLon(1F);
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
-        action1Seek.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet1 = action1Seek.getActionObjects();
-        aoSet1.add(actionObjectRepository.findAll().get(0));
-        action1Seek.setActionObjects(aoSet1);
+        List<Disaster> disasters = disasterRepository.findAll();
+        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -138,10 +133,8 @@ public class MatchingIntTest {
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet2 = action2Offer.getActionObjects();
-        aoSet2.add(actionObjectRepository.findAll().get(0));
-        action2Offer.setActionObjects(aoSet2);
+        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
 
 
         restActionMockMvc.perform(post("/api/actions")
@@ -151,11 +144,10 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(results.size() -2).getMatch().equals(results.size() -1));
-        assertThat(results.get(results.size() -1).getMatch().equals(results.size() -2));
+        assertTrue(results.get(results.size() -2).getMatch().equals(results.get(results.size() -1)));
+        assertTrue(results.get(results.size() -1).getMatch().equals(results.get(results.size() -2)));
 
-        actionRepository.delete(results.get(results.size() -2));
-        actionRepository.delete(results.get(results.size() -1));
+
     }
 
     @Test
@@ -166,10 +158,11 @@ public class MatchingIntTest {
         action1Seek.setLon(1F);
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
-        action1Seek.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet1 = action1Seek.getActionObjects();
-        aoSet1.add(actionObjectRepository.findAll().get(0));
-        action1Seek.setActionObjects(aoSet1);
+        List<Disaster> disasters = disasterRepository.findAll();
+        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -182,9 +175,7 @@ public class MatchingIntTest {
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
         action2Offer.setDisaster(disasterRepository.findAll().get(1));
-        Set<ActionObject> aoSet2 = action2Offer.getActionObjects();
-        aoSet2.add(actionObjectRepository.findAll().get(0));
-        action2Offer.setActionObjects(aoSet2);
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -193,11 +184,10 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(results.size() -2).getMatch() == null);
-        assertThat(results.get(results.size() -1).getMatch() == null);
+        assertTrue(results.get(results.size() -2).getMatch() == null);
+        assertTrue(results.get(results.size() -1).getMatch() == null);
 
-        actionRepository.delete(results.get(results.size() -2));
-        actionRepository.delete(results.get(results.size() -1));
+
     }
 
     @Test
@@ -208,10 +198,10 @@ public class MatchingIntTest {
         action1Seek.setLon(1F);
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
-        action1Seek.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet1 = action1Seek.getActionObjects();
-        aoSet1.add(actionObjectRepository.findAll().get(0));
-        action1Seek.setActionObjects(aoSet1);
+        List<Disaster> disasters = disasterRepository.findAll();
+        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-2));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -223,10 +213,8 @@ public class MatchingIntTest {
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet2 = action2Offer.getActionObjects();
-        aoSet2.add(actionObjectRepository.findAll().get(1));
-        action2Offer.setActionObjects(aoSet2);
+        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -235,11 +223,10 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(results.size() -2).getMatch() == null);
-        assertThat(results.get(results.size() -1).getMatch() == null);
+        assertTrue(results.get(results.size() -2).getMatch() == null);
+        assertTrue(results.get(results.size() -1).getMatch() == null);
 
-        actionRepository.delete(results.get(results.size() -2));
-        actionRepository.delete(results.get(results.size() -1));
+
 
     }
 
@@ -251,10 +238,10 @@ public class MatchingIntTest {
         action1Seek.setLon(1F);
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
-        action1Seek.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet1 = action1Seek.getActionObjects();
-        aoSet1.add(actionObjectRepository.findAll().get(0));
-        action1Seek.setActionObjects(aoSet1);
+        List<Disaster> disasters = disasterRepository.findAll();
+        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -266,10 +253,9 @@ public class MatchingIntTest {
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet2 = action2Offer.getActionObjects();
-        aoSet2.add(actionObjectRepository.findAll().get(0));
-        action2Offer.setActionObjects(aoSet2);
+        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -281,10 +267,8 @@ public class MatchingIntTest {
         action3Seek.setLon(1.005F);
         action3Seek.setIsExpired(false);
         action3Seek.setActionType(ActionType.OFFER);
-        action3Seek.setDisaster(disasterRepository.findAll().get(0));
-        Set<ActionObject> aoSet3 = action3Seek.getActionObjects();
-        aoSet3.add(actionObjectRepository.findAll().get(0));
-        action3Seek.setActionObjects(aoSet3);
+        action3Seek.setDisaster(disasters.get(disasters.size()-1));
+        action3Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -293,13 +277,11 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertThat(results.get(results.size() -3).getMatch().equals(results.get(1)));
-        assertThat(results.get(results.size() -2).getMatch().equals(results.get(0)));
-        assertThat(results.get(results.size() -1).getMatch() == null);
+        assertTrue(results.get(results.size() -3).getMatch().equals(results.get(results.size() -2)));
+        assertTrue(results.get(results.size() -2).getMatch().equals(results.get(results.size() -3)));
+        assertTrue(results.get(results.size() -1).getMatch() == null);
 
 
-        actionRepository.delete(results.get(results.size() -3));
-        actionRepository.delete(results.get(results.size() -2));
-        actionRepository.delete(results.get(results.size() -1));
+
     }
 }
