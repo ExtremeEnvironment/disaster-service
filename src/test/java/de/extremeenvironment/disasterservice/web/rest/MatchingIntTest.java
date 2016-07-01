@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
@@ -61,6 +62,9 @@ public class MatchingIntTest {
     private ActionObjectRepository actionObjectRepository;
 
     @Inject
+    private MessageClient messageClient;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -84,7 +88,7 @@ public class MatchingIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository);
+        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
         ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)

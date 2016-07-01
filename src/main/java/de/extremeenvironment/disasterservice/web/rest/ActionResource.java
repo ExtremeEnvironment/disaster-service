@@ -1,6 +1,8 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import de.extremeenvironment.disasterservice.client.Conversation;
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
@@ -35,16 +37,19 @@ public class ActionResource {
 
     private final Logger log = LoggerFactory.getLogger(ActionResource.class);
 
-    @Inject
+
     private ActionRepository actionRepository;
-    @Inject
+
     private  DisasterRepository disasterRepository;
+
+    private MessageClient messageClient;
 
     @Autowired
     public ActionResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository) {
+                          DisasterRepository disasterRepository, MessageClient messageClient) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
+        this.messageClient=messageClient;
     }
 
     /**
@@ -255,8 +260,11 @@ public class ActionResource {
             actionRepository.save(bestMatch);
         }
 
-//        System.out.println("### match " + bestMatch + "###");
+        Conversation savedConversation = messageClient.addConversation(
+            new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
+        );
 
+        //TODO
         return a;
 
     }
