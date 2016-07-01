@@ -1,6 +1,5 @@
 package de.extremeenvironment.disasterservice.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -22,8 +21,8 @@ public class Ngo implements Serializable {
     @Column(name = "name")
     private String name;
 
-    @OneToOne(mappedBy = "ngo")
-    @JsonIgnore
+    @OneToOne
+    @JoinColumn(unique = true)
     private Area area;
 
     public Long getId() {

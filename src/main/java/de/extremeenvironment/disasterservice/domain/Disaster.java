@@ -2,7 +2,9 @@ package de.extremeenvironment.disasterservice.domain;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Objects;
 
 /**
@@ -21,10 +23,12 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
     @Column(name = "is_expired")
     private Boolean isExpired;
 
-    @Column(name = "lat")
+    @NotNull
+    @Column(name = "lat", nullable = false)
     private Float lat;
 
-    @Column(name = "lon")
+    @NotNull
+    @Column(name = "lon", nullable = false)
     private Float lon;
 
     @Column(name = "title")
@@ -33,10 +37,13 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "date")
+    private LocalDate date;
+
     @ManyToOne(fetch=FetchType.EAGER)
     private DisasterType disasterType;
 
-    @ManyToOne(fetch=FetchType.EAGER,cascade = CascadeType.REMOVE)
+    @ManyToOne
     private Area area;
 
     public Long getId() {
@@ -87,6 +94,14 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
         this.description = description;
     }
 
+    public LocalDate getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
+
     public DisasterType getDisasterType() {
         return disasterType;
     }
@@ -132,6 +147,7 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
             ", lon='" + lon + "'" +
             ", title='" + title + "'" +
             ", description='" + description + "'" +
+            ", date='" + date + "'" +
             '}';
     }
 }

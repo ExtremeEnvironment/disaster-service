@@ -4,7 +4,10 @@
             "relationshipName": "disasterType",
             "otherEntityName": "disasterType",
             "relationshipType": "many-to-one",
-            "otherEntityField": "id"
+            "otherEntityField": "id",
+            "fieldValidateRules": [
+                "required"
+            ]
         },
         {
             "relationshipName": "area",
@@ -22,12 +25,18 @@
         {
             "fieldId": 2,
             "fieldName": "lat",
-            "fieldType": "Float"
+            "fieldType": "Float",
+            "fieldValidateRules": [
+                "required"
+            ]
         },
         {
             "fieldId": 3,
             "fieldName": "lon",
-            "fieldType": "Float"
+            "fieldType": "Float",
+            "fieldValidateRules": [
+            "required"
+        ]
         },
         {
             "fieldName": "title",
@@ -36,6 +45,10 @@
         {
             "fieldName": "description",
             "fieldType": "String"
+        },
+        {
+            "fieldName": "date",
+            "fieldType": "LocalDate"
         }
     ],
     "changelogDate": "20160603162820",

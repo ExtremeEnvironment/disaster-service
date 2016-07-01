@@ -40,6 +40,12 @@ public class Action extends AbstractAuditingEntity implements Serializable {
     @Column(name = "action_type", nullable = false)
     private ActionType actionType;
 
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "description")
+    private String description;
+
     @ManyToOne(fetch=FetchType.EAGER)
     private Disaster disaster;
 
@@ -49,8 +55,8 @@ public class Action extends AbstractAuditingEntity implements Serializable {
 
     @ManyToMany(fetch=FetchType.EAGER)
     @JoinTable(name = "action_action_object",
-        joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
-        inverseJoinColumns = @JoinColumn(name = "action_objects_id", referencedColumnName = "ID"))
+               joinColumns = @JoinColumn(name="actions_id", referencedColumnName="ID"),
+               inverseJoinColumns = @JoinColumn(name="action_objects_id", referencedColumnName="ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
 
     @OneToOne(fetch=FetchType.EAGER)
@@ -64,6 +70,13 @@ public class Action extends AbstractAuditingEntity implements Serializable {
         joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "rejected_matches_id", referencedColumnName = "ID"))
     private Set<Action> rejectedMatches = new HashSet<>();
+
+
+    public void addActionObject(ActionObject ao){actionObjects.add(ao);}
+
+    public void addRejectedMatch(Action action) {
+        this.rejectedMatches.add(action);
+    }
 
     public Long getId() {
         return id;
@@ -105,6 +118,22 @@ public class Action extends AbstractAuditingEntity implements Serializable {
         this.actionType = actionType;
     }
 
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     public Disaster getDisaster() {
         return disaster;
     }
@@ -124,8 +153,6 @@ public class Action extends AbstractAuditingEntity implements Serializable {
     public Set<ActionObject> getActionObjects() {
         return actionObjects;
     }
-
-    public void addActionObject(ActionObject ao){actionObjects.add(ao);}
 
     public void setActionObjects(Set<ActionObject> actionObjects) {
         this.actionObjects = actionObjects;
@@ -147,11 +174,6 @@ public class Action extends AbstractAuditingEntity implements Serializable {
         this.rejectedMatches = actions;
     }
 
-    public void addRejectedMatch(Action action) {
-        this.rejectedMatches.add(action);
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -161,7 +183,7 @@ public class Action extends AbstractAuditingEntity implements Serializable {
             return false;
         }
         Action action = (Action) o;
-        if (action.id == null || id == null) {
+        if(action.id == null || id == null) {
             return false;
         }
         return Objects.equals(id, action.id);
@@ -179,8 +201,9 @@ public class Action extends AbstractAuditingEntity implements Serializable {
             ", lat='" + lat + "'" +
             ", lon='" + lon + "'" +
             ", isExpired='" + isExpired + "'" +
-            ", disaster'" + disaster + "'" +
             ", actionType='" + actionType + "'" +
+            ", title='" + title + "'" +
+            ", description='" + description + "'" +
             '}';
     }
 }

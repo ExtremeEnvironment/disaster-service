@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="linus (generated)" id="1467291864134-1">
+        <addColumn tableName="disaster">
+            <column name="date" type="date"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-2">
+        <dropColumn columnName="CREATED_BY" tableName="DISASTER"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-3">
+        <dropColumn columnName="CREATED_DATE" tableName="DISASTER"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-4">
+        <dropColumn columnName="ID" tableName="ACTION_ACTION_OBJECT"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-5">
+        <dropColumn columnName="ID" tableName="ACTION_REJECTED_MATCHES"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-6">
+        <dropColumn columnName="LAST_MODIFIED_BY" tableName="DISASTER"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-7">
+        <dropColumn columnName="LAST_MODIFIED_DATE" tableName="DISASTER"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-8">
+        <dropColumn columnName="RESET_DATE" tableName="ACTION"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-9">
+        <dropColumn columnName="RESET_DATE" tableName="DISASTER"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-10">
+        <dropDefaultValue columnDataType="timestamp" columnName="created_date" tableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-11">
+        <dropNotNullConstraint columnDataType="bigint" columnName="user_id" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-12">
+        <dropPrimaryKey tableName="action_action_object"/>
+        <addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467291864134-13">
+        <dropPrimaryKey tableName="action_rejected_matches"/>
+        <addPrimaryKey columnNames="actions_id, rejected_matches_id" tableName="action_rejected_matches"/>
+    </changeSet>
+</databaseChangeLog>

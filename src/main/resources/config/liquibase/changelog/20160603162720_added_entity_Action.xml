@@ -37,6 +37,14 @@
                 <constraints nullable="false" />
             </column>
 
+            <column name="title" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
+            <column name="description" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+
             <column name="disaster_id" type="bigint">
                 <constraints nullable="true" />
             </column>
@@ -62,8 +70,10 @@
             </column>
         </createTable>
 
-        <!--<addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>-->
 
+
+
+        <!--<addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>-->
 
     </changeSet>
 </databaseChangeLog>

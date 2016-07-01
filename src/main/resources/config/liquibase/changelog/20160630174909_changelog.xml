@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="linus (generated)" id="1467301811009-1">
+        <createTable tableName="action">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="actionPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+            <column name="action_type" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="is_expired" type="BOOLEAN"/>
+            <column name="lat" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="lon" type="FLOAT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="disaster_id" type="BIGINT"/>
+            <column name="match_id" type="BIGINT"/>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-2">
+        <createTable tableName="action_action_object">
+            <column name="actions_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="action_objects_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-3">
+        <createTable tableName="action_object">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="action_objectPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+            <column name="category_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-4">
+        <createTable tableName="action_rejected_matches">
+            <column name="actions_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="rejected_matches_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-5">
+        <createTable tableName="area">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="areaPK"/>
+            </column>
+            <column name="ngo_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-6">
+        <createTable tableName="category">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="categoryPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-7">
+        <createTable tableName="corner">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="cornerPK"/>
+            </column>
+            <column name="lat" type="FLOAT"/>
+            <column name="lon" type="FLOAT"/>
+            <column name="area_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-8">
+        <createTable tableName="disaster">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="disasterPK"/>
+            </column>
+            <column name="created_by" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_date" type="timestamp">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_modified_by" type="VARCHAR(50)"/>
+            <column name="last_modified_date" type="timestamp"/>
+            <column name="date" type="date"/>
+            <column name="description" type="VARCHAR(255)"/>
+            <column name="is_expired" type="BOOLEAN"/>
+            <column name="lat" type="FLOAT"/>
+            <column name="lon" type="FLOAT"/>
+            <column name="title" type="VARCHAR(255)"/>
+            <column name="area_id" type="BIGINT"/>
+            <column name="disaster_type_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-9">
+        <createTable tableName="disaster_type">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="disaster_typePK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-10">
+        <createTable tableName="jhi_persistent_audit_event">
+            <column autoIncrement="true" name="event_id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="jhi_persistent_audit_eventPK"/>
+            </column>
+            <column name="event_date" type="timestamp"/>
+            <column name="event_type" type="VARCHAR(255)"/>
+            <column name="principal" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-11">
+        <createTable tableName="jhi_persistent_audit_evt_data">
+            <column name="event_id" type="BIGINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="value" type="VARCHAR(255)"/>
+            <column name="name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-12">
+        <createTable tableName="jhi_user">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="jhi_userPK"/>
+            </column>
+            <column name="user_id" type="BIGINT"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-13">
+        <createTable tableName="ngo">
+            <column autoIncrement="true" name="id" type="BIGINT">
+                <constraints primaryKey="true" primaryKeyName="ngoPK"/>
+            </column>
+            <column name="name" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-14">
+        <addPrimaryKey columnNames="actions_id, action_objects_id" tableName="action_action_object"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-15">
+        <addPrimaryKey columnNames="actions_id, rejected_matches_id" tableName="action_rejected_matches"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-16">
+        <addPrimaryKey columnNames="event_id, name" tableName="jhi_persistent_audit_evt_data"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-17">
+        <addUniqueConstraint columnNames="match_id" constraintName="UC_ACTIONMATCH_ID_COL" tableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-18">
+        <addUniqueConstraint columnNames="ngo_id" constraintName="UC_AREANGO_ID_COL" tableName="area"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-19">
+        <addUniqueConstraint columnNames="user_id" constraintName="UC_JHI_USERUSER_ID_COL" tableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-20">
+        <addForeignKeyConstraint baseColumnNames="category_id" baseTableName="action_object" constraintName="FK_1bg0msg16hqmsyo104f17vfqn" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="category"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-21">
+        <addForeignKeyConstraint baseColumnNames="area_id" baseTableName="corner" constraintName="FK_1lh4lmqc3rv5tpoklw8cfh850" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="area"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-22">
+        <addForeignKeyConstraint baseColumnNames="actions_id" baseTableName="action_action_object" constraintName="FK_2ww12inttyg4kbrxkt581fmym" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-23">
+        <addForeignKeyConstraint baseColumnNames="area_id" baseTableName="disaster" constraintName="FK_6liuo4ioom10fvt2pkynjsk3y" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="area"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-24">
+        <addForeignKeyConstraint baseColumnNames="match_id" baseTableName="action" constraintName="FK_aksxuewrxjto77uy4d11caock" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-25">
+        <addForeignKeyConstraint baseColumnNames="action_objects_id" baseTableName="action_action_object" constraintName="FK_cgrscnix5mi7x8yeekpu6nei3" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action_object"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-26">
+        <addForeignKeyConstraint baseColumnNames="event_id" baseTableName="jhi_persistent_audit_evt_data" constraintName="FK_evb970jo5bi8aon8s65c0lyyn" deferrable="false" initiallyDeferred="false" referencedColumnNames="event_id" referencedTableName="jhi_persistent_audit_event"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-27">
+        <addForeignKeyConstraint baseColumnNames="ngo_id" baseTableName="area" constraintName="FK_hisibpbxdeqtxf4n4dub735jn" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="ngo"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-28">
+        <addForeignKeyConstraint baseColumnNames="actions_id" baseTableName="action_rejected_matches" constraintName="FK_i4tqpcgghg6lw7akl98s64prw" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-29">
+        <addForeignKeyConstraint baseColumnNames="disaster_id" baseTableName="action" constraintName="FK_m7hhq77l5yrgr4hvl4i3tnl38" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="disaster"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-30">
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="action" constraintName="FK_mjqldgbv9nm881gue9mgju2jv" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="jhi_user"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-31">
+        <addForeignKeyConstraint baseColumnNames="rejected_matches_id" baseTableName="action_rejected_matches" constraintName="FK_teu2thbv82ss3qbih3mm5yc1l" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="action"/>
+    </changeSet>
+    <changeSet author="linus (generated)" id="1467301811009-32">
+        <addForeignKeyConstraint baseColumnNames="disaster_type_id" baseTableName="disaster" constraintName="FK_y6j1j1mql0iue8l9brpbj84q" deferrable="false" initiallyDeferred="false" referencedColumnNames="id" referencedTableName="disaster_type"/>
+    </changeSet>
+</databaseChangeLog>

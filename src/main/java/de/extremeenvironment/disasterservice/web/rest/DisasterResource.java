@@ -60,9 +60,12 @@ public class DisasterResource {
         if (disaster.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "idexists", "A new disaster cannot already have an ID")).body(null);
         }
+
         Disaster dis = getDisasterForDisaster(disaster);
 
-        if (dis != null && (dis.getDisasterType() == disaster.getDisasterType())&& (dis.isIsExpired()==false)) {
+        disaster.setIsExpired(false);
+
+        if ((dis != null) && (dis.getDisasterType() == disaster.getDisasterType())&& (dis.isIsExpired()==false)) {
             Action action = new Action();
             action.setActionType(ActionType.KNOWLEDGE);
             action.setLat(disaster.getLat());
@@ -70,8 +73,8 @@ public class DisasterResource {
             actionRepository.saveAndFlush(action);
 
             return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("disaster", disaster.getId().toString()))
                 .body(dis);
+
         } else {
             Disaster result = disasterRepository.save(disaster);
 
