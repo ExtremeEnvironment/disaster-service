@@ -188,6 +188,45 @@ public class MatchingIntTest {
         assertTrue(results.get(results.size() -2).getMatch() == null);
         assertTrue(results.get(results.size() -1).getMatch() == null);
 
+    }
+
+
+    @Test
+    @Transactional
+    public void actionsTooMuchDistance() throws Exception {
+        Action action1Seek = new Action();
+        action1Seek.setLat(0F);
+        action1Seek.setLon(0F);
+        action1Seek.setIsExpired(false);
+        action1Seek.setActionType(ActionType.SEEK);
+        List<Disaster> disasters = disasterRepository.findAll();
+        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action1Seek)));
+
+
+        Action action2Offer = new Action();
+        action2Offer.setLat(0F);
+        action2Offer.setLon(1F);
+        action2Offer.setIsExpired(false);
+        action2Offer.setActionType(ActionType.OFFER);
+        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
+
+
+        List<Action> results = actionRepository.findAll();
+
+        assertTrue(results.get(results.size() -2).getMatch() == null);
+        assertTrue(results.get(results.size() -1).getMatch() == null);
+
 
 
     }
