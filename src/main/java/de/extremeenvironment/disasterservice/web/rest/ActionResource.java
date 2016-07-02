@@ -239,7 +239,7 @@ public class ActionResource {
 
             Float matchDist = getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.OFFER) ? a.getCreatedDate() : act.getCreatedDate()));
 
-            System.out.println("### " + act.getId() + " " + matchDist + " ###");
+//            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
             if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
                 bestMatchDist = matchDist;
