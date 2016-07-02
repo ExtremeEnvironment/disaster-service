@@ -133,7 +133,7 @@ public class MatchingIntTest {
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+//        action2Offer.setDisaster(disasters.get(disasters.size()-1));
         action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
 
 
