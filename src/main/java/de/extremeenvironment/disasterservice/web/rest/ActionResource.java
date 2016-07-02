@@ -214,7 +214,7 @@ public class ActionResource {
     public Action matchActions(Action a) {
 //        System.out.println("\n\n### matching begin ###");
 
-        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE || a.getDisaster() == null) {
+        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE) {
             return a;
         }
 
@@ -230,7 +230,7 @@ public class ActionResource {
 //        System.out.println("### Matching prior For ###");
 
         for (Action act : possibleMatches) {
-            if (act.getMatch() != null || !a.getDisaster().equals(act.getDisaster())) {
+            if (act.getMatch() != null) {
                 continue;
             }
 
