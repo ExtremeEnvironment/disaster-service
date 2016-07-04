@@ -22,11 +22,9 @@ public class Area implements Serializable {
     private Long id;
 
     @OneToMany(mappedBy = "area",fetch=FetchType.EAGER)
-    @JsonIgnore
     private Set<Corner> corners = new HashSet<>();
 
     @OneToOne(mappedBy = "area")
-    @JsonIgnore
     private Ngo ngo;
 
     @OneToMany(mappedBy = "area",fetch=FetchType.EAGER,cascade = CascadeType.REMOVE)

@@ -161,6 +161,9 @@ public class ActionResource {
     @Timed
     public ResponseEntity<Void> deleteAction(@PathVariable Long id) {
         log.debug("REST request to delete Action : {}", id);
+
+        rejectMatch(actionRepository.getOne(id), true);
+
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
@@ -213,7 +216,7 @@ public class ActionResource {
     public Action matchActions(Action a) {
 //        System.out.println("\n\n### matching begin ###");
 
-        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE || a.getDisaster() == null) {
+        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE) {
             return a;
         }
 
@@ -229,7 +232,7 @@ public class ActionResource {
 //        System.out.println("### Matching prior For ###");
 
         for (Action act : possibleMatches) {
-            if (act.getMatch() != null || !a.getDisaster().equals(act.getDisaster())) {
+            if (act.getMatch() != null) {
                 continue;
             }
 
@@ -240,7 +243,7 @@ public class ActionResource {
 
 //            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
-            if (!actionObjectIntersect.isEmpty() && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
+            if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
                 bestMatchDist = matchDist;
                 bestMatch = act;
             }
@@ -287,7 +290,11 @@ public class ActionResource {
      *
      * @param a the action the match shall be removed from
      */
-    public void rejectMatch(Action a) {
+    public void rejectMatch(Action a, boolean priorToDeletion) {
+        if (a.getMatch() == null) {
+            return;
+        }
+
         a.getMatch().addRejectedMatch(a);
         Action otherAction = a.getMatch();
         a.getMatch().setMatch(null);
@@ -297,9 +304,13 @@ public class ActionResource {
         a.setMatch(null);
         actionRepository.save(a);
 
-        matchActions(a);
-
         matchActions(otherAction);
+
+        if (priorToDeletion) {
+            return;
+        }
+
+        matchActions(a);
     }
 
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
