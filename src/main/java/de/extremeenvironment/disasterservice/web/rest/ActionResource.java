@@ -38,7 +38,7 @@ public class ActionResource {
     @Inject
     private ActionRepository actionRepository;
     @Inject
-    private  DisasterRepository disasterRepository;
+    private DisasterRepository disasterRepository;
 
     @Autowired
     public ActionResource(ActionRepository actionRepositoryRepository,
@@ -63,7 +63,7 @@ public class ActionResource {
         if (action.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
-        if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
+        if ((action.getDisaster() == null) && (action.getActionType() != ActionType.OFFER)) {
             if (getDisasterForAction(action) == null) {
 
                 Disaster disaster = new Disaster();
@@ -78,7 +78,7 @@ public class ActionResource {
             }
         }
 
-       action = matchActions(action);
+        action = matchActions(action);
 
         Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
@@ -162,7 +162,7 @@ public class ActionResource {
     public ResponseEntity<Void> deleteAction(@PathVariable Long id) {
         log.debug("REST request to delete Action : {}", id);
 
-        rejectMatch(actionRepository.getOne(id));
+        rejectMatch(actionRepository.getOne(id), true);
 
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
@@ -174,7 +174,7 @@ public class ActionResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
-        return actionRepository.findByActionType(userId,actionType);
+        return actionRepository.findByActionType(userId, actionType);
 
     }
 
@@ -205,7 +205,6 @@ public class ActionResource {
         }
         return disasterReturn;
     }
-
 
 
     /**
@@ -270,7 +269,7 @@ public class ActionResource {
      *
      * @param a the action the match shall be removed from
      */
-    public void rejectMatch(Action a) {
+    public void rejectMatch(Action a, boolean priorToDeletion) {
         if (a.getMatch() == null) {
             return;
         }
@@ -284,9 +283,13 @@ public class ActionResource {
         a.setMatch(null);
         actionRepository.save(a);
 
-        matchActions(a);
-
         matchActions(otherAction);
+
+        if (priorToDeletion) {
+            return;
+        }
+
+        matchActions(a);
     }
 
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
