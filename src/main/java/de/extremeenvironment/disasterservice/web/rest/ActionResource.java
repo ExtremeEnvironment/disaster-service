@@ -38,7 +38,7 @@ public class ActionResource {
     @Inject
     private ActionRepository actionRepository;
     @Inject
-    private  DisasterRepository disasterRepository;
+    private DisasterRepository disasterRepository;
 
     @Autowired
     public ActionResource(ActionRepository actionRepositoryRepository,
@@ -63,7 +63,7 @@ public class ActionResource {
         if (action.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
-        if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
+        if ((action.getDisaster() == null) && (action.getActionType() != ActionType.OFFER)) {
             if (getDisasterForAction(action) == null) {
 
                 Disaster disaster = new Disaster();
@@ -78,7 +78,7 @@ public class ActionResource {
             }
         }
 
-       action = matchActions(action);
+        action = matchActions(action);
 
         Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
@@ -171,7 +171,7 @@ public class ActionResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
-        return actionRepository.findByActionType(userId,actionType);
+        return actionRepository.findByActionType(userId, actionType);
 
     }
 
@@ -202,7 +202,6 @@ public class ActionResource {
         }
         return disasterReturn;
     }
-
 
 
     /**
@@ -260,6 +259,27 @@ public class ActionResource {
         return a;
 
     }
+
+    @RequestMapping(value = "/actions/{id}/likes",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Action> updateLikes(@PathVariable Long id) throws URISyntaxException {
+
+      if(!actionRepository.findActionById(id).isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Action action= actionRepository.findActionById(id).get();
+
+        log.debug("REST request to update Action : {}", action);
+        action.setLikeCounter(action.getLikeCounter() + 1);
+        actionRepository.save(action);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
+            .body(action);
+    }
+
 
     /**
      * removes a match from actions

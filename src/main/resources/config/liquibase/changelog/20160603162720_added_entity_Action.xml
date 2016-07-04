@@ -45,6 +45,10 @@
                 <constraints nullable="true" />
             </column>
 
+            <column name="like_counter" type="bigint">
+                <constraints nullable="true" />
+            </column>
+
             <column name="disaster_id" type="bigint">
                 <constraints nullable="true" />
             </column>

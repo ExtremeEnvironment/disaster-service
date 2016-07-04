@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 
 /**
@@ -46,6 +47,9 @@ public class Action extends AbstractAuditingEntity implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @Column(name="like_counter")
+    private Long likeCounter;
+
     @ManyToOne(fetch=FetchType.EAGER)
     private Disaster disaster;
 
@@ -70,6 +74,10 @@ public class Action extends AbstractAuditingEntity implements Serializable {
         joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),
         inverseJoinColumns = @JoinColumn(name = "rejected_matches_id", referencedColumnName = "ID"))
     private Set<Action> rejectedMatches = new HashSet<>();
+
+    public Action() {
+        this.likeCounter= new Long(0);
+    }
 
 
     public void addActionObject(ActionObject ao){actionObjects.add(ao);}
@@ -194,6 +202,14 @@ public class Action extends AbstractAuditingEntity implements Serializable {
         return Objects.hashCode(id);
     }
 
+    public Long getLikeCounter() {
+        return likeCounter;
+    }
+
+    public void setLikeCounter(Long likeCounter) {
+        this.likeCounter = likeCounter;
+    }
+
     @Override
     public String toString() {
         return "Action{" +
@@ -204,6 +220,7 @@ public class Action extends AbstractAuditingEntity implements Serializable {
             ", actionType='" + actionType + "'" +
             ", title='" + title + "'" +
             ", description='" + description + "'" +
+            "likeCounter='" + likeCounter + "'" +
             '}';
     }
 }
