@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
@@ -83,6 +84,8 @@ public class ActionResourceIntTest {
     @Inject
     private DisasterRepository disasterRepository;
 
+    @Inject
+    MessageClient messageClient;
 
 
     private MockMvc restActionMockMvc;
@@ -94,8 +97,9 @@ public class ActionResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository,disasterRepository);
-        ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
+        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
+
+
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -127,9 +131,9 @@ public class ActionResourceIntTest {
         // Create the Action
 
         restActionMockMvc.perform(post("/api/actions")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(action)))
-                .andExpect(status().isCreated());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action)))
+            .andExpect(status().isCreated());
 
         // Validate the Action in the database
         List<Action> actions = actionRepository.findAll();
@@ -139,8 +143,8 @@ public class ActionResourceIntTest {
         assertThat(testAction.getLon()).isEqualTo(DEFAULT_LON);
         assertThat(testAction.isIsExpired()).isEqualTo(DEFAULT_IS_EXPIRED);
         assertThat(testAction.getActionType()).isEqualTo(DEFAULT_ACTION_TYPE);
-       // assertThat(testAction.getUser().getId()).isEqualTo(user.getId());
-      //  user.getActions().add(action);
+        // assertThat(testAction.getUser().getId()).isEqualTo(user.getId());
+        //  user.getActions().add(action);
         System.out.println(action.toString());
         System.out.println(user.toString());
 
@@ -156,9 +160,9 @@ public class ActionResourceIntTest {
         // Create the Action, which fails.
 
         restActionMockMvc.perform(post("/api/actions")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(action)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action)))
+            .andExpect(status().isBadRequest());
 
         List<Action> actions = actionRepository.findAll();
         assertThat(actions).hasSize(databaseSizeBeforeTest);
@@ -174,9 +178,9 @@ public class ActionResourceIntTest {
         // Create the Action, which fails.
 
         restActionMockMvc.perform(post("/api/actions")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(action)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action)))
+            .andExpect(status().isBadRequest());
 
         List<Action> actions = actionRepository.findAll();
         assertThat(actions).hasSize(databaseSizeBeforeTest);
@@ -192,9 +196,9 @@ public class ActionResourceIntTest {
         // Create the Action, which fails.
 
         restActionMockMvc.perform(post("/api/actions")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(action)))
-                .andExpect(status().isBadRequest());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action)))
+            .andExpect(status().isBadRequest());
 
         List<Action> actions = actionRepository.findAll();
         assertThat(actions).hasSize(databaseSizeBeforeTest);
@@ -208,13 +212,13 @@ public class ActionResourceIntTest {
 
         // Get all the actions
         restActionMockMvc.perform(get("/api/actions?sort=id,desc"))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.[*].id").value(hasItem(action.getId().intValue())))
-                .andExpect(jsonPath("$.[*].lat").value(hasItem(DEFAULT_LAT.doubleValue())))
-                .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.doubleValue())))
-                .andExpect(jsonPath("$.[*].isExpired").value(hasItem(DEFAULT_IS_EXPIRED.booleanValue())))
-                .andExpect(jsonPath("$.[*].actionType").value(hasItem(DEFAULT_ACTION_TYPE.toString())));
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(action.getId().intValue())))
+            .andExpect(jsonPath("$.[*].lat").value(hasItem(DEFAULT_LAT.doubleValue())))
+            .andExpect(jsonPath("$.[*].lon").value(hasItem(DEFAULT_LON.doubleValue())))
+            .andExpect(jsonPath("$.[*].isExpired").value(hasItem(DEFAULT_IS_EXPIRED.booleanValue())))
+            .andExpect(jsonPath("$.[*].actionType").value(hasItem(DEFAULT_ACTION_TYPE.toString())));
     }
 
     @Test
@@ -239,7 +243,7 @@ public class ActionResourceIntTest {
     public void getNonExistingAction() throws Exception {
         // Get the action
         restActionMockMvc.perform(get("/api/actions/{id}", Long.MAX_VALUE))
-                .andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -258,9 +262,9 @@ public class ActionResourceIntTest {
         updatedAction.setActionType(UPDATED_ACTION_TYPE);
 
         restActionMockMvc.perform(put("/api/actions")
-                .contentType(TestUtil.APPLICATION_JSON_UTF8)
-                .content(TestUtil.convertObjectToJsonBytes(updatedAction)))
-                .andExpect(status().isOk());
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(updatedAction)))
+            .andExpect(status().isOk());
 
         // Validate the Action in the database
         List<Action> actions = actionRepository.findAll();
@@ -311,19 +315,17 @@ public class ActionResourceIntTest {
         action.setUser(user);
         actionRepository.saveAndFlush(action);
 
-        restActionMockMvc.perform(get("/api/action/{userId}/{actionType}",user.getId(), ActionType.OFFER))
+        restActionMockMvc.perform(get("/api/action/{userId}/{actionType}", user.getId(), ActionType.OFFER))
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.[*].actionType").value(hasItem(ActionType.OFFER.name())));
-
-
 
 
     }
 
     @Test
     @Transactional
-    public void testActionIsMatchWithCatastrophy () throws Exception {
+    public void testActionIsMatchWithCatastrophy() throws Exception {
         Float lat = 64F;
         Float lon = 64F;
         Action actionT = new Action();
@@ -355,15 +357,14 @@ public class ActionResourceIntTest {
 
         List<Action> actions = actionRepository.findAll();
 
-        Action testAction = actions.get(actions.size() -2);
-        Action testAction2 = actions.get(actions.size() -1) ;
+        Action testAction = actions.get(actions.size() - 2);
+        Action testAction2 = actions.get(actions.size() - 1);
 
 
         assertTrue(testAction.getDisaster().equals(disaster));
         assertFalse(testAction2.getDisaster().equals(disaster));
 
     }
-
 
 
 }

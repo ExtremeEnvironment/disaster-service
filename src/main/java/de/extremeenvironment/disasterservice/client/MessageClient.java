@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 /**
- * Created by over on 30.06.2016.
+ * Created by Jonathan on 30.06.2016.
  */
-@FeignClient("http://messageclient/api")
+@FeignClient("http://messageservice/api")
 public interface MessageClient {
 
 
