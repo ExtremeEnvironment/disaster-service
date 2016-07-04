@@ -271,6 +271,10 @@ public class ActionResource {
      * @param a the action the match shall be removed from
      */
     public void rejectMatch(Action a) {
+        if (a.getMatch() == null) {
+            return;
+        }
+
         a.getMatch().addRejectedMatch(a);
         Action otherAction = a.getMatch();
         a.getMatch().setMatch(null);
