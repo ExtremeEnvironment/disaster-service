@@ -161,6 +161,9 @@ public class ActionResource {
     @Timed
     public ResponseEntity<Void> deleteAction(@PathVariable Long id) {
         log.debug("REST request to delete Action : {}", id);
+
+        rejectMatch(actionRepository.getOne(id));
+
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }

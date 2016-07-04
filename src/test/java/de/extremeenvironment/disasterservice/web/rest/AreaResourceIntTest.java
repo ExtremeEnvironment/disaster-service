@@ -111,11 +111,28 @@ public class AreaResourceIntTest {
     public void createArea() throws Exception {
         int databaseSizeBeforeCreate = areaRepository.findAll().size();
 
-        Corner c = new Corner();
-        c.setArea(area);
-
         Set<Corner> cornerSet = new HashSet<>();
-        cornerSet.add(c);
+
+        Corner c11 = new Corner();
+        c11.setLat(1F);
+        c11.setLon(1F);
+        cornerSet.add(c11);
+        c11.setArea(area);
+
+        Corner c12 = new Corner();
+        c12.setLat(2F);
+        c12.setLon(1F);
+        cornerSet.add(c12);
+        c12.setArea(area);
+
+
+        Corner c13 = new Corner();
+        c13.setLat(2F);
+        c13.setLon(2F);
+        cornerSet.add(c13);
+        c13.setArea(area);
+
+
         area.setCorners(cornerSet);
 
 
@@ -257,13 +274,6 @@ public class AreaResourceIntTest {
 
         resultsCorner.forEach(c -> assertTrue(c.getArea().equals(resultsArea.get(resultsArea.size() - 1))));
 
-//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c11));
-//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c12));
-//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c13));
-//        assertTrue(resultsArea.get(resultsArea.size() - 1).getCorners().contains(c14));
-
-//        areaRepository.delete(results.get(0));
-
     }
 
     @Test
@@ -350,6 +360,188 @@ public class AreaResourceIntTest {
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(a2)))
             .andExpect(status().isBadRequest());
+
+
+    }
+
+    @Test
+    @Transactional
+    public void createNonOverlappingArea() throws Exception {
+        Set<Corner> cornerSet1 = new HashSet<>();
+        Set<Corner> cornerSet2 = new HashSet<>();
+
+
+        Area a1 = new Area();
+        Area a2 = new Area();
+
+
+        Corner c11 = new Corner();
+        c11.setLat(1F);
+        c11.setLon(1F);
+        cornerSet1.add(c11);
+        c11.setArea(a1);
+
+        Corner c12 = new Corner();
+        c12.setLat(1F);
+        c12.setLon(2F);
+        cornerSet1.add(c12);
+        c12.setArea(a1);
+
+        Corner c13 = new Corner();
+        c13.setLat(2F);
+        c13.setLon(2F);
+        cornerSet1.add(c13);
+        c13.setArea(a1);
+
+        Corner c14 = new Corner();
+        c14.setLat(2F);
+        c14.setLon(1F);
+        cornerSet1.add(c14);
+        c14.setArea(a1);
+
+
+
+        Corner c21 = new Corner();
+        c21.setLat(3F);
+        c21.setLon(3F);
+        cornerSet2.add(c21);
+        c21.setArea(a2);
+
+        Corner c22 = new Corner();
+        c22.setLat(4F);
+        c22.setLon(3F);
+        cornerSet2.add(c22);
+        c22.setArea(a2);
+
+        Corner c23 = new Corner();
+        c23.setLat(4F);
+        c23.setLon(4F);
+        cornerSet2.add(c23);
+        c23.setArea(a2);
+
+        Corner c24 = new Corner();
+        c24.setLat(3F);
+        c24.setLon(4F);
+        cornerSet2.add(c24);
+        c24.setArea(a2);
+
+
+        a1.setCorners(cornerSet1);
+        a2.setCorners(cornerSet2);
+
+        System.out.println(a1.getCorners());
+        System.out.println(a2.getCorners());
+
+
+        log.debug("area {}", TestUtil.convertObjectToJsonBytes(a1));
+        log.debug("area {}", TestUtil.convertObjectToJsonBytes(a2));
+
+        log.debug("first insert begin");
+
+
+        restAreaMockMvc.perform(post("/api/areas")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(a1)))
+            .andExpect(status().isCreated());
+
+        log.debug("first insert finished");
+
+
+        restAreaMockMvc.perform(post("/api/areas")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(a2)))
+            .andExpect(status().isCreated());
+
+
+    }
+
+    @Test
+    @Transactional
+    public void createOverlappingAreaWithinMargins() throws Exception {
+        Set<Corner> cornerSet1 = new HashSet<>();
+        Set<Corner> cornerSet2 = new HashSet<>();
+
+
+        Area a1 = new Area();
+        Area a2 = new Area();
+
+
+        Corner c11 = new Corner();
+        c11.setLat(1F);
+        c11.setLon(1F);
+        cornerSet1.add(c11);
+        c11.setArea(a1);
+
+        Corner c12 = new Corner();
+        c12.setLat(1F);
+        c12.setLon(2F);
+        cornerSet1.add(c12);
+        c12.setArea(a1);
+
+        Corner c13 = new Corner();
+        c13.setLat(2F);
+        c13.setLon(2F);
+        cornerSet1.add(c13);
+        c13.setArea(a1);
+
+        Corner c14 = new Corner();
+        c14.setLat(2F);
+        c14.setLon(1F);
+        cornerSet1.add(c14);
+        c14.setArea(a1);
+
+
+
+        Corner c21 = new Corner();
+        c21.setLat(1.95F);
+        c21.setLon(1F);
+        cornerSet2.add(c21);
+        c21.setArea(a2);
+
+        Corner c22 = new Corner();
+        c22.setLat(1.95F);
+        c22.setLon(2F);
+        cornerSet2.add(c22);
+        c22.setArea(a2);
+
+        Corner c23 = new Corner();
+        c23.setLat(2.95F);
+        c23.setLon(2F);
+        cornerSet2.add(c23);
+        c23.setArea(a2);
+
+        Corner c24 = new Corner();
+        c24.setLat(2.95F);
+        c24.setLon(1F);
+        cornerSet2.add(c24);
+        c24.setArea(a2);
+
+
+        a1.setCorners(cornerSet1);
+        a2.setCorners(cornerSet2);
+
+        System.out.println(a1.getCorners());
+        System.out.println(a2.getCorners());
+
+
+        log.debug("area {}", TestUtil.convertObjectToJsonBytes(a1));
+        log.debug("area {}", TestUtil.convertObjectToJsonBytes(a2));
+
+        log.debug("first insert begin");
+
+
+        restAreaMockMvc.perform(post("/api/areas")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(a1)))
+            .andExpect(status().isCreated());
+
+        log.debug("first insert finished");
+
+
+        restAreaMockMvc.perform(post("/api/areas")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(a2)))
+            .andExpect(status().isCreated());
 
 
     }
