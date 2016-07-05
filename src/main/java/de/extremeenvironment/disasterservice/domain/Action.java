@@ -221,6 +221,7 @@ public class Action extends AbstractAuditingEntity implements Serializable {
             ", title='" + title + "'" +
             ", description='" + description + "'" +
             "likeCounter='" + likeCounter + "'" +
+            "disaster='" + disaster + "'" +
             '}';
     }
 }
