@@ -63,12 +63,14 @@ public class Action extends AbstractAuditingEntity implements Serializable {
                inverseJoinColumns = @JoinColumn(name="action_objects_id", referencedColumnName="ID"))
     private Set<ActionObject> actionObjects = new HashSet<>();
 
-    @OneToOne(fetch=FetchType.EAGER)
+    @OneToOne(fetch=FetchType.EAGER,
+        cascade = CascadeType.REMOVE)
     @JsonIgnore
     @JoinColumn(unique = true)
     private Action match;
 
-    @ManyToMany(fetch=FetchType.EAGER)
+    @ManyToMany(fetch=FetchType.EAGER,
+        cascade = CascadeType.REMOVE)
     @JsonIgnore
     @JoinTable(name = "action_rejected_matches",
         joinColumns = @JoinColumn(name = "actions_id", referencedColumnName = "ID"),

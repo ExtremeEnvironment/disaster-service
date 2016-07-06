@@ -61,7 +61,8 @@ public class ActionResource {
     public ResponseEntity<Action> createAction(@Valid @RequestBody Action action) throws URISyntaxException {
         log.debug("REST request to save Action : {}", action);
         if (action.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
         if ((action.getDisaster() == null) && (action.getActionType() != ActionType.OFFER)) {
             if (getDisasterForAction(action) == null) {
@@ -162,7 +163,7 @@ public class ActionResource {
     public ResponseEntity<Void> deleteAction(@PathVariable Long id) {
         log.debug("REST request to delete Action : {}", id);
 
-        rejectMatch(actionRepository.getOne(id), true);
+//        rejectMatch(actionRepository.getOne(id), true);
 
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
@@ -177,6 +178,58 @@ public class ActionResource {
         return actionRepository.findByActionType(userId, actionType);
 
     }
+
+    @RequestMapping(value = "/actions/{id}/likes",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Action> updateLikes(@PathVariable Long id) throws URISyntaxException {
+
+        if (!actionRepository.findActionById(id).isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Action action = actionRepository.findActionById(id).get();
+
+        log.debug("REST request to update Action : {}", action);
+        action.setLikeCounter(action.getLikeCounter() + 1);
+        actionRepository.save(action);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
+            .body(action);
+    }
+
+
+    @RequestMapping(value = "/actions/{id}/rejectMatch",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Action> rejectMatchFromAction(@PathVariable Long id) throws URISyntaxException {
+
+        if (!actionRepository.findActionById(id).isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Action action = actionRepository.getOne(id);
+
+        System.out.println(action);
+        System.out.println(action.getMatch());
+
+        if (action.getMatch() == null) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
+        }
+
+        log.debug("REST request to reject match : {}", action);
+
+        action = rejectMatch(action);
+        Action result = actionRepository.save(action);
+
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
+            .body(result);
+    }
+
 
     /**
      * @param action
@@ -205,7 +258,6 @@ public class ActionResource {
         }
         return disasterReturn;
     }
-
 
     /**
      * checks wether a match is available for a specific action
@@ -263,26 +315,6 @@ public class ActionResource {
 
     }
 
-    @RequestMapping(value = "/actions/{id}/likes",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Action> updateLikes(@PathVariable Long id) throws URISyntaxException {
-
-      if(!actionRepository.findActionById(id).isPresent()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        Action action= actionRepository.findActionById(id).get();
-
-        log.debug("REST request to update Action : {}", action);
-        action.setLikeCounter(action.getLikeCounter() + 1);
-        actionRepository.save(action);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
-            .body(action);
-    }
-
 
     /**
      * removes a match from actions
@@ -290,10 +322,10 @@ public class ActionResource {
      *
      * @param a the action the match shall be removed from
      */
-    public void rejectMatch(Action a, boolean priorToDeletion) {
-        if (a.getMatch() == null) {
-            return;
-        }
+    public Action rejectMatch(Action a) {
+//        if (a.getMatch() == null) {
+//            return ;
+//        }
 
         a.getMatch().addRejectedMatch(a);
         Action otherAction = a.getMatch();
@@ -302,15 +334,13 @@ public class ActionResource {
 
         a.addRejectedMatch(a.getMatch());
         a.setMatch(null);
-        actionRepository.save(a);
+//        actionRepository.save(a);
 
         matchActions(otherAction);
 
-        if (priorToDeletion) {
-            return;
-        }
-
         matchActions(a);
+
+        return a;
     }
 
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {

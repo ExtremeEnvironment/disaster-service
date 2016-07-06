@@ -383,6 +383,4 @@ public class ActionResourceIntTest {
             .andExpect(status().is4xxClientError());
 
     }
-
-
 }
