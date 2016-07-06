@@ -383,4 +383,23 @@ public class ActionResourceIntTest {
             .andExpect(status().is4xxClientError());
 
     }
+    @Test
+    @Transactional
+    public void testActionKnowledgeByCatastrophe() throws Exception {
+
+       Disaster disaster= disasterRepository.findAll().get(0);
+        List<Action> actions =actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+        System.out.println(disaster);
+
+        restActionMockMvc.perform(get("/api/actions/{id}/knowledge", 3)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(jsonPath("$.[*].id").value(hasItem(actions.get(actions.size()-1).getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(actions.get(actions.size()-2).getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(actions.get(actions.size()-3).getId().intValue()))
+            )
+        ;
+    }
+
+
 }

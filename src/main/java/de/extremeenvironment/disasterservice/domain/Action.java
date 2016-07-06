@@ -4,6 +4,7 @@ package de.extremeenvironment.disasterservice.domain;
 import javax.persistence.*;
 import javax.validation.constraints.*;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
@@ -35,6 +36,9 @@ public class Action extends AbstractAuditingEntity implements Serializable {
 
     @Column(name = "is_expired")
     private Boolean isExpired;
+
+    @Column(name = "date")
+    private LocalDate date;
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -223,6 +227,7 @@ public class Action extends AbstractAuditingEntity implements Serializable {
             ", title='" + title + "'" +
             ", description='" + description + "'" +
             "likeCounter='" + likeCounter + "'" +
+            "disaster='" + disaster + "'" +
             '}';
     }
 }

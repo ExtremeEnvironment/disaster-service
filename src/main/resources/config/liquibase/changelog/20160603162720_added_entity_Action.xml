@@ -49,6 +49,10 @@
                 <constraints nullable="true" />
             </column>
 
+            <column name="date" type="date">
+                <constraints nullable="true" />
+            </column>
+
             <column name="disaster_id" type="bigint">
                 <constraints nullable="true" />
             </column>
