@@ -3,6 +3,7 @@ package de.extremeenvironment.disasterservice.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import de.extremeenvironment.disasterservice.client.Conversation;
 import de.extremeenvironment.disasterservice.client.MessageClient;
+import de.extremeenvironment.disasterservice.client.UserHolder;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
@@ -258,11 +259,17 @@ public class ActionResource {
         if (bestMatch != null) {
             bestMatch.setMatch(a);
             actionRepository.save(bestMatch);
+
+
+            Conversation savedConversation = messageClient.addConversation(
+                new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
+            );
+            messageClient.addMember(new UserHolder(bestMatch.getUser().getUserId()), savedConversation.getId());
+            messageClient.addMember(new UserHolder(a.getUser().getUserId()), savedConversation.getId());
         }
 
-        Conversation savedConversation = messageClient.addConversation(
-            new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
-        );
+
+
 
         //TODO
         return a;

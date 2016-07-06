@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.client;
 
 import org.springframework.cloud.netflix.feign.FeignClient;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -13,7 +14,9 @@ public interface MessageClient {
 
 
    @RequestMapping(method = RequestMethod.POST, value = "/conversations")
-    public Conversation addConversation(@RequestBody Conversation conversation);
+   public Conversation addConversation(@RequestBody Conversation conversation);
 
+    @RequestMapping(method = RequestMethod.POST, value = "/conversations/{conversationId}/member")
+    public UserHolder addMember(@RequestBody UserHolder user, @PathVariable("conversationId") Long conversationId);
 
 }
