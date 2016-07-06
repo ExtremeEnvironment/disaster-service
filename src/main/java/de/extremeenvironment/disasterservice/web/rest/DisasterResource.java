@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Disaster.
@@ -160,6 +161,25 @@ public class DisasterResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("disaster", id.toString())).build();
     }
 
+
+    /**
+     * GET  /disasters/:id/heatmap : get the Knowledge or Seek-actions for "id" disaster
+     *
+     * @param id the id of the disaster to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the disaster, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/disasters/{id}/heatmap",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getActionsInDisasterForHeatmap(@PathVariable Long id) {
+        log.debug("REST request to get all Actions in a Disaster ");
+        List<Action> actions = actionRepository.findByDisasterId(id)
+            .stream().filter(a -> (a.getActionType() == ActionType.KNOWLEDGE || a.getActionType() == ActionType.SEEK))
+            .collect(Collectors.toList());
+        return actions;
+    }
+
     /**
      * @param disaster
      * @return the nearest disaster of an action location, in a radius of 15000km
@@ -189,6 +209,15 @@ public class DisasterResource {
     }
 
 
+    /**
+     *
+     * @param lat1
+     * @param lon1
+     * @param lat2
+     * @param lon2
+     * @param seekDate
+     * @return
+     */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
         Duration d = Duration.between(seekDate, ZonedDateTime.now());
         long waitingDuration = d.getSeconds();
@@ -209,6 +238,14 @@ public class DisasterResource {
     }
 
 
+    /**
+     *
+     * @param lat1
+     * @param lon1
+     * @param lat2
+     * @param lon2
+     * @return
+     */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
         return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
     }

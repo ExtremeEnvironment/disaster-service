@@ -170,6 +170,12 @@ public class ActionResource {
     }
 
 
+    /**
+     *
+     * @param userId
+     * @param actionType
+     * @return
+     */
     @RequestMapping(value = "/action/{userId}/{actionType}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -179,6 +185,12 @@ public class ActionResource {
 
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     * @throws URISyntaxException
+     */
     @RequestMapping(value = "/actions/{id}/likes",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -199,7 +211,12 @@ public class ActionResource {
             .body(action);
     }
 
-
+    /**
+     *
+     * @param id
+     * @return
+     * @throws URISyntaxException
+     */
     @RequestMapping(value = "/actions/{id}/rejectMatch",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -229,6 +246,8 @@ public class ActionResource {
             .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
             .body(result);
     }
+
+
 
 
     /**
@@ -343,6 +362,15 @@ public class ActionResource {
         return a;
     }
 
+    /**
+     *
+     * @param lat1
+     * @param lon1
+     * @param lat2
+     * @param lon2
+     * @param seekDate
+     * @return
+     */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
         Duration d = Duration.between(seekDate, ZonedDateTime.now());
         long waitingDuration = d.getSeconds();
@@ -363,6 +391,14 @@ public class ActionResource {
     }
 
 
+    /**
+     *
+     * @param lat1
+     * @param lon1
+     * @param lat2
+     * @param lon2
+     * @return
+     */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
         return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
     }

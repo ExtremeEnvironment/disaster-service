@@ -235,6 +235,7 @@ public class MatchingIntTest {
     @Test
     @Transactional
     public void matchAlreadySet() throws Exception {
+
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
         action1Seek.setLon(1F);
@@ -272,6 +273,7 @@ public class MatchingIntTest {
         action3Seek.setDisaster(disasters.get(disasters.size() - 1));
         action3Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
 
+
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
             .content(TestUtil.convertObjectToJsonBytes(action3Seek)));
@@ -290,9 +292,13 @@ public class MatchingIntTest {
     public void testRejectingMatch() throws Exception {
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
 
+//        for (Action a : actionRepository.findAll()) {
+//            actionRepository.delete(a);
+//        }
+
         Action action1Seek = new Action();
-        action1Seek.setLat(1F);
-        action1Seek.setLon(1F);
+        action1Seek.setLat(2F);
+        action1Seek.setLon(2F);
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
         List<Disaster> disasters = disasterRepository.findAll();
@@ -301,8 +307,8 @@ public class MatchingIntTest {
 
 
         Action action2Offer = new Action();
-        action2Offer.setLat(1.005F);
-        action2Offer.setLon(1.005F);
+        action2Offer.setLat(2.005F);
+        action2Offer.setLon(2.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
 //        action2Offer.setDisaster(disasters.get(disasters.size()-1));
@@ -310,8 +316,8 @@ public class MatchingIntTest {
 
 
         Action action3Seek = new Action();
-        action3Seek.setLat(1.005F);
-        action3Seek.setLon(1.005F);
+        action3Seek.setLat(2.005F);
+        action3Seek.setLon(2.005F);
         action3Seek.setIsExpired(false);
         action3Seek.setActionType(ActionType.SEEK);
         action3Seek.setDisaster(disasters.get(disasters.size() - 1));
@@ -333,9 +339,8 @@ public class MatchingIntTest {
             .content(TestUtil.convertObjectToJsonBytes(action3Seek)));
 
 
-
         List<Action> results = actionRepository.findAll();
-        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
+//        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
 
 
         assertTrue(results.get(results.size() - 3).getMatch().equals(results.get(results.size() - 2)));
@@ -343,14 +348,12 @@ public class MatchingIntTest {
         assertTrue(results.get(results.size() - 1).getMatch() == null);
 
 
-
-
-        restActionMockMvc.perform(put("/api/actions/{id}/rejectMatch", results.size() - 1)
+        restActionMockMvc.perform(put("/api/actions/{id}/rejectMatch", results.get(results.size() - 2).getId())
             .contentType(TestUtil.APPLICATION_JSON_UTF8))
             .andExpect(status().isOk());
 
         results = actionRepository.findAll();
-        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
+//        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
 
         assertTrue(results.get(results.size() - 3).getMatch() == null);
         assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 1)));
