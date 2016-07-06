@@ -48,7 +48,7 @@ public class ActionResource {
 
     @Autowired
     public ActionResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository) {
+                          DisasterRepository disasterRepository, MessageClient messageClient) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
         this.messageClient=messageClient;

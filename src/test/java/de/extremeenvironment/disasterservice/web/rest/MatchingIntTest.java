@@ -26,6 +26,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -115,6 +116,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void correctMatch() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -158,6 +160,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void actionsDifferentActionObjectTypes() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -197,6 +200,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void actionsTooMuchDistance() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(0F);
@@ -237,6 +241,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void matchAlreadySet() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
