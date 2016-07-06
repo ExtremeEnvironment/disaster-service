@@ -25,6 +25,7 @@
                                  constraintName="fk_action_action_object_action_object_id"
                                  referencedColumnNames="id"
                                  referencedTableName="action"/>
+
         <addForeignKeyConstraint baseColumnNames="action_objects_id"
                                  baseTableName="action_action_object"
                                  constraintName="fk_action_action_object_action_id"

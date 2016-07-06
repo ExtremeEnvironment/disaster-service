@@ -114,6 +114,7 @@ public class DataService {
             Disaster disaster = new Disaster();
             disaster.setLat(23F);
             disaster.setLon(23F);
+            disaster.setIsExpired(false);
             disaster.setDisasterType(disType);
             disaster.setTitle("Berlin Erdbeben");
             Disaster disaster1 = new Disaster();
@@ -121,11 +122,13 @@ public class DataService {
             disaster1.setDisasterType(disasterType);
             disaster1.setLon(45F);
             disaster1.setLat(45F);
+            disaster1.setIsExpired(false);
             Disaster disaster2 = new Disaster();
             disaster2.setTitle("London Brexit");
             disaster2.setDisasterType(dt);
             disaster2.setLon(34F);
             disaster2.setLat(34F);
+            disaster2.setIsExpired(false);
             disasterRepository.saveAndFlush(disaster);
             disasterRepository.saveAndFlush(disaster1);
             disasterRepository.saveAndFlush(disaster2);

@@ -70,6 +70,14 @@
             "fieldValidateRules": [
                 "required"
             ]
+        },
+        {
+            "fieldName": "title",
+            "fieldType": "String"
+        },
+        {
+            "fieldName": "description",
+            "fieldType": "String"
         }
     ],
     "changelogDate": "20160603162720",

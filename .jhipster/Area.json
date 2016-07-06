@@ -10,8 +10,7 @@
             "relationshipName": "ngo",
             "otherEntityName": "ngo",
             "relationshipType": "one-to-one",
-            "otherEntityField": "id",
-            "ownerSide": true,
+            "ownerSide": false,
             "otherEntityRelationshipName": "area"
         },
         {

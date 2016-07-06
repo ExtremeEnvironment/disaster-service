@@ -36,14 +36,15 @@ public class DisasterResource {
     @Inject
     private ActionRepository actionRepository;
     @Inject
-    private  DisasterRepository disasterRepository;
+    private DisasterRepository disasterRepository;
 
     @Autowired
     public DisasterResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository) {
+                            DisasterRepository disasterRepository) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
     }
+
     /**
      * POST  /disasters : Create a new disaster.
      *
@@ -60,18 +61,20 @@ public class DisasterResource {
         if (disaster.getId() != null) {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "idexists", "A new disaster cannot already have an ID")).body(null);
         }
+
         Disaster dis = getDisasterForDisaster(disaster);
 
-        if (dis != null && (dis.getDisasterType() == disaster.getDisasterType())&& (dis.isIsExpired()==false)) {
+        disaster.setIsExpired(false);
+
+        if ((dis != null) && (dis.getDisasterType() == disaster.getDisasterType()) && (dis.isIsExpired() == false)) {
             Action action = new Action();
             action.setActionType(ActionType.KNOWLEDGE);
             action.setLat(disaster.getLat());
             action.setLon(disaster.getLon());
             actionRepository.saveAndFlush(action);
 
-            return ResponseEntity.ok()
-                .headers(HeaderUtil.createEntityUpdateAlert("disaster", disaster.getId().toString()))
-                .body(dis);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "disasteralreadyexists", "A disaster already exists at this location")).body(null);
+
         } else {
             Disaster result = disasterRepository.save(disaster);
 
@@ -184,7 +187,6 @@ public class DisasterResource {
         }
         return disasterReturn;
     }
-
 
 
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {

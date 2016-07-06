@@ -5,6 +5,7 @@ import de.extremeenvironment.disasterservice.client.Conversation;
 import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.client.UserHolder;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
@@ -38,16 +39,16 @@ public class ActionResource {
 
     private final Logger log = LoggerFactory.getLogger(ActionResource.class);
 
-
+    @Inject
     private ActionRepository actionRepository;
-
+    @Inject
     private  DisasterRepository disasterRepository;
 
     private MessageClient messageClient;
 
     @Autowired
     public ActionResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository, MessageClient messageClient) {
+                          DisasterRepository disasterRepository) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
         this.messageClient=messageClient;
@@ -167,6 +168,9 @@ public class ActionResource {
     @Timed
     public ResponseEntity<Void> deleteAction(@PathVariable Long id) {
         log.debug("REST request to delete Action : {}", id);
+
+        rejectMatch(actionRepository.getOne(id), true);
+
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
@@ -220,7 +224,7 @@ public class ActionResource {
     public Action matchActions(Action a) {
 //        System.out.println("\n\n### matching begin ###");
 
-        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE || a.getDisaster() == null) {
+        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE) {
             return a;
         }
 
@@ -236,7 +240,7 @@ public class ActionResource {
 //        System.out.println("### Matching prior For ###");
 
         for (Action act : possibleMatches) {
-            if (act.getMatch() != null || !a.getDisaster().equals(act.getDisaster())) {
+            if (act.getMatch() != null) {
                 continue;
             }
 
@@ -247,7 +251,7 @@ public class ActionResource {
 
 //            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
-            if (!actionObjectIntersect.isEmpty() && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
+            if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
                 bestMatchDist = matchDist;
                 bestMatch = act;
             }
@@ -268,13 +272,101 @@ public class ActionResource {
             messageClient.addMember(new UserHolder(a.getUser().getUserId()), savedConversation.getId());
         }
 
+//        System.out.println("### match " + bestMatch + "###");
 
-
-
-        //TODO
         return a;
 
     }
+
+    @RequestMapping(value = "/actions/{id}/likes",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Action> updateLikes(@PathVariable Long id) throws URISyntaxException {
+
+        if (!actionRepository.findActionById(id).isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Action action = actionRepository.findActionById(id).get();
+
+        log.debug("REST request to update Action : {}", action);
+        action.setLikeCounter(action.getLikeCounter() + 1);
+        actionRepository.save(action);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
+            .body(action);
+    }
+
+    @RequestMapping(value = "/actions/{id}/topTenKnowledge",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getTopTenKnowledge(@PathVariable Long id) {
+
+
+        Disaster disaster;
+        if ((disaster = disasterRepository.findById(id).get()) == null) {
+            return null;
+        }
+
+        List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+
+        List<Action> result = new ArrayList<>();
+
+        for (Action action : actions) {
+            if (action.getDisaster().getId() == disaster.getId()) {
+                result.add(action);
+            }
+        }
+
+
+        if (result.size() <= 10) {
+            return result;
+        } else {
+            Collections.sort(result, new Comparator<Action>() {
+                @Override
+                public int compare(Action o1, Action o2) {
+                    if (o1.getLikeCounter() > o2.getLikeCounter()) {
+                        return 1;
+                    } else if (o1.getLikeCounter() == o2.getLikeCounter()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+
+                }
+            });
+        }
+        return result.subList(0, 9);
+    }
+
+    @RequestMapping(value = "/actions/{id}/knowledge",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getActionKnowledgeByCatastrophe(@Valid @PathVariable("id") Long id) {
+
+        Disaster disaster;
+        if ((disaster = disasterRepository.findById(id).get()) == null) {
+            return null;
+        } else {
+
+            List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+            List<Action> result = new ArrayList<>();
+            for (Action a : actions) {
+                if (a.getDisaster().getId() == disaster.getId()) {
+                    result.add(a);
+                }
+
+            }
+            return result;
+
+        }
+
+
+    }
+
 
     /**
      * removes a match from actions
@@ -282,7 +374,11 @@ public class ActionResource {
      *
      * @param a the action the match shall be removed from
      */
-    public void rejectMatch(Action a) {
+    public void rejectMatch(Action a, boolean priorToDeletion) {
+        if (a.getMatch() == null) {
+            return;
+        }
+
         a.getMatch().addRejectedMatch(a);
         Action otherAction = a.getMatch();
         a.getMatch().setMatch(null);
@@ -292,9 +388,13 @@ public class ActionResource {
         a.setMatch(null);
         actionRepository.save(a);
 
-        matchActions(a);
-
         matchActions(otherAction);
+
+        if (priorToDeletion) {
+            return;
+        }
+
+        matchActions(a);
     }
 
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {

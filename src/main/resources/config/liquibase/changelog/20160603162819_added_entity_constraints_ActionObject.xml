@@ -7,7 +7,7 @@
         Added the constraints for entity ActionObject.
     -->
     <changeSet id="20160603162819-2" author="jhipster">
-        
+
         <addForeignKeyConstraint baseColumnNames="category_id"
                                  baseTableName="action_object"
                                  constraintName="fk_actionobject_category_id"

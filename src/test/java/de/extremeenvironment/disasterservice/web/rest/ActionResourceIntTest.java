@@ -84,9 +84,6 @@ public class ActionResourceIntTest {
     @Inject
     private DisasterRepository disasterRepository;
 
-    @Inject
-    MessageClient messageClient;
-
 
     private MockMvc restActionMockMvc;
 
@@ -97,9 +94,8 @@ public class ActionResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
-
-
+        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository);
+        ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -321,6 +317,8 @@ public class ActionResourceIntTest {
             .andExpect(jsonPath("$.[*].actionType").value(hasItem(ActionType.OFFER.name())));
 
 
+
+
     }
 
     @Test
@@ -364,6 +362,46 @@ public class ActionResourceIntTest {
         assertTrue(testAction.getDisaster().equals(disaster));
         assertFalse(testAction2.getDisaster().equals(disaster));
 
+    }
+
+    @Test
+    @Transactional
+    public void testLikes() throws Exception {
+
+        List<Action>actions = actionRepository.findAll();
+
+        int i = (int) (Math.random() * actions.size());
+
+        Action action = actions.get(i);
+        Long countBefore = action.getLikeCounter();
+
+        restActionMockMvc.perform(put("/api/actions/{id}/likes", action.getId())
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().is2xxSuccessful());
+
+        assertThat(countBefore).isEqualTo(action.getLikeCounter() - 1);
+
+        restActionMockMvc.perform(put("/api/actions/{id}/likes", -1000)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().is4xxClientError());
+
+    }
+    @Test
+    @Transactional
+    public void testActionKnowledgeByCatastrophe() throws Exception {
+
+       Disaster disaster= disasterRepository.findAll().get(0);
+        List<Action> actions =actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+        System.out.println(disaster);
+
+        restActionMockMvc.perform(get("/api/actions/{id}/knowledge", 3)
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().is2xxSuccessful())
+            .andExpect(jsonPath("$.[*].id").value(hasItem(actions.get(actions.size()-1).getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(actions.get(actions.size()-2).getId().intValue())))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(actions.get(actions.size()-3).getId().intValue()))
+            )
+        ;
     }
 
 

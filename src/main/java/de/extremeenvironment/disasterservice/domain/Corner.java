@@ -1,6 +1,8 @@
 package de.extremeenvironment.disasterservice.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -26,6 +28,7 @@ public class Corner implements Serializable {
     private Float lon;
 
     @ManyToOne(fetch=FetchType.EAGER, cascade = CascadeType.ALL)
+    @JsonIgnore
     private Area area;
 
     public Long getId() {

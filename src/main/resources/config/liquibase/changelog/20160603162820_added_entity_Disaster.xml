@@ -26,11 +26,11 @@
             </column>
             
             <column name="lat" type="${floatType}">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             
             <column name="lon" type="${floatType}">
-                <constraints nullable="true" />
+                <constraints nullable="false" />
             </column>
             
             <column name="title" type="varchar(255)">
@@ -38,6 +38,10 @@
             </column>
             
             <column name="description" type="varchar(255)">
+                <constraints nullable="true" />
+            </column>
+            
+            <column name="date" type="date">
                 <constraints nullable="true" />
             </column>
             
