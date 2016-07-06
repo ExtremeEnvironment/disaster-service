@@ -284,17 +284,33 @@ public class ActionResource {
             .body(action);
     }
 
-    @RequestMapping(value = "/actions/topTenKnowledge",
+    @RequestMapping(value = "/actions/{id}/topTenKnowledge",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public List<Action> getTopTenKnowledge() {
+    public List<Action> getTopTenKnowledge(@PathVariable Long id) {
+
+
+        Disaster disaster;
+        if ((disaster = disasterRepository.findById(id).get()) == null) {
+            return null;
+        }
 
         List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
-        if (actions.size() <= 10) {
-            return actions;
+
+        List<Action> result = new ArrayList<>();
+
+        for (Action action : actions) {
+            if (action.getDisaster().getId() == disaster.getId()) {
+                result.add(action);
+            }
+        }
+
+
+        if (result.size() <= 10) {
+            return result;
         } else {
-            Collections.sort(actions, new Comparator<Action>() {
+            Collections.sort(result, new Comparator<Action>() {
                 @Override
                 public int compare(Action o1, Action o2) {
                     if (o1.getLikeCounter() > o2.getLikeCounter()) {
@@ -308,7 +324,7 @@ public class ActionResource {
                 }
             });
         }
-        return actions.subList(0, 9);
+        return result.subList(0, 9);
     }
 
     @RequestMapping(value = "/actions/{id}/knowledge",
@@ -323,7 +339,7 @@ public class ActionResource {
         } else {
 
             List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
-            List<Action>result= new ArrayList<>();
+            List<Action> result = new ArrayList<>();
             for (Action a : actions) {
                 if (a.getDisaster().getId() == disaster.getId()) {
                     result.add(a);
