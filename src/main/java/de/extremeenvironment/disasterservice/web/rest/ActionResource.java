@@ -172,7 +172,6 @@ public class ActionResource {
 
 
     /**
-     *
      * @param userId
      * @param actionType
      * @return
@@ -186,12 +185,7 @@ public class ActionResource {
 
     }
 
-    /**
-     *
-     * @param id
-     * @return
-     * @throws URISyntaxException
-     */
+
     @RequestMapping(value = "/actions/{id}/likes",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -212,8 +206,51 @@ public class ActionResource {
             .body(action);
     }
 
+    @RequestMapping(value = "/actions/{id}/topTenKnowledge",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getTopTenKnowledge(@PathVariable Long id) {
+
+
+        Disaster disaster;
+        if ((disaster = disasterRepository.findById(id).get()) == null) {
+            return null;
+        }
+
+        List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+
+        List<Action> result = new ArrayList<>();
+
+        for (Action action : actions) {
+            if (action.getDisaster().getId() == disaster.getId()) {
+                result.add(action);
+            }
+        }
+
+
+        if (result.size() <= 10) {
+            return result;
+        } else {
+            Collections.sort(result, new Comparator<Action>() {
+                @Override
+                public int compare(Action o1, Action o2) {
+                    if (o1.getLikeCounter() > o2.getLikeCounter()) {
+                        return 1;
+                    } else if (o1.getLikeCounter() == o2.getLikeCounter()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+
+                }
+            });
+        }
+        return result.subList(0, 9);
+    }
+
+
     /**
-     *
      * @param id
      * @return
      * @throws URISyntaxException
@@ -247,9 +284,6 @@ public class ActionResource {
             .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
             .body(result);
     }
-
-
-
 
     /**
      * @param action
@@ -335,69 +369,6 @@ public class ActionResource {
 
     }
 
-    @RequestMapping(value = "/actions/{id}/likes",
-        method = RequestMethod.PUT,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public ResponseEntity<Action> updateLikes(@PathVariable Long id) throws URISyntaxException {
-
-        if (!actionRepository.findActionById(id).isPresent()) {
-            return ResponseEntity.badRequest().body(null);
-        }
-
-        Action action = actionRepository.findActionById(id).get();
-
-        log.debug("REST request to update Action : {}", action);
-        action.setLikeCounter(action.getLikeCounter() + 1);
-        actionRepository.save(action);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
-            .body(action);
-    }
-
-    @RequestMapping(value = "/actions/{id}/topTenKnowledge",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public List<Action> getTopTenKnowledge(@PathVariable Long id) {
-
-
-        Disaster disaster;
-        if ((disaster = disasterRepository.findById(id).get()) == null) {
-            return null;
-        }
-
-        List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
-
-        List<Action> result = new ArrayList<>();
-
-        for (Action action : actions) {
-            if (action.getDisaster().getId() == disaster.getId()) {
-                result.add(action);
-            }
-        }
-
-
-        if (result.size() <= 10) {
-            return result;
-        } else {
-            Collections.sort(result, new Comparator<Action>() {
-                @Override
-                public int compare(Action o1, Action o2) {
-                    if (o1.getLikeCounter() > o2.getLikeCounter()) {
-                        return 1;
-                    } else if (o1.getLikeCounter() == o2.getLikeCounter()) {
-                        return 0;
-                    } else {
-                        return -1;
-                    }
-
-                }
-            });
-        }
-        return result.subList(0, 9);
-    }
-
     @RequestMapping(value = "/actions/{id}/knowledge",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -453,7 +424,6 @@ public class ActionResource {
     }
 
     /**
-     *
      * @param lat1
      * @param lon1
      * @param lat2
@@ -482,7 +452,6 @@ public class ActionResource {
 
 
     /**
-     *
      * @param lat1
      * @param lon1
      * @param lat2
