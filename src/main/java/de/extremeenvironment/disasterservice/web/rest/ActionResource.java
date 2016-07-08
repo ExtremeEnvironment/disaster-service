@@ -1,6 +1,9 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import de.extremeenvironment.disasterservice.client.Conversation;
+import de.extremeenvironment.disasterservice.client.MessageClient;
+import de.extremeenvironment.disasterservice.client.UserHolder;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
@@ -41,11 +44,14 @@ public class ActionResource {
     @Inject
     private DisasterRepository disasterRepository;
 
+    private MessageClient messageClient;
+
     @Autowired
     public ActionResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository) {
+                          DisasterRepository disasterRepository, MessageClient messageClient) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
+        this.messageClient=messageClient;
     }
 
     /**
@@ -65,7 +71,7 @@ public class ActionResource {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
-        if ((action.getDisaster() == null) && (action.getActionType() != ActionType.OFFER)) {
+        if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
             if (getDisasterForAction(action) == null) {
 
                 Disaster disaster = new Disaster();
@@ -313,6 +319,8 @@ public class ActionResource {
         return disasterReturn;
     }
 
+
+
     /**
      * checks wether a match is available for a specific action
      * commented lines for later removal of already rejected actions
@@ -361,6 +369,13 @@ public class ActionResource {
         if (bestMatch != null) {
             bestMatch.setMatch(a);
             actionRepository.save(bestMatch);
+
+
+            Conversation savedConversation = messageClient.addConversation(
+                new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
+            );
+            messageClient.addMember(new UserHolder(bestMatch.getUser().getUserId()), savedConversation.getId());
+            messageClient.addMember(new UserHolder(a.getUser().getUserId()), savedConversation.getId());
         }
 
 //        System.out.println("### match " + bestMatch + "###");

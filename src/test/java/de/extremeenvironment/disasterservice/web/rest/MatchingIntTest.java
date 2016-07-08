@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
@@ -26,6 +27,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -64,6 +66,9 @@ public class MatchingIntTest {
     private ActionObjectRepository actionObjectRepository;
 
     @Inject
+    private MessageClient messageClient;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -87,7 +92,7 @@ public class MatchingIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository);
+        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
         ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -114,6 +119,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void correctMatch() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -156,6 +162,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void actionsDifferentActionObjectTypes() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -195,6 +202,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void actionsTooMuchDistance() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(0F);
@@ -234,6 +242,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void matchAlreadySet() throws Exception {
 
         Action action1Seek = new Action();

@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
@@ -26,6 +27,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -83,6 +85,8 @@ public class ActionResourceIntTest {
     @Inject
     private DisasterRepository disasterRepository;
 
+    MessageClient messageClient;
+
 
     private MockMvc restActionMockMvc;
 
@@ -93,7 +97,7 @@ public class ActionResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository);
+        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
         ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -314,6 +318,8 @@ public class ActionResourceIntTest {
             .andExpect(status().isOk())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
             .andExpect(jsonPath("$.[*].actionType").value(hasItem(ActionType.OFFER.name())));
+
+
 
 
     }
