@@ -178,9 +178,11 @@ public class ActionResource {
 
 
     /**
-     * @param userId
-     * @param actionType
-     * @return
+     * GET /actions/:userId/:actionType : get all actions created by "userId" with the specific "actoinType"
+     *
+     * @param userId the userId of the user from which the actions shall be returned
+     * @param actionType the @see{ActionType} of the Actions which shall be returned
+     * @return the ResponseEntity with status 200 (OK) and the list of actions in body
      */
     @RequestMapping(value = "/action/{userId}/{actionType}",
         method = RequestMethod.GET,
@@ -192,6 +194,12 @@ public class ActionResource {
     }
 
 
+    /**
+     *
+     * @param id
+     * @return
+     * @throws URISyntaxException
+     */
     @RequestMapping(value = "/actions/{id}/likes",
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -212,6 +220,11 @@ public class ActionResource {
             .body(action);
     }
 
+    /**
+     *
+     * @param id
+     * @return
+     */
     @RequestMapping(value = "/actions/{id}/topTenKnowledge",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
@@ -257,8 +270,10 @@ public class ActionResource {
 
 
     /**
-     * @param id
-     * @return
+     * PUT /actions/:id/rejectMatch the "id" of the action for which the current match shall be released
+     *
+     * @param id the id of the action
+     * @return the ResponseEntity with status 200 (OK),
      * @throws URISyntaxException
      */
     @RequestMapping(value = "/actions/{id}/rejectMatch",
@@ -278,7 +293,7 @@ public class ActionResource {
 
         if (action.getMatch() == null) {
             return ResponseEntity.badRequest()
-                .headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
+                .headers(HeaderUtil.createFailureAlert("action", "notMatched", "You cannot reject a match of an action which has no match.")).body(null);
         }
 
         log.debug("REST request to reject match : {}", action);
