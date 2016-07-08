@@ -140,6 +140,13 @@ public class AreaResource {
     }
 
 
+    /**
+     * checks whether a specific area can be claimed, because it overlaps with another area by 5% at max
+     *
+     * @param area the to-be-tested area
+     * @param corners the corners of the to-be-tested area
+     * @return the validity
+     */
     private boolean checkIsValidArea(Area area, Set<Corner> corners) {
 
         Comparator<Corner> comp = new Comparator<Corner>() {
@@ -186,8 +193,12 @@ public class AreaResource {
     }
 
 
-
-
+    /**
+     * converts a set of Corners into a polygon
+     *
+     * @param cList the Corners
+     * @return the polygon
+     */
     private Polygon cornersToPolygon(List<Corner> cList) {
         ArrayList<Coordinate> coordList = new ArrayList<>();
         cList.forEach(c -> coordList.add(new Coordinate(c.getLat(), c.getLon())));

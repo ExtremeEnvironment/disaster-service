@@ -210,21 +210,15 @@ public class DisasterResource {
 
 
     /**
+     * calculates the distance of two coordinates, subtracts one kilometer ber day waited
      *
-     * @param lat1
-     * @param lon1
-     * @param lat2
-     * @param lon2
-     * @param seekDate
-     * @return
+     * @param lat1 the latitude of the first coordinate
+     * @param lon1 the longitude of the first coordinate
+     * @param lat2 the latitude of the second coordinate
+     * @param lon2 the longitude of the second coordinate
+     * @return the distance
      */
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
-        Duration d = Duration.between(seekDate, ZonedDateTime.now());
-        long waitingDuration = d.getSeconds();
-
-        final float BONUS = 1 / (60 * 60 * 24); // 1 km per day waited
-        //TODO set bonus via web interface
-
+    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
         double earthRadius = 6371000; //meters
         double dLat = Math.toRadians(lat2 - lat1);
         double dLng = Math.toRadians(lon2 - lon1);
@@ -234,20 +228,7 @@ public class DisasterResource {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         float dist = (float) (earthRadius * c);
 
-        return dist - (waitingDuration * BONUS);
-    }
-
-
-    /**
-     *
-     * @param lat1
-     * @param lon1
-     * @param lat2
-     * @param lon2
-     * @return
-     */
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
-        return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
+        return dist;
     }
 
 

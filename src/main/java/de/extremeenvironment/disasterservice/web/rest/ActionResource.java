@@ -51,7 +51,7 @@ public class ActionResource {
                           DisasterRepository disasterRepository, MessageClient messageClient) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
-        this.messageClient=messageClient;
+        this.messageClient = messageClient;
     }
 
     /**
@@ -71,7 +71,7 @@ public class ActionResource {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
-        if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
+        if ((action.getDisaster() == null) && (action.getActionType() != ActionType.OFFER)) {
             if (getDisasterForAction(action) == null) {
 
                 Disaster disaster = new Disaster();
@@ -180,7 +180,7 @@ public class ActionResource {
     /**
      * GET /actions/:userId/:actionType : get all actions created by "userId" with the specific "actoinType"
      *
-     * @param userId the userId of the user from which the actions shall be returned
+     * @param userId     the userId of the user from which the actions shall be returned
      * @param actionType the @see{ActionType} of the Actions which shall be returned
      * @return the ResponseEntity with status 200 (OK) and the list of actions in body
      */
@@ -195,9 +195,10 @@ public class ActionResource {
 
 
     /**
+     * PUT /actions/:id/likes : increments the "id" like-counter by one
      *
-     * @param id
-     * @return
+     * @param id the id of the action
+     * @return ResponseEntity with status 200 (OK) and the action in the body or with 400 (Bad Request)
      * @throws URISyntaxException
      */
     @RequestMapping(value = "/actions/{id}/likes",
@@ -221,9 +222,41 @@ public class ActionResource {
     }
 
     /**
+     * GET /actions/:disasterId/knowledge : lists all actions of type knowledge from a "disasterId"
      *
-     * @param id
-     * @return
+     * @param id the disasterId
+     * @return ResponseEntity with status 200 (OK) and the list of actions or with 404 (Not Found)
+     */
+    @RequestMapping(value = "/actions/{id}/knowledge",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getActionKnowledgeByCatastrophe(@Valid @PathVariable("id") Long id) {
+
+        Disaster disaster;
+        if ((disaster = disasterRepository.findById(id).get()) == null) {
+            return null;
+        } else {
+
+            List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+            List<Action> result = new ArrayList<>();
+            for (Action a : actions) {
+                if (a.getDisaster().getId() == disaster.getId()) {
+                    result.add(a);
+                }
+
+            }
+            return result;
+
+        }
+    }
+
+
+    /**
+     * GET /actions/:disasterId/topTenKnowledge : lists the ten knowledges with the most likes of "disasterId"
+     *
+     * @param id the disasterId of the wanted request
+     * @return ResponseEntity with status 200 (OK) and the list of actions or with 404 (Not Found)
      */
     @RequestMapping(value = "/actions/{id}/topTenKnowledge",
         method = RequestMethod.GET,
@@ -268,12 +301,11 @@ public class ActionResource {
         return result.subList(0, 9);
     }
 
-
     /**
      * PUT /actions/:id/rejectMatch the "id" of the action for which the current match shall be released
      *
      * @param id the id of the action
-     * @return the ResponseEntity with status 200 (OK),
+     * @return the ResponseEntity with status 200 (OK) and the Action or with 400 (Bad Request)
      * @throws URISyntaxException
      */
     @RequestMapping(value = "/actions/{id}/rejectMatch",
@@ -306,6 +338,7 @@ public class ActionResource {
             .body(result);
     }
 
+
     /**
      * @param action
      * @return the nearest disaster of an action location, in a radius of 15000km
@@ -335,9 +368,8 @@ public class ActionResource {
     }
 
 
-
     /**
-     * checks wether a match is available for a specific action
+     * checks whether a match is available for a specific action
      * commented lines for later removal of already rejected actions
      *
      * @param a the action for which a match shall be found
@@ -399,32 +431,6 @@ public class ActionResource {
 
     }
 
-    @RequestMapping(value = "/actions/{id}/knowledge",
-        method = RequestMethod.GET,
-        produces = MediaType.APPLICATION_JSON_VALUE)
-    @Timed
-    public List<Action> getActionKnowledgeByCatastrophe(@Valid @PathVariable("id") Long id) {
-
-        Disaster disaster;
-        if ((disaster = disasterRepository.findById(id).get()) == null) {
-            return null;
-        } else {
-
-            List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
-            List<Action> result = new ArrayList<>();
-            for (Action a : actions) {
-                if (a.getDisaster().getId() == disaster.getId()) {
-                    result.add(a);
-                }
-
-            }
-            return result;
-
-        }
-
-
-    }
-
 
     /**
      * removes a match from actions
@@ -454,12 +460,14 @@ public class ActionResource {
     }
 
     /**
-     * @param lat1
-     * @param lon1
-     * @param lat2
-     * @param lon2
-     * @param seekDate
-     * @return
+     * calculates the distance of two coordinates, subtracts one kilometer ber day waited
+     *
+     * @param lat1 the latitude of the first coordinate
+     * @param lon1 the longitude of the first coordinate
+     * @param lat2 the latitude of the second coordinate
+     * @param lon2 the longitude of the second coordinate
+     * @param seekDate the date the bonus shall be calculated from
+     * @return the distance
      */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
         Duration d = Duration.between(seekDate, ZonedDateTime.now());
@@ -482,11 +490,7 @@ public class ActionResource {
 
 
     /**
-     * @param lat1
-     * @param lon1
-     * @param lat2
-     * @param lon2
-     * @return
+     * @see ActionResource#getDistance(float, float, float, float) with seekDate set to now
      */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
         return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
