@@ -23,6 +23,7 @@ import java.time.Duration;
 import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Disaster.
@@ -36,14 +37,15 @@ public class DisasterResource {
     @Inject
     private ActionRepository actionRepository;
     @Inject
-    private  DisasterRepository disasterRepository;
+    private DisasterRepository disasterRepository;
 
     @Autowired
     public DisasterResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository) {
+                            DisasterRepository disasterRepository) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
     }
+
     /**
      * POST  /disasters : Create a new disaster.
      *
@@ -65,15 +67,14 @@ public class DisasterResource {
 
         disaster.setIsExpired(false);
 
-        if ((dis != null) && (dis.getDisasterType() == disaster.getDisasterType())&& (dis.isIsExpired()==false)) {
+        if ((dis != null) && (dis.getDisasterType() == disaster.getDisasterType()) && (dis.isIsExpired() == false)) {
             Action action = new Action();
             action.setActionType(ActionType.KNOWLEDGE);
             action.setLat(disaster.getLat());
             action.setLon(disaster.getLon());
             actionRepository.saveAndFlush(action);
 
-            return ResponseEntity.ok()
-                .body(dis);
+            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "disasteralreadyexists", "A disaster already exists at this location")).body(null);
 
         } else {
             Disaster result = disasterRepository.save(disaster);
@@ -160,6 +161,25 @@ public class DisasterResource {
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("disaster", id.toString())).build();
     }
 
+
+    /**
+     * GET  /disasters/:id/heatmap : get the Knowledge or Seek-actions for "id" disaster
+     *
+     * @param id the id of the disaster to retrieve
+     * @return the ResponseEntity with status 200 (OK) and with body the disaster, or with status 404 (Not Found)
+     */
+    @RequestMapping(value = "/disasters/{id}/heatmap",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getActionsInDisasterForHeatmap(@PathVariable Long id) {
+        log.debug("REST request to get all Actions in a Disaster ");
+        List<Action> actions = actionRepository.findByDisasterId(id)
+            .stream().filter(a -> (a.getActionType() == ActionType.KNOWLEDGE || a.getActionType() == ActionType.SEEK))
+            .collect(Collectors.toList());
+        return actions;
+    }
+
     /**
      * @param disaster
      * @return the nearest disaster of an action location, in a radius of 15000km
@@ -189,14 +209,16 @@ public class DisasterResource {
     }
 
 
-
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
-        Duration d = Duration.between(seekDate, ZonedDateTime.now());
-        long waitingDuration = d.getSeconds();
-
-        final float BONUS = 1 / (60 * 60 * 24); // 1 km per day waited
-        //TODO set bonus via web interface
-
+    /**
+     * calculates the distance of two coordinates, subtracts one kilometer ber day waited
+     *
+     * @param lat1 the latitude of the first coordinate
+     * @param lon1 the longitude of the first coordinate
+     * @param lat2 the latitude of the second coordinate
+     * @param lon2 the longitude of the second coordinate
+     * @return the distance
+     */
+    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
         double earthRadius = 6371000; //meters
         double dLat = Math.toRadians(lat2 - lat1);
         double dLng = Math.toRadians(lon2 - lon1);
@@ -206,12 +228,7 @@ public class DisasterResource {
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         float dist = (float) (earthRadius * c);
 
-        return dist - (waitingDuration * BONUS);
-    }
-
-
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
-        return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
+        return dist;
     }
 
 

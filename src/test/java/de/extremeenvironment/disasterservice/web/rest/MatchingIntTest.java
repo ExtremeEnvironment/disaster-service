@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
@@ -11,6 +12,7 @@ import de.extremeenvironment.disasterservice.repository.ActionRepository;
 
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
+import org.codehaus.groovy.runtime.powerassert.SourceText;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -25,6 +27,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -40,6 +43,8 @@ import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test class for the Matching algorithm.
@@ -59,6 +64,9 @@ public class MatchingIntTest {
 
     @Inject
     private ActionObjectRepository actionObjectRepository;
+
+    @Inject
+    private MessageClient messageClient;
 
     @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
@@ -84,7 +92,7 @@ public class MatchingIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository);
+        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
         ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
@@ -111,6 +119,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void correctMatch() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -118,10 +127,10 @@ public class MatchingIntTest {
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
         List<Disaster> disasters = disasterRepository.findAll();
-        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+        action1Seek.setDisaster(disasters.get(disasters.size() - 1));
 
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
-        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -133,8 +142,8 @@ public class MatchingIntTest {
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasters.get(disasters.size()-1));
-        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
+//        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
 
 
         restActionMockMvc.perform(post("/api/actions")
@@ -144,53 +153,16 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertTrue(results.get(results.size() -2).getMatch().equals(results.get(results.size() -1)));
-        assertTrue(results.get(results.size() -1).getMatch().equals(results.get(results.size() -2)));
+        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 1)));
+        assertTrue(results.get(results.size() - 1).getMatch().equals(results.get(results.size() - 2)));
 
 
     }
 
-    @Test
-    @Transactional
-    public void actionsInDifferentDisasters() throws Exception {
-        Action action1Seek = new Action();
-        action1Seek.setLat(1F);
-        action1Seek.setLon(1F);
-        action1Seek.setIsExpired(false);
-        action1Seek.setActionType(ActionType.SEEK);
-        List<Disaster> disasters = disasterRepository.findAll();
-        action1Seek.setDisaster(disasters.get(disasters.size()-1));
-
-        List<ActionObject> actionObjects = actionObjectRepository.findAll();
-        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
-
-        restActionMockMvc.perform(post("/api/actions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action1Seek)));
-
-
-        Action action2Offer = new Action();
-        action2Offer.setLat(1.005F);
-        action2Offer.setLon(1.005F);
-        action2Offer.setIsExpired(false);
-        action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasterRepository.findAll().get(1));
-        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
-
-        restActionMockMvc.perform(post("/api/actions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
-
-
-        List<Action> results = actionRepository.findAll();
-
-
-
-
-    }
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void actionsDifferentActionObjectTypes() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -198,9 +170,9 @@ public class MatchingIntTest {
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
         List<Disaster> disasters = disasterRepository.findAll();
-        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+        action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
-        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-2));
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 2));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -212,8 +184,8 @@ public class MatchingIntTest {
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasters.get(disasters.size()-1));
-        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
+        action2Offer.setDisaster(disasters.get(disasters.size() - 1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -222,25 +194,66 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertTrue(results.get(results.size() -2).getMatch() == null);
-        assertTrue(results.get(results.size() -1).getMatch() == null);
+        assertTrue(results.get(results.size() - 2).getMatch() == null);
+        assertTrue(results.get(results.size() - 1).getMatch() == null);
 
+    }
+
+
+    @Test
+    @Transactional
+    @WithMockOAuth2Authentication
+    public void actionsTooMuchDistance() throws Exception {
+        Action action1Seek = new Action();
+        action1Seek.setLat(0F);
+        action1Seek.setLon(0F);
+        action1Seek.setIsExpired(false);
+        action1Seek.setActionType(ActionType.SEEK);
+        List<Disaster> disasters = disasterRepository.findAll();
+        action1Seek.setDisaster(disasters.get(disasters.size() - 1));
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action1Seek)));
+
+
+        Action action2Offer = new Action();
+        action2Offer.setLat(0F);
+        action2Offer.setLon(1F);
+        action2Offer.setIsExpired(false);
+        action2Offer.setActionType(ActionType.OFFER);
+        action2Offer.setDisaster(disasters.get(disasters.size() - 1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
+
+
+        List<Action> results = actionRepository.findAll();
+
+        assertTrue(results.get(results.size() - 2).getMatch() == null);
+        assertTrue(results.get(results.size() - 1).getMatch() == null);
 
 
     }
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication
     public void matchAlreadySet() throws Exception {
+
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
         action1Seek.setLon(1F);
         action1Seek.setIsExpired(false);
         action1Seek.setActionType(ActionType.SEEK);
         List<Disaster> disasters = disasterRepository.findAll();
-        action1Seek.setDisaster(disasters.get(disasters.size()-1));
+        action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
-        action1Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -252,9 +265,9 @@ public class MatchingIntTest {
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
-        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+        action2Offer.setDisaster(disasters.get(disasters.size() - 1));
 
-        action2Offer.addActionObject(actionObjects.get(actionObjects.size()-1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -266,8 +279,9 @@ public class MatchingIntTest {
         action3Seek.setLon(1.005F);
         action3Seek.setIsExpired(false);
         action3Seek.setActionType(ActionType.OFFER);
-        action3Seek.setDisaster(disasters.get(disasters.size()-1));
-        action3Seek.addActionObject(actionObjects.get(actionObjects.size()-1));
+        action3Seek.setDisaster(disasters.get(disasters.size() - 1));
+        action3Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -276,10 +290,86 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertTrue(results.get(results.size() -3).getMatch().equals(results.get(results.size() -2)));
-        assertTrue(results.get(results.size() -2).getMatch().equals(results.get(results.size() -3)));
-        assertTrue(results.get(results.size() -1).getMatch() == null);
+        assertTrue(results.get(results.size() - 3).getMatch().equals(results.get(results.size() - 2)));
+        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 3)));
+        assertTrue(results.get(results.size() - 1).getMatch() == null);
 
+    }
+
+    @Test
+    @Transactional
+    public void testRejectingMatch() throws Exception {
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+
+//        for (Action a : actionRepository.findAll()) {
+//            actionRepository.delete(a);
+//        }
+
+        Action action1Seek = new Action();
+        action1Seek.setLat(2F);
+        action1Seek.setLon(2F);
+        action1Seek.setIsExpired(false);
+        action1Seek.setActionType(ActionType.SEEK);
+        List<Disaster> disasters = disasterRepository.findAll();
+        action1Seek.setDisaster(disasters.get(disasters.size() - 1));
+        action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+
+
+        Action action2Offer = new Action();
+        action2Offer.setLat(2.005F);
+        action2Offer.setLon(2.005F);
+        action2Offer.setIsExpired(false);
+        action2Offer.setActionType(ActionType.OFFER);
+//        action2Offer.setDisaster(disasters.get(disasters.size()-1));
+        action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+
+
+        Action action3Seek = new Action();
+        action3Seek.setLat(2.005F);
+        action3Seek.setLon(2.005F);
+        action3Seek.setIsExpired(false);
+        action3Seek.setActionType(ActionType.SEEK);
+        action3Seek.setDisaster(disasters.get(disasters.size() - 1));
+        action3Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action1Seek)));
+
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
+
+
+        restActionMockMvc.perform(post("/api/actions")
+            .contentType(TestUtil.APPLICATION_JSON_UTF8)
+            .content(TestUtil.convertObjectToJsonBytes(action3Seek)));
+
+
+        List<Action> results = actionRepository.findAll();
+//        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
+
+
+        assertTrue(results.get(results.size() - 3).getMatch().equals(results.get(results.size() - 2)));
+        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 3)));
+        assertTrue(results.get(results.size() - 1).getMatch() == null);
+
+
+        restActionMockMvc.perform(put("/api/actions/{id}/rejectMatch", results.get(results.size() - 2).getId())
+            .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andExpect(status().isOk());
+
+        results = actionRepository.findAll();
+//        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
+
+        assertTrue(results.get(results.size() - 3).getMatch() == null);
+        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 1)));
+        assertTrue(results.get(results.size() - 1).getMatch().equals(results.get(results.size() - 2)));
+
+        assertTrue(results.get(results.size() - 3).getRejectedMatches().contains(results.get(results.size() - 2)));
+        assertTrue(results.get(results.size() - 2).getRejectedMatches().contains(results.get(results.size() - 3)));
 
 
     }

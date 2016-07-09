@@ -1,8 +1,10 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
+import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.DisasterType;
+import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 
@@ -29,8 +31,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.hasSize;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -247,6 +251,20 @@ public class DisasterResourceIntTest {
 
         assertTrue(sizeD==disasterRepository.findAll().size());
         assertTrue(sizeA==(actionRepository.findAll().size()-1));
+    }
+
+    @Test
+    @Transactional
+    public void getActionsForHeatmap() throws Exception {
+        List<Action> actions = actionRepository.findByDisasterId(3L)
+            .stream().filter(a -> (a.getActionType() == ActionType.KNOWLEDGE || a.getActionType() == ActionType.SEEK))
+            .collect(Collectors.toList());
+
+        restDisasterMockMvc.perform(get("/api/disasters/{id}/heatmap", 3))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+            .andExpect(jsonPath("$", hasSize(actions.size())));
+
     }
 }
 

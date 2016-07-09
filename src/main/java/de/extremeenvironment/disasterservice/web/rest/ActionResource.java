@@ -1,7 +1,11 @@
 package de.extremeenvironment.disasterservice.web.rest;
 
 import com.codahale.metrics.annotation.Timed;
+import de.extremeenvironment.disasterservice.client.Conversation;
+import de.extremeenvironment.disasterservice.client.MessageClient;
+import de.extremeenvironment.disasterservice.client.UserHolder;
 import de.extremeenvironment.disasterservice.domain.Action;
+import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
@@ -38,13 +42,16 @@ public class ActionResource {
     @Inject
     private ActionRepository actionRepository;
     @Inject
-    private  DisasterRepository disasterRepository;
+    private DisasterRepository disasterRepository;
+
+    private MessageClient messageClient;
 
     @Autowired
     public ActionResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository) {
+                          DisasterRepository disasterRepository, MessageClient messageClient) {
         this.actionRepository = actionRepositoryRepository;
         this.disasterRepository = disasterRepository;
+        this.messageClient = messageClient;
     }
 
     /**
@@ -61,9 +68,10 @@ public class ActionResource {
     public ResponseEntity<Action> createAction(@Valid @RequestBody Action action) throws URISyntaxException {
         log.debug("REST request to save Action : {}", action);
         if (action.getId() != null) {
-            return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
-        if((action.getDisaster() == null) && (action.getActionType()!= ActionType.OFFER)) {
+        if ((action.getDisaster() == null) && (action.getActionType() != ActionType.OFFER)) {
             if (getDisasterForAction(action) == null) {
 
                 Disaster disaster = new Disaster();
@@ -78,7 +86,7 @@ public class ActionResource {
             }
         }
 
-       action = matchActions(action);
+        action = matchActions(action);
 
         Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
@@ -161,19 +169,175 @@ public class ActionResource {
     @Timed
     public ResponseEntity<Void> deleteAction(@PathVariable Long id) {
         log.debug("REST request to delete Action : {}", id);
+
+//        rejectMatch(actionRepository.getOne(id), true);
+
         actionRepository.delete(id);
         return ResponseEntity.ok().headers(HeaderUtil.createEntityDeletionAlert("action", id.toString())).build();
     }
 
 
+    /**
+     * GET /actions/:userId/:actionType : get all actions created by "userId" with the specific "actoinType"
+     *
+     * @param userId     the userId of the user from which the actions shall be returned
+     * @param actionType the @see{ActionType} of the Actions which shall be returned
+     * @return the ResponseEntity with status 200 (OK) and the list of actions in body
+     */
     @RequestMapping(value = "/action/{userId}/{actionType}",
         method = RequestMethod.GET,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public List<Action> getActionByActionType(@PathVariable Long userId, @PathVariable ActionType actionType) {
-        return actionRepository.findByActionType(userId,actionType);
+        return actionRepository.findByActionType(userId, actionType);
 
     }
+
+
+    /**
+     * PUT /actions/:id/likes : increments the "id" like-counter by one
+     *
+     * @param id the id of the action
+     * @return ResponseEntity with status 200 (OK) and the action in the body or with 400 (Bad Request)
+     * @throws URISyntaxException
+     */
+    @RequestMapping(value = "/actions/{id}/likes",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Action> updateLikes(@PathVariable Long id) throws URISyntaxException {
+
+        if (!actionRepository.findActionById(id).isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Action action = actionRepository.findActionById(id).get();
+
+        log.debug("REST request to update Action : {}", action);
+        action.setLikeCounter(action.getLikeCounter() + 1);
+        actionRepository.save(action);
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
+            .body(action);
+    }
+
+    /**
+     * GET /actions/:disasterId/knowledge : lists all actions of type knowledge from a "disasterId"
+     *
+     * @param id the disasterId
+     * @return ResponseEntity with status 200 (OK) and the list of actions or with 404 (Not Found)
+     */
+    @RequestMapping(value = "/actions/{id}/knowledge",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getActionKnowledgeByCatastrophe(@Valid @PathVariable("id") Long id) {
+
+        Disaster disaster;
+        if ((disaster = disasterRepository.findById(id).get()) == null) {
+            return null;
+        } else {
+
+            List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+            List<Action> result = new ArrayList<>();
+            for (Action a : actions) {
+                if (a.getDisaster().getId() == disaster.getId()) {
+                    result.add(a);
+                }
+
+            }
+            return result;
+
+        }
+    }
+
+
+    /**
+     * GET /actions/:disasterId/topTenKnowledge : lists the ten knowledges with the most likes of "disasterId"
+     *
+     * @param id the disasterId of the wanted request
+     * @return ResponseEntity with status 200 (OK) and the list of actions or with 404 (Not Found)
+     */
+    @RequestMapping(value = "/actions/{id}/topTenKnowledge",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Action> getTopTenKnowledge(@PathVariable Long id) {
+
+
+        Disaster disaster;
+        if ((disaster = disasterRepository.findById(id).get()) == null) {
+            return null;
+        }
+
+        List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
+
+        List<Action> result = new ArrayList<>();
+
+        for (Action action : actions) {
+            if (action.getDisaster().getId() == disaster.getId()) {
+                result.add(action);
+            }
+        }
+
+
+        if (result.size() <= 10) {
+            return result;
+        } else {
+            Collections.sort(result, new Comparator<Action>() {
+                @Override
+                public int compare(Action o1, Action o2) {
+                    if (o1.getLikeCounter() > o2.getLikeCounter()) {
+                        return 1;
+                    } else if (o1.getLikeCounter() == o2.getLikeCounter()) {
+                        return 0;
+                    } else {
+                        return -1;
+                    }
+
+                }
+            });
+        }
+        return result.subList(0, 9);
+    }
+
+    /**
+     * PUT /actions/:id/rejectMatch the "id" of the action for which the current match shall be released
+     *
+     * @param id the id of the action
+     * @return the ResponseEntity with status 200 (OK) and the Action or with 400 (Bad Request)
+     * @throws URISyntaxException
+     */
+    @RequestMapping(value = "/actions/{id}/rejectMatch",
+        method = RequestMethod.PUT,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public ResponseEntity<Action> rejectMatchFromAction(@PathVariable Long id) throws URISyntaxException {
+
+        if (!actionRepository.findActionById(id).isPresent()) {
+            return ResponseEntity.badRequest().body(null);
+        }
+
+        Action action = actionRepository.getOne(id);
+
+        System.out.println(action);
+        System.out.println(action.getMatch());
+
+        if (action.getMatch() == null) {
+            return ResponseEntity.badRequest()
+                .headers(HeaderUtil.createFailureAlert("action", "notMatched", "You cannot reject a match of an action which has no match.")).body(null);
+        }
+
+        log.debug("REST request to reject match : {}", action);
+
+        action = rejectMatch(action);
+        Action result = actionRepository.save(action);
+
+        return ResponseEntity.ok()
+            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
+            .body(result);
+    }
+
 
     /**
      * @param action
@@ -204,9 +368,8 @@ public class ActionResource {
     }
 
 
-
     /**
-     * checks wether a match is available for a specific action
+     * checks whether a match is available for a specific action
      * commented lines for later removal of already rejected actions
      *
      * @param a the action for which a match shall be found
@@ -214,7 +377,7 @@ public class ActionResource {
     public Action matchActions(Action a) {
 //        System.out.println("\n\n### matching begin ###");
 
-        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE || a.getDisaster() == null) {
+        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE) {
             return a;
         }
 
@@ -230,7 +393,7 @@ public class ActionResource {
 //        System.out.println("### Matching prior For ###");
 
         for (Action act : possibleMatches) {
-            if (act.getMatch() != null || !a.getDisaster().equals(act.getDisaster())) {
+            if (act.getMatch() != null) {
                 continue;
             }
 
@@ -241,7 +404,7 @@ public class ActionResource {
 
 //            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
-            if (!actionObjectIntersect.isEmpty() && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
+            if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
                 bestMatchDist = matchDist;
                 bestMatch = act;
             }
@@ -253,6 +416,13 @@ public class ActionResource {
         if (bestMatch != null) {
             bestMatch.setMatch(a);
             actionRepository.save(bestMatch);
+
+
+            Conversation savedConversation = messageClient.addConversation(
+                new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
+            );
+            messageClient.addMember(new UserHolder(bestMatch.getUser().getUserId()), savedConversation.getId());
+            messageClient.addMember(new UserHolder(a.getUser().getUserId()), savedConversation.getId());
         }
 
 //        System.out.println("### match " + bestMatch + "###");
@@ -261,13 +431,18 @@ public class ActionResource {
 
     }
 
+
     /**
      * removes a match from actions
      * commented lines for later removal of already rejected actions
      *
      * @param a the action the match shall be removed from
      */
-    public void rejectMatch(Action a) {
+    public Action rejectMatch(Action a) {
+//        if (a.getMatch() == null) {
+//            return ;
+//        }
+
         a.getMatch().addRejectedMatch(a);
         Action otherAction = a.getMatch();
         a.getMatch().setMatch(null);
@@ -275,13 +450,25 @@ public class ActionResource {
 
         a.addRejectedMatch(a.getMatch());
         a.setMatch(null);
-        actionRepository.save(a);
+//        actionRepository.save(a);
+
+        matchActions(otherAction);
 
         matchActions(a);
 
-        matchActions(otherAction);
+        return a;
     }
 
+    /**
+     * calculates the distance of two coordinates, subtracts one kilometer ber day waited
+     *
+     * @param lat1 the latitude of the first coordinate
+     * @param lon1 the longitude of the first coordinate
+     * @param lat2 the latitude of the second coordinate
+     * @param lon2 the longitude of the second coordinate
+     * @param seekDate the date the bonus shall be calculated from
+     * @return the distance
+     */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
         Duration d = Duration.between(seekDate, ZonedDateTime.now());
         long waitingDuration = d.getSeconds();
@@ -302,6 +489,9 @@ public class ActionResource {
     }
 
 
+    /**
+     * @see ActionResource#getDistance(float, float, float, float) with seekDate set to now
+     */
     public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
         return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
     }
