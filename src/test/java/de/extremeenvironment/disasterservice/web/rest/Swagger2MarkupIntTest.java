@@ -7,6 +7,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.JUnitRestDocumentation;
@@ -32,7 +33,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringApplicationConfiguration(classes = DisasterServiceApp.class)
 @WebAppConfiguration
 @IntegrationTest
-//@ActiveProfiles("s2m")
+@ActiveProfiles("s2m")
 public class Swagger2MarkupIntTest {
 
     @Rule
@@ -46,7 +47,7 @@ public class Swagger2MarkupIntTest {
     @Before
     public void setup() throws IOException {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
-.apply(documentationConfiguration(this.restDocumentation))        .build();
+.apply(documentationConfiguration(this.restDocumentation)).build();
     }
 
 //    @Test

@@ -7,8 +7,12 @@ ext {
     snippetsOutputDir = file("${buildDir}/asciidoc/snippets")
 }
 
+task swaggerTest(type: Test) {
+    include '**/Swagger2MarkupIntTest*'
+}
+
 convertSwagger2markup {
-    dependsOn test
+    dependsOn swaggerTest
     swaggerInput "${swaggerOutputDir}/swagger.json"
     outputDir asciiDocOutputDir
 

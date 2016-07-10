@@ -5,6 +5,7 @@ import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -14,6 +15,7 @@ import javax.inject.Inject;
  * Created by linus on 25.06.16.
  */
 @Service
+@Profile("!s2m")
 public class DataService {
     Logger log = LoggerFactory.getLogger(DataService.class);
 
