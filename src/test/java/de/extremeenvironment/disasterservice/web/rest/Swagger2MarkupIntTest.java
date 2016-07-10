@@ -32,7 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringApplicationConfiguration(classes = DisasterServiceApp.class)
 @WebAppConfiguration
 @IntegrationTest
-@ActiveProfiles("dev,s2m")
+//@ActiveProfiles("s2m")
 public class Swagger2MarkupIntTest {
 
     @Rule

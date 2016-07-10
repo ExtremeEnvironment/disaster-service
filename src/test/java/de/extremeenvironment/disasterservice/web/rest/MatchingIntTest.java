@@ -9,11 +9,8 @@ import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
-
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
-import org.codehaus.groovy.runtime.powerassert.SourceText;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -31,17 +28,9 @@ import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
