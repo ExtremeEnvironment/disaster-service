@@ -28,6 +28,7 @@ import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
@@ -46,6 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "spring.profiles.active:test",
     "server.port:0"
 })
+@IntegrationTest("server.port:0")
 public class MatchingIntTest {
 
     private static User user;
@@ -76,7 +78,7 @@ public class MatchingIntTest {
 
 //    private Action action1Seek, action1Offer, action2Seek, action2Offer;
 
-    ActionObject actObj1, actObj2;
+    private ActionObject actObj1, actObj2;
 
     private Disaster disaster;
 
@@ -104,6 +106,7 @@ public class MatchingIntTest {
         ActionObject actObj2 = new ActionObject();
         actObj2.setName("BBBB");
         actionObjectRepository.saveAndFlush(actObj2);
+
     }
 
 
@@ -111,6 +114,20 @@ public class MatchingIntTest {
     @Transactional
     @WithMockOAuth2Authentication
     public void correctMatch() throws Exception {
+        User u1 = new User();
+        u1.setUserId(1L);
+        User u2 = new User();
+        u2.setUserId(2L);
+        User u3 = new User();
+        u3.setUserId(3L);
+
+        userRepository.saveAndFlush(u1);
+        userRepository.saveAndFlush(u2);
+        userRepository.saveAndFlush(u3);
+
+        List<User> allUsers = userRepository.findAll();
+
+
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
         action1Seek.setLon(1F);
@@ -118,6 +135,8 @@ public class MatchingIntTest {
         action1Seek.setActionType(ActionType.SEEK);
         List<Disaster> disasters = disasterRepository.findAll();
         action1Seek.setDisaster(disasters.get(disasters.size() - 1));
+        action1Seek.setUser(allUsers.get(0));
+
 
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
@@ -134,6 +153,7 @@ public class MatchingIntTest {
         action2Offer.setActionType(ActionType.OFFER);
 //        action2Offer.setDisaster(disasters.get(disasters.size()-1));
         action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action2Offer.setUser(allUsers.get(1));
 
 
         restActionMockMvc.perform(post("/api/actions")
@@ -154,6 +174,20 @@ public class MatchingIntTest {
     @Transactional
     @WithMockOAuth2Authentication
     public void actionsDifferentActionObjectTypes() throws Exception {
+        User u1 = new User();
+        u1.setUserId(1L);
+        User u2 = new User();
+        u2.setUserId(2L);
+        User u3 = new User();
+        u3.setUserId(3L);
+
+        userRepository.saveAndFlush(u1);
+        userRepository.saveAndFlush(u2);
+        userRepository.saveAndFlush(u3);
+
+        List<User> allUsers = userRepository.findAll();
+
+
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
         action1Seek.setLon(1F);
@@ -163,6 +197,8 @@ public class MatchingIntTest {
         action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 2));
+        action1Seek.setUser(allUsers.get(0));
+
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -176,6 +212,8 @@ public class MatchingIntTest {
         action2Offer.setActionType(ActionType.OFFER);
         action2Offer.setDisaster(disasters.get(disasters.size() - 1));
         action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action2Offer.setUser(allUsers.get(1));
+
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -194,6 +232,20 @@ public class MatchingIntTest {
     @Transactional
     @WithMockOAuth2Authentication
     public void actionsTooMuchDistance() throws Exception {
+        User u1 = new User();
+        u1.setUserId(1L);
+        User u2 = new User();
+        u2.setUserId(2L);
+        User u3 = new User();
+        u3.setUserId(3L);
+
+        userRepository.saveAndFlush(u1);
+        userRepository.saveAndFlush(u2);
+        userRepository.saveAndFlush(u3);
+
+        List<User> allUsers = userRepository.findAll();
+
+
         Action action1Seek = new Action();
         action1Seek.setLat(0F);
         action1Seek.setLon(0F);
@@ -203,6 +255,8 @@ public class MatchingIntTest {
         action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action1Seek.setUser(allUsers.get(0));
+
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -216,6 +270,8 @@ public class MatchingIntTest {
         action2Offer.setActionType(ActionType.OFFER);
         action2Offer.setDisaster(disasters.get(disasters.size() - 1));
         action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action2Offer.setUser(allUsers.get(1));
+
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -234,6 +290,19 @@ public class MatchingIntTest {
     @Transactional
     @WithMockOAuth2Authentication
     public void matchAlreadySet() throws Exception {
+        User u1 = new User();
+        u1.setUserId(1L);
+        User u2 = new User();
+        u2.setUserId(2L);
+        User u3 = new User();
+        u3.setUserId(3L);
+
+        userRepository.saveAndFlush(u1);
+        userRepository.saveAndFlush(u2);
+        userRepository.saveAndFlush(u3);
+
+        List<User> allUsers = userRepository.findAll();
+
 
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -244,6 +313,8 @@ public class MatchingIntTest {
         action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action1Seek.setUser(allUsers.get(0));
+
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -256,8 +327,9 @@ public class MatchingIntTest {
         action2Offer.setIsExpired(false);
         action2Offer.setActionType(ActionType.OFFER);
         action2Offer.setDisaster(disasters.get(disasters.size() - 1));
-
         action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action2Offer.setUser(allUsers.get(1));
+
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -271,6 +343,7 @@ public class MatchingIntTest {
         action3Seek.setActionType(ActionType.OFFER);
         action3Seek.setDisaster(disasters.get(disasters.size() - 1));
         action3Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action3Seek.setUser(allUsers.get(2));
 
 
         restActionMockMvc.perform(post("/api/actions")
@@ -289,11 +362,21 @@ public class MatchingIntTest {
     @Test
     @Transactional
     public void testRejectingMatch() throws Exception {
-        List<ActionObject> actionObjects = actionObjectRepository.findAll();
+        User u1 = new User();
+        u1.setUserId(1L);
+        User u2 = new User();
+        u2.setUserId(2L);
+        User u3 = new User();
+        u3.setUserId(3L);
 
-//        for (Action a : actionRepository.findAll()) {
-//            actionRepository.delete(a);
-//        }
+        userRepository.saveAndFlush(u1);
+        userRepository.saveAndFlush(u2);
+        userRepository.saveAndFlush(u3);
+
+        List<User> allUsers = userRepository.findAll();
+
+
+        List<ActionObject> actionObjects = actionObjectRepository.findAll();
 
         Action action1Seek = new Action();
         action1Seek.setLat(2F);
@@ -303,6 +386,7 @@ public class MatchingIntTest {
         List<Disaster> disasters = disasterRepository.findAll();
         action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action1Seek.setUser(allUsers.get(0));
 
 
         Action action2Offer = new Action();
@@ -312,6 +396,7 @@ public class MatchingIntTest {
         action2Offer.setActionType(ActionType.OFFER);
 //        action2Offer.setDisaster(disasters.get(disasters.size()-1));
         action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action2Offer.setUser(allUsers.get(1));
 
 
         Action action3Seek = new Action();
@@ -321,6 +406,7 @@ public class MatchingIntTest {
         action3Seek.setActionType(ActionType.SEEK);
         action3Seek.setDisaster(disasters.get(disasters.size() - 1));
         action3Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action3Seek.setUser(allUsers.get(2));
 
 
         restActionMockMvc.perform(post("/api/actions")

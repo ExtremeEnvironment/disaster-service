@@ -400,11 +400,11 @@ public class ActionResource {
             HashSet actionObjectIntersect = new HashSet<>(a.getActionObjects());
             actionObjectIntersect.retainAll(act.getActionObjects());
 
-            Float matchDist = getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.OFFER) ? a.getCreatedDate() : act.getCreatedDate()));
+            Float matchDist = getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.SEEK) ? a.getCreatedDate() : act.getCreatedDate()));
 
 //            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
-            if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
+            if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType() && a.getUser() != act.getUser()) { //check if a is in act's rejectedMatches shouldnt be necessary
                 bestMatchDist = matchDist;
                 bestMatch = act;
             }
