@@ -1,5 +1,7 @@
 package de.extremeenvironment.disasterservice.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -17,6 +19,10 @@ public class User {
 
     public User() {
         this.actions = new ArrayList<>();
+    }
+
+    public User(long userId) {
+        this.userId = userId;
     }
 
     @Id
@@ -39,6 +45,7 @@ public class User {
 
 
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private List<Action> actions;
 
     public long getId() {

@@ -2,6 +2,7 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.client.MessageClient;
+import de.extremeenvironment.disasterservice.client.UserService;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
@@ -11,6 +12,7 @@ import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
@@ -24,6 +26,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
@@ -31,6 +34,7 @@ import javax.inject.Inject;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,6 +53,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class MatchingIntTest {
 
     private static User user;
+
+    @Inject
+    private WebApplicationContext context;
 
     @Inject
     private ActionRepository actionRepository;
@@ -71,6 +78,13 @@ public class MatchingIntTest {
     @Inject
     private DisasterRepository disasterRepository;
 
+    @Inject
+    private DisasterService disasterService;
+
+    @Inject
+    private UserService userService;
+
+
 
     private MockMvc restActionMockMvc;
 
@@ -83,10 +97,18 @@ public class MatchingIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
-        this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setMessageConverters(jacksonMessageConverter).build();
+        ActionResource actionResource = new ActionResource(
+            actionRepository,
+            disasterRepository,
+            messageClient,
+            disasterService,
+            userService
+        );
+
+        this.restActionMockMvc = MockMvcBuilders.webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
+
         Disaster d1 = new Disaster();
         d1.setLat(23F);
         d1.setLon(23F);
@@ -109,7 +131,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
-    @WithMockOAuth2Authentication
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void correctMatch() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -152,7 +174,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
-    @WithMockOAuth2Authentication
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void actionsDifferentActionObjectTypes() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
@@ -192,7 +214,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
-    @WithMockOAuth2Authentication
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void actionsTooMuchDistance() throws Exception {
         Action action1Seek = new Action();
         action1Seek.setLat(0F);
@@ -232,7 +254,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
-    @WithMockOAuth2Authentication
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void matchAlreadySet() throws Exception {
 
         Action action1Seek = new Action();
@@ -288,6 +310,7 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void testRejectingMatch() throws Exception {
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
 
