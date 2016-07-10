@@ -1,0 +1,4 @@
+jhipster:
+    swagger:
+        contactName: de.extremeenvironment.disasterservice
+        contactEmail: de.extremeenvironment.disasterservice@example.org
