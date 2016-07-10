@@ -37,7 +37,7 @@ public class DataService {
     @Inject
     CategoryRepository categoryRepository;
 
-    @PostConstruct
+//    @PostConstruct
     public void dataCreate() {
         if (actionRepository.findAll().size() == 0) {
             Category category = new Category();

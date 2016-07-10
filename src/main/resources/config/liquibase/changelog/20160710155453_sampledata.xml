@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet id="20160710155453-1" author="gereon">
+        <loadData tableName="action" encoding="UTF-8" file="classpath:config/liquibase/csv/actions.csv" separator=";"/>
+        <loadData tableName="action_action_object" encoding="UTF-8" file="classpath:config/liquibase/csv/action_action_object.csv" separator=";"/>
+        <loadData tableName="action_object" encoding="UTF-8" file="classpath:config/liquibase/csv/action_object.csv" separator=";"/>
+        <loadData tableName="action_rejected_matches" encoding="UTF-8" file="classpath:config/liquibase/csv/action_rejected_matches.csv" separator=";"/>
+        <loadData tableName="area" encoding="UTF-8" file="classpath:config/liquibase/csv/area.csv" separator=";"/>
+        <loadData tableName="category" encoding="UTF-8" file="classpath:config/liquibase/csv/category.csv" separator=";"/>
+        <loadData tableName="corner" encoding="UTF-8" file="classpath:config/liquibase/csv/corner.csv" separator=";"/>
+        <loadData tableName="disaster" encoding="UTF-8" file="classpath:config/liquibase/csv/disaster.csv" separator=";"/>
+        <loadData tableName="disaster_type" encoding="UTF-8" file="classpath:config/liquibase/csv/disaster_type.csv" separator=";"/>
+        <loadData tableName="jhi_user" encoding="UTF-8" file="classpath:config/liquibase/csv/jhi_user.csv" separator=";"/>
+        <loadData tableName="ngo" encoding="UTF-8" file="classpath:config/liquibase/csv/ngo.csv" separator=";"/>
+    </changeSet>
+</databaseChangeLog>
