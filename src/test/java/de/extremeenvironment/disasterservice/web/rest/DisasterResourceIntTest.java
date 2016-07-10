@@ -9,10 +9,12 @@ import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 
 import de.extremeenvironment.disasterservice.repository.DisasterTypeRepository;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static org.hamcrest.Matchers.hasItem;
 import org.mockito.MockitoAnnotations;
@@ -47,7 +49,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DisasterServiceApp.class)
 @WebAppConfiguration
-@IntegrationTest
+@IntegrationTest("server.port:0")
 public class DisasterResourceIntTest {
 
 
@@ -74,6 +76,9 @@ public class DisasterResourceIntTest {
     private ActionRepository actionRepository;
 
     @Inject
+    private DisasterService disasterService;
+
+    @Inject
     private MappingJackson2HttpMessageConverter jacksonMessageConverter;
 
     @Inject
@@ -88,8 +93,7 @@ public class DisasterResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        DisasterResource disasterResource = new DisasterResource(actionRepository,disasterRepository);
-        ReflectionTestUtils.setField(disasterResource, "disasterRepository", disasterRepository);
+        DisasterResource disasterResource = new DisasterResource(actionRepository, disasterRepository, disasterService);
         this.restDisasterMockMvc = MockMvcBuilders.standaloneSetup(disasterResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();
@@ -249,8 +253,8 @@ public class DisasterResourceIntTest {
             .content(TestUtil.convertObjectToJsonBytes(di)));
 
 
-        assertTrue(sizeD==disasterRepository.findAll().size());
-        assertTrue(sizeA==(actionRepository.findAll().size()-1));
+        assertEquals(sizeD, disasterRepository.findAll().size());
+        assertEquals(sizeA, (actionRepository.findAll().size() - 1));
     }
 
     @Test

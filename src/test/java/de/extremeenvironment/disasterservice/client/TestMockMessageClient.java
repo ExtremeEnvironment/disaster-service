@@ -1,5 +1,6 @@
 package de.extremeenvironment.disasterservice.client;
 
+import de.extremeenvironment.disasterservice.domain.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,7 +25,7 @@ public class TestMockMessageClient implements MessageClient {
     }
 
     @Override
-    public UserHolder addMember(@RequestBody UserHolder user, @PathVariable("conversationId") Long conversationId) {
-        return new UserHolder(userHolderCounter++);
+    public User addMember(@RequestBody User user, @PathVariable("conversationId") Long conversationId) {
+        return new User(userHolderCounter++);
     }
 }
