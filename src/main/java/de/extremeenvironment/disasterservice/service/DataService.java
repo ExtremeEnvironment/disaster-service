@@ -3,6 +3,9 @@ package de.extremeenvironment.disasterservice.service;
 import de.extremeenvironment.disasterservice.domain.*;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -12,17 +15,25 @@ import javax.inject.Inject;
  * Created by linus on 25.06.16.
  */
 @Service
+@Profile("!s2m")
 public class DataService {
+    Logger log = LoggerFactory.getLogger(DataService.class);
+
     @Inject
     DisasterTypeRepository disasterTypeRepository;
+
     @Inject
     DisasterRepository disasterRepository;
+
     @Inject
     ActionRepository actionRepository;
+
     @Inject
     ActionObjectRepository actionObjectRepository;
+
     @Inject
     UserRepository userRepository;
+
     @Inject
     CategoryRepository categoryRepository;
 
@@ -239,9 +250,9 @@ public class DataService {
             actionRepository.save(a14);
             actionRepository.save(a15);
             actionRepository.flush();
-            System.out.println("Daten wurden Hinzugefügt");
-        }else{
-            System.out.println("schon Daten in der Datenbank");
+            log.info("Daten wurden Hinzugefügt");
+        } else {
+            log.info("schon Daten in der Datenbank");
         }
     }
 }

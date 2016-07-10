@@ -34,6 +34,12 @@ public class Conversation implements Serializable {
         this.title = title;
     }
 
+    public Conversation(Long id, Boolean active, String title) {
+        this.id = id;
+        this.active = active;
+        this.title = title;
+    }
+
     public static long getSerialVersionUID() {
         return serialVersionUID;
     }

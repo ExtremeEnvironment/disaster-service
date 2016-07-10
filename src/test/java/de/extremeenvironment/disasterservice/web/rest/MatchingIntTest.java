@@ -9,21 +9,18 @@ import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
-
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
-import org.codehaus.groovy.runtime.powerassert.SourceText;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,17 +28,9 @@ import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-import static junit.framework.TestCase.assertFalse;
-import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.assertTrue;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.hasItem;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -53,8 +42,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DisasterServiceApp.class)
-@WebAppConfiguration
-@IntegrationTest
+@WebIntegrationTest({
+    "spring.profiles.active:test",
+    "server.port:0"
+})
 public class MatchingIntTest {
 
     private static User user;
@@ -93,7 +84,6 @@ public class MatchingIntTest {
     public void setup() {
         MockitoAnnotations.initMocks(this);
         ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
-        ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
         this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
             .setMessageConverters(jacksonMessageConverter).build();

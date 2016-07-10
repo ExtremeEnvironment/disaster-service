@@ -11,6 +11,7 @@ import de.extremeenvironment.disasterservice.repository.ActionRepository;
 
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
+import de.extremeenvironment.disasterservice.service.DataService;
 import jdk.nashorn.internal.objects.NativeRegExp;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +22,7 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -66,6 +68,7 @@ public class ActionResourceIntTest {
     private static final ActionType UPDATED_ACTION_TYPE = ActionType.SEEK;
 
     private static User user;
+
 
     @Inject
     private ActionRepository actionRepository;
