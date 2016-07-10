@@ -3,31 +3,29 @@ package de.extremeenvironment.disasterservice.web.rest;
 import com.codahale.metrics.annotation.Timed;
 import de.extremeenvironment.disasterservice.client.Conversation;
 import de.extremeenvironment.disasterservice.client.MessageClient;
-import de.extremeenvironment.disasterservice.client.UserHolder;
+import de.extremeenvironment.disasterservice.client.UserService;
 import de.extremeenvironment.disasterservice.domain.Action;
-import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
-import de.extremeenvironment.disasterservice.repository.UserRepository;
-import de.extremeenvironment.disasterservice.service.ActionService;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.provider.OAuth2Authentication;
+import org.springframework.security.oauth2.provider.OAuth2Request;
 import org.springframework.web.bind.annotation.*;
 
 import javax.inject.Inject;
 import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.ZonedDateTime;
+import java.security.Principal;
 import java.util.*;
 
 /**
@@ -39,19 +37,25 @@ public class ActionResource {
 
     private final Logger log = LoggerFactory.getLogger(ActionResource.class);
 
-    @Inject
     private ActionRepository actionRepository;
-    @Inject
+
     private DisasterRepository disasterRepository;
 
     private MessageClient messageClient;
 
-    @Autowired
-    public ActionResource(ActionRepository actionRepositoryRepository,
-                          DisasterRepository disasterRepository, MessageClient messageClient) {
-        this.actionRepository = actionRepositoryRepository;
+    private DisasterService disasterService;
+
+    private UserService userService;
+
+    @Inject
+    public ActionResource(ActionRepository actionRepository, DisasterRepository disasterRepository,
+                          MessageClient messageClient, DisasterService disasterService, UserService userService) {
+
+        this.actionRepository = actionRepository;
         this.disasterRepository = disasterRepository;
         this.messageClient = messageClient;
+        this.disasterService = disasterService;
+        this.userService = userService;
     }
 
     /**
@@ -65,14 +69,15 @@ public class ActionResource {
         method = RequestMethod.POST,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<Action> createAction(@Valid @RequestBody Action action) throws URISyntaxException {
+    public ResponseEntity<Action> createAction(@Valid @RequestBody Action action, Principal principal) throws URISyntaxException {
+
         log.debug("REST request to save Action : {}", action);
         if (action.getId() != null) {
             return ResponseEntity.badRequest()
                 .headers(HeaderUtil.createFailureAlert("action", "idexists", "A new action cannot already have an ID")).body(null);
         }
         if ((action.getDisaster() == null) && (action.getActionType() != ActionType.OFFER)) {
-            if (getDisasterForAction(action) == null) {
+            if (disasterService.getDisasterForAction(action) == null) {
 
                 Disaster disaster = new Disaster();
                 disaster.setLat(action.getLat());
@@ -82,11 +87,19 @@ public class ActionResource {
 
 
             } else {
-                action.setDisaster(getDisasterForAction(action));
+                action.setDisaster(disasterService.getDisasterForAction(action));
             }
         }
 
         action = matchActions(action);
+
+        OAuth2Request request = ((OAuth2Authentication) principal).getOAuth2Request();
+/*
+        if (request.getScope().contains("web-app")) {
+            throw new IllegalArgumentException("no valid user can be present. preventing NullPointerException");
+        }*/
+        User user = userService.findOrCreateByName(principal.getName());
+        action.setUser(user);
 
         Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
@@ -107,10 +120,11 @@ public class ActionResource {
         method = RequestMethod.PUT,
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
-    public ResponseEntity<Action> updateAction(@Valid @RequestBody Action action) throws URISyntaxException {
+    public ResponseEntity<Action> updateAction(@Valid @RequestBody Action action, Principal principal) throws URISyntaxException {
+
         log.debug("REST request to update Action : {}", action);
         if (action.getId() == null) {
-            return createAction(action);
+            return createAction(action, principal);
         }
 
         action = matchActions(action);
@@ -339,33 +353,6 @@ public class ActionResource {
     }
 
 
-    /**
-     * @param action
-     * @return the nearest disaster of an action location, in a radius of 15000km
-     */
-    public Disaster getDisasterForAction(Action action) {
-        float distance = 15000;
-        Disaster disasterReturn = null;
-        float lon = action.getLon();
-        float lat = action.getLat();
-
-        List<Disaster> disasterList = disasterRepository.findAll();
-
-        for (int i = 0; i < disasterList.size(); i++) {
-            Disaster disaster = disasterList.get(i);
-            Float disasterLon = disaster.getLon();
-            Float disasterLat = disaster.getLat();
-            float distanceBetween = getDistance(lat, lon, disasterLat, disasterLon);
-            if (distanceBetween < 15000) {
-                if (distanceBetween < distance) {
-                    distance = distanceBetween;
-                    disasterReturn = disaster;
-                }
-            }
-
-        }
-        return disasterReturn;
-    }
 
 
     /**
@@ -400,7 +387,7 @@ public class ActionResource {
             HashSet actionObjectIntersect = new HashSet<>(a.getActionObjects());
             actionObjectIntersect.retainAll(act.getActionObjects());
 
-            Float matchDist = getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.SEEK) ? a.getCreatedDate() : act.getCreatedDate()));
+            Float matchDist = disasterService.getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.SEEK) ? a.getCreatedDate() : act.getCreatedDate()));
 
 //            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
@@ -421,8 +408,8 @@ public class ActionResource {
             Conversation savedConversation = messageClient.addConversation(
                 new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
             );
-            messageClient.addMember(new UserHolder(bestMatch.getUser().getUserId()), savedConversation.getId());
-            messageClient.addMember(new UserHolder(a.getUser().getUserId()), savedConversation.getId());
+            messageClient.addMember(new User(bestMatch.getUser().getUserId()), savedConversation.getId());
+            messageClient.addMember(new User(a.getUser().getUserId()), savedConversation.getId());
         }
 
 //        System.out.println("### match " + bestMatch + "###");
@@ -458,43 +445,5 @@ public class ActionResource {
 
         return a;
     }
-
-    /**
-     * calculates the distance of two coordinates, subtracts one kilometer ber day waited
-     *
-     * @param lat1 the latitude of the first coordinate
-     * @param lon1 the longitude of the first coordinate
-     * @param lat2 the latitude of the second coordinate
-     * @param lon2 the longitude of the second coordinate
-     * @param seekDate the date the bonus shall be calculated from
-     * @return the distance
-     */
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2, ZonedDateTime seekDate) {
-        Duration d = Duration.between(seekDate, ZonedDateTime.now());
-        long waitingDuration = d.getSeconds();
-
-        final float BONUS = 1 / (60 * 60 * 24); // 1 km per day waited
-        //TODO set bonus via web interface
-
-        double earthRadius = 6371000; //meters
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        float dist = (float) (earthRadius * c);
-
-        return dist - (waitingDuration * BONUS);
-    }
-
-
-    /**
-     * @see ActionResource#getDistance(float, float, float, float) with seekDate set to now
-     */
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
-        return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
-    }
-
 
 }

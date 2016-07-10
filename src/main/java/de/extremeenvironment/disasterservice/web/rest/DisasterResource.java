@@ -6,6 +6,7 @@ import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +35,17 @@ public class DisasterResource {
 
     private final Logger log = LoggerFactory.getLogger(DisasterResource.class);
 
-    @Inject
     private ActionRepository actionRepository;
-    @Inject
+
     private DisasterRepository disasterRepository;
 
-    @Autowired
-    public DisasterResource(ActionRepository actionRepositoryRepository,
-                            DisasterRepository disasterRepository) {
-        this.actionRepository = actionRepositoryRepository;
+    private DisasterService disasterService;
+
+    @Inject
+    public DisasterResource(ActionRepository actionRepository, DisasterRepository disasterRepository, DisasterService disasterService) {
+        this.actionRepository = actionRepository;
         this.disasterRepository = disasterRepository;
+        this.disasterService = disasterService;
     }
 
     /**
@@ -63,7 +65,7 @@ public class DisasterResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "idexists", "A new disaster cannot already have an ID")).body(null);
         }
 
-        Disaster dis = getDisasterForDisaster(disaster);
+        Disaster dis = disasterService.getDisasterForDisaster(disaster);
 
         disaster.setIsExpired(false);
 
@@ -180,56 +182,8 @@ public class DisasterResource {
         return actions;
     }
 
-    /**
-     * @param disaster
-     * @return the nearest disaster of an action location, in a radius of 15000km
-     */
-    public Disaster getDisasterForDisaster(Disaster disaster) {
-        float distance = 15000;
-        Disaster disasterReturn = null;
-        float lon = disaster.getLon();
-        float lat = disaster.getLat();
-
-        List<Disaster> disasterList = disasterRepository.findAll();
-
-        for (int i = 0; i < disasterList.size(); i++) {
-            Disaster disaster1 = disasterList.get(i);
-            Float disasterLon = disaster1.getLon();
-            Float disasterLat = disaster1.getLat();
-            float distanceBetween = getDistance(lat, lon, disasterLat, disasterLon);
-            if (distanceBetween < 15000) {
-                if (distanceBetween < distance) {
-                    distance = distanceBetween;
-                    disasterReturn = disaster;
-                }
-            }
-
-        }
-        return disasterReturn;
-    }
 
 
-    /**
-     * calculates the distance of two coordinates, subtracts one kilometer ber day waited
-     *
-     * @param lat1 the latitude of the first coordinate
-     * @param lon1 the longitude of the first coordinate
-     * @param lat2 the latitude of the second coordinate
-     * @param lon2 the longitude of the second coordinate
-     * @return the distance
-     */
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
-        double earthRadius = 6371000; //meters
-        double dLat = Math.toRadians(lat2 - lat1);
-        double dLng = Math.toRadians(lon2 - lon1);
-        double a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
-                Math.sin(dLng / 2) * Math.sin(dLng / 2);
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        float dist = (float) (earthRadius * c);
-
-        return dist;
-    }
 
 
 }
