@@ -1,0 +1,4 @@
+id;is_expired;lat;lon;title;description;date;disaster_type_id;area_id;created_by;created_date;reset_date;last_modified_by;last_modified_date
+1022;f;23;23;Berlin Erdbeben;;;1007;;system;2016-07-10 13:18:43.598;;system;2016-07-10 13:18:43.598
+1023;f;45;45;New York Zombie-Angriff;;;1006;;system;2016-07-10 13:18:43.721;;system;2016-07-10 13:18:43.721
+1024;f;34;34;London Brexit;;;1009;;system;2016-07-10 13:18:43.746;;system;2016-07-10 13:18:43.746
