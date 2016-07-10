@@ -27,6 +27,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.Principal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * REST controller for managing Action.
@@ -91,7 +92,6 @@ public class ActionResource {
             }
         }
 
-        action = matchActions(action);
 
         OAuth2Request request = ((OAuth2Authentication) principal).getOAuth2Request();
 /*
@@ -101,6 +101,7 @@ public class ActionResource {
         User user = userService.findOrCreateByName(principal.getName());
         action.setUser(user);
 
+        action = matchActions(action);
         Action result = actionRepository.saveAndFlush(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("action", result.getId().toString()))
@@ -225,14 +226,17 @@ public class ActionResource {
             return ResponseEntity.badRequest().body(null);
         }
 
-        Action action = actionRepository.findActionById(id).get();
+        return actionRepository.findActionById(id)
+            .map(action -> {
+                log.debug("REST request to update Action : {}", action);
+                action.setLikeCounter(action.getLikeCounter() + 1);
+                actionRepository.save(action);
 
-        log.debug("REST request to update Action : {}", action);
-        action.setLikeCounter(action.getLikeCounter() + 1);
-        actionRepository.save(action);
-        return ResponseEntity.ok()
-            .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
-            .body(action);
+                return ResponseEntity.ok()
+                    .headers(HeaderUtil.createEntityUpdateAlert("action", action.getId().toString()))
+                    .body(action);
+            })
+            .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
     }
 
     /**
@@ -246,23 +250,11 @@ public class ActionResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public List<Action> getActionKnowledgeByCatastrophe(@Valid @PathVariable("id") Long id) {
-
-        Disaster disaster;
-        if ((disaster = disasterRepository.findById(id).get()) == null) {
-            return null;
-        } else {
-
-            List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
-            List<Action> result = new ArrayList<>();
-            for (Action a : actions) {
-                if (a.getDisaster().getId() == disaster.getId()) {
-                    result.add(a);
-                }
-
-            }
-            return result;
-
-        }
+        return disasterRepository.findById(id)
+            .map(disaster -> actionRepository.findActionByActionType(ActionType.KNOWLEDGE).stream()
+                .filter(a -> a.getDisaster().getId().equals(disaster.getId()))
+                .collect(Collectors.toList()))
+            .orElseGet(() -> null);
     }
 
 
@@ -277,42 +269,30 @@ public class ActionResource {
         produces = MediaType.APPLICATION_JSON_VALUE)
     @Timed
     public List<Action> getTopTenKnowledge(@PathVariable Long id) {
+        return disasterRepository.findById(id)
+            .map(disaster -> {
+                List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
 
+                List<Action> result = actions.stream()
+                    .filter(action -> action.getDisaster().getId().equals(disaster.getId()))
+                    .collect(Collectors.toList());
 
-        Disaster disaster;
-        if ((disaster = disasterRepository.findById(id).get()) == null) {
-            return null;
-        }
-
-        List<Action> actions = actionRepository.findActionByActionType(ActionType.KNOWLEDGE);
-
-        List<Action> result = new ArrayList<>();
-
-        for (Action action : actions) {
-            if (action.getDisaster().getId() == disaster.getId()) {
-                result.add(action);
-            }
-        }
-
-
-        if (result.size() <= 10) {
-            return result;
-        } else {
-            Collections.sort(result, new Comparator<Action>() {
-                @Override
-                public int compare(Action o1, Action o2) {
-                    if (o1.getLikeCounter() > o2.getLikeCounter()) {
-                        return 1;
-                    } else if (o1.getLikeCounter() == o2.getLikeCounter()) {
-                        return 0;
-                    } else {
-                        return -1;
-                    }
-
+                if (result.size() <= 10) {
+                    return result;
+                } else {
+                    Collections.sort(result, (o1, o2) -> {
+                        if (o1.getLikeCounter() > o2.getLikeCounter()) {
+                            return 1;
+                        } else if (o1.getLikeCounter().equals(o2.getLikeCounter())) {
+                            return 0;
+                        } else {
+                            return -1;
+                        }
+                    });
                 }
-            });
-        }
-        return result.subList(0, 9);
+                return result.subList(0, 9);
+            })
+            .orElseGet(() -> null);
     }
 
     /**
