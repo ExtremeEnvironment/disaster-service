@@ -344,7 +344,7 @@ public class ActionResource {
     public Action matchActions(Action a) {
 //        System.out.println("\n\n### matching begin ###");
 
-        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE) {
+        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE || a.isIsExpired()) {
             return a;
         }
 
@@ -360,7 +360,7 @@ public class ActionResource {
 //        System.out.println("### Matching prior For ###");
 
         for (Action act : possibleMatches) {
-            if (act.getMatch() != null) {
+            if (act.getMatch() != null || act.isIsExpired()) {
                 continue;
             }
 

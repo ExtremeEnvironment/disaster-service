@@ -36,6 +36,7 @@ import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.hamcrest.Matchers.stringContainsInOrder;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -162,6 +163,7 @@ public class ActionResourceIntTest {
         // assertThat(testAction.getUser().getId()).isEqualTo(user.getId());
         //  user.getActions().add(action);
         System.out.println(action.toString());
+        actionRepository.findAll().forEach(a -> System.out.println(a + " : " + a.getUser()));
         System.out.println(user.toString());
 
     }
