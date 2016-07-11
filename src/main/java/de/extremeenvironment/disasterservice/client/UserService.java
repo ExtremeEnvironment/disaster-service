@@ -30,6 +30,7 @@ public class UserService {
     }
 
     public User findOrCreateByName(String name) {
-        return findOrCreateById(userClient.getUserByName(name).getUserId());
+        User user = userClient.getUserByName(name);
+        return findOrCreateById(user.getId());
     }
 }
