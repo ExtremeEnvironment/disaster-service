@@ -65,11 +65,11 @@ public class DisasterResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "idexists", "A new disaster cannot already have an ID")).body(null);
         }
 
-        Disaster dis = disasterService.getDisasterForDisaster(disaster);
+        Disaster nearByDisaster = disasterService.getDisasterForDisaster(disaster);
 
         disaster.setIsExpired(false);
 
-        if ((dis != null) && (dis.getDisasterType() == disaster.getDisasterType()) && (dis.isIsExpired() == false)) {
+        if ((nearByDisaster != null) && (nearByDisaster.getDisasterType().getName().equals(disaster.getDisasterType().getName())) && (!nearByDisaster.isIsExpired())) {
             Action action = new Action();
             action.setActionType(ActionType.KNOWLEDGE);
             action.setLat(disaster.getLat());

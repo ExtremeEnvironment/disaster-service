@@ -131,13 +131,13 @@ public class DisasterService {
         return dist - (waitingDuration * BONUS);
     }
 
-/*
-    *//**
-     * @see ActionResource#getDistance(float, float, float, float) with seekDate set to now
-     *//*
-    public static Float getDistance(float lat1, float lon1, float lat2, float lon2) {
+
+    /**
+     * @see DisasterService#getDistance(float, float, float, float) with seekDate set to now
+     */
+    public static Float getOldDistance(float lat1, float lon1, float lat2, float lon2) {
         return getDistance(lat1, lon1, lat2, lon2, ZonedDateTime.now());
-    }*/
+    }
 
 
 }

@@ -24,6 +24,7 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.context.WebApplicationContext;
@@ -458,6 +459,7 @@ public class MatchingIntTest {
 
         restActionMockMvc.perform(put("/api/actions/{id}/rejectMatch", results.get(results.size() - 2).getId())
             .contentType(TestUtil.APPLICATION_JSON_UTF8))
+            .andDo(MockMvcResultHandlers.print())
             .andExpect(status().isOk());
 
         results = actionRepository.findAll();
