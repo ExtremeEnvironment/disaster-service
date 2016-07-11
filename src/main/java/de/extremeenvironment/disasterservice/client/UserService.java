@@ -26,7 +26,7 @@ public class UserService {
     public User findOrCreateById(Long id) {
         return userRepository
             .findOneByUserId(id)
-            .orElseGet(() -> userRepository.save(userClient.getUserById(id)));
+            .orElseGet(() -> userRepository.save(new User(userClient.getUserById(id).getId())));
     }
 
     public User findOrCreateByName(String name) {
