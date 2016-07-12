@@ -16,7 +16,7 @@ import java.util.List;
 public interface MessageClient {
 
 
-    @RequestMapping(method = RequestMethod.GET, value = "/conversation")
+    @RequestMapping(method = RequestMethod.GET, value = "/conversations")
     List<Conversation> getConversations();
 
     @RequestMapping(method = RequestMethod.POST, value = "/conversations")

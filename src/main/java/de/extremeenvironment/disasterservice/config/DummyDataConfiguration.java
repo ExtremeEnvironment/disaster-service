@@ -1,25 +1,26 @@
-package de.extremeenvironment.disasterservice.service;
+package de.extremeenvironment.disasterservice.config;
 
 import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.*;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.*;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 /**
  * Created by linus on 25.06.16.
  */
-@Service
+@Configuration
 @Profile("!s2m")
-public class DataService {
+public class DummyDataConfiguration {
     private static final int MAX_TRIES = 10;
-    Logger log = LoggerFactory.getLogger(DataService.class);
+    Logger log = LoggerFactory.getLogger(DummyDataConfiguration.class);
 
     @Inject
     DisasterTypeRepository disasterTypeRepository;
@@ -45,6 +46,8 @@ public class DataService {
     @Inject
     CategoryRepository categoryRepository;
 
+    private boolean loaded = false;
+
     /**
      * during the application boot up several things may fail (timeouts, service discovery...)
      * this
@@ -66,8 +69,15 @@ public class DataService {
         }
     }
 
-    //@PostConstruct
+    //HACK, aber funzt
+    @Scheduled(initialDelay = 5000, fixedRate = Long.MAX_VALUE)
     public void dataCreate() throws InterruptedException {
+        if (loaded) {
+            return;
+        }
+        loaded = true;
+
+        log.info("starting data creation");
         if (actionRepository.findAll().size() == 0) {
             interServiceCallWarmUp();
             Category category = new Category();
