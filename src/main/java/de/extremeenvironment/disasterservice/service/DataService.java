@@ -1,5 +1,6 @@
 package de.extremeenvironment.disasterservice.service;
 
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.*;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.*;
@@ -17,6 +18,7 @@ import javax.inject.Inject;
 @Service
 @Profile("!s2m")
 public class DataService {
+    private static final int MAX_TRIES = 10;
     Logger log = LoggerFactory.getLogger(DataService.class);
 
     @Inject
@@ -24,6 +26,12 @@ public class DataService {
 
     @Inject
     DisasterRepository disasterRepository;
+
+    @Inject
+    DisasterService disasterService;
+
+    @Inject
+    MessageClient messageClient;
 
     @Inject
     ActionRepository actionRepository;
@@ -37,9 +45,31 @@ public class DataService {
     @Inject
     CategoryRepository categoryRepository;
 
-    @PostConstruct
-    public void dataCreate() {
+    /**
+     * during the application boot up several things may fail (timeouts, service discovery...)
+     * this
+     */
+    public void interServiceCallWarmUp() throws InterruptedException {
+        int counter = 0;
+
+        while (counter < MAX_TRIES) {
+            counter++;
+            try {
+                messageClient.getConversations();
+            } catch (Exception e) {
+                log.info("something failing '{}', repeat in 1.5s. Throw in {}", e.getMessage(), MAX_TRIES - counter);
+                Thread.sleep(1500);
+                if ((counter + 1) == MAX_TRIES) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    //@PostConstruct
+    public void dataCreate() throws InterruptedException {
         if (actionRepository.findAll().size() == 0) {
+            interServiceCallWarmUp();
             Category category = new Category();
             Category category2 = new Category();
             Category category3 = new Category();
@@ -140,9 +170,13 @@ public class DataService {
             disaster2.setLon(34F);
             disaster2.setLat(34F);
             disaster2.setIsExpired(false);
-            disasterRepository.saveAndFlush(disaster);
-            disasterRepository.saveAndFlush(disaster1);
-            disasterRepository.saveAndFlush(disaster2);
+//            disasterRepository.saveAndFlush(disaster);
+//            disasterRepository.saveAndFlush(disaster1);
+//            disasterRepository.saveAndFlush(disaster2);
+
+            disasterService.createDisater(disaster);
+            disasterService.createDisater(disaster1);
+            disasterService.createDisater(disaster2);
             Action a = new Action();
             a.setLat(23F);
             a.setLon(23F);

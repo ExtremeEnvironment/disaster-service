@@ -1,5 +1,9 @@
 package de.extremeenvironment.disasterservice.service;
 
+
+import de.extremeenvironment.disasterservice.client.Conversation;
+import de.extremeenvironment.disasterservice.client.MessageClient;
+import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import org.slf4j.Logger;
@@ -17,15 +21,26 @@ public class DisasterService {
 
     private final Logger log = LoggerFactory.getLogger(DisasterService.class);
 
-    @Inject
     private DisasterRepository disasterRepository;
 
+    private MessageClient messageClient;
 
-    public Disaster createDisater() {
-        Disaster disaster = new Disaster();
+    @Inject
+    public DisasterService(DisasterRepository disasterRepository, MessageClient messageClient) {
+        this.disasterRepository = disasterRepository;
+        this.messageClient = messageClient;
+    }
 
+    public Disaster createDisater(Disaster disaster) {
+        disaster = disasterRepository.save(disaster);
 
-        disasterRepository.save(disaster);
+        try {
+            messageClient.addConversation(Conversation.forDisaster(disaster));
+        } catch (Exception e) {
+            log.error("could not create conversation, deleting disaster");
+            disasterRepository.delete(disaster);
+            throw e;
+        }
 
         log.debug("Created Information for Disaster: {}", disaster);
 

@@ -6,6 +6,7 @@ import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,10 +40,12 @@ public class DisasterResource {
     @Inject
     private DisasterRepository disasterRepository;
 
-    @Autowired
-    public DisasterResource(ActionRepository actionRepositoryRepository,
-                            DisasterRepository disasterRepository) {
-        this.actionRepository = actionRepositoryRepository;
+    private DisasterService disasterService;
+
+
+    @Inject
+    public DisasterResource(ActionRepository actionRepository, DisasterRepository disasterRepository, DisasterService disasterService) {
+        this.actionRepository = actionRepository;
         this.disasterRepository = disasterRepository;
     }
 
@@ -77,7 +80,8 @@ public class DisasterResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "disasteralreadyexists", "A disaster already exists at this location")).body(null);
 
         } else {
-            Disaster result = disasterRepository.save(disaster);
+            //Disaster result = disasterRepository.save(disaster);
+            Disaster result = disasterService.createDisater(disaster);
 
             return ResponseEntity.created(new URI("/api/disasters/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert("disaster", result.getId().toString()))
