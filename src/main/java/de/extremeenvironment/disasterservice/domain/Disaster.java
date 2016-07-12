@@ -140,7 +140,7 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
 
     @Override
     public String toString() {
-        return "Disaster{" +
+        return disasterType != null ? disasterType.getName() + "-" : "" + "Disaster{" +
             "id=" + id +
             ", isExpired='" + isExpired + "'" +
             ", lat='" + lat + "'" +

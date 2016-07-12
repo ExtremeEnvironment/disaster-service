@@ -2,44 +2,41 @@ package de.extremeenvironment.disasterservice.web.rest;
 
 import de.extremeenvironment.disasterservice.DisasterServiceApp;
 import de.extremeenvironment.disasterservice.client.MessageClient;
+import de.extremeenvironment.disasterservice.client.UserService;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionObjectRepository;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
-
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
-import de.extremeenvironment.disasterservice.service.DataService;
-import jdk.nashorn.internal.objects.NativeRegExp;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.IntegrationTest;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
 import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.util.ArrayList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertFalse;
 import static junit.framework.TestCase.assertTrue;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasItem;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -50,8 +47,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = DisasterServiceApp.class)
-@WebAppConfiguration
-@IntegrationTest
+@WebIntegrationTest({
+    "spring.profiles.active:test",
+    "server.port:0"
+})
 public class ActionResourceIntTest {
 
 
@@ -68,6 +67,9 @@ public class ActionResourceIntTest {
     private static final ActionType UPDATED_ACTION_TYPE = ActionType.SEEK;
 
     private static User user;
+
+    @Inject
+    private WebApplicationContext context;
 
 
     @Inject
@@ -88,6 +90,12 @@ public class ActionResourceIntTest {
     @Inject
     private DisasterRepository disasterRepository;
 
+    @Inject
+    private DisasterService disasterService;
+
+    @Inject
+    private UserService userService;
+
     MessageClient messageClient;
 
 
@@ -100,11 +108,16 @@ public class ActionResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(actionRepository, disasterRepository, messageClient);
-        ReflectionTestUtils.setField(actionResource, "actionRepository", actionRepository);
-        this.restActionMockMvc = MockMvcBuilders.standaloneSetup(actionResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setMessageConverters(jacksonMessageConverter).build();
+        ActionResource actionResource = new ActionResource(
+            actionRepository,
+            disasterRepository,
+            messageClient,
+            disasterService,
+            userService
+        );
+        this.restActionMockMvc = MockMvcBuilders.webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
     }
 
     @Before
@@ -127,6 +140,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void createAction() throws Exception {
         int databaseSizeBeforeCreate = actionRepository.findAll().size();
 
@@ -154,6 +168,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void checkLatIsRequired() throws Exception {
         int databaseSizeBeforeTest = actionRepository.findAll().size();
         // set the field null
@@ -172,6 +187,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void checkLonIsRequired() throws Exception {
         int databaseSizeBeforeTest = actionRepository.findAll().size();
         // set the field null
@@ -190,6 +206,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void checkActionTypeIsRequired() throws Exception {
         int databaseSizeBeforeTest = actionRepository.findAll().size();
         // set the field null
@@ -208,6 +225,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void getAllActions() throws Exception {
         // Initialize the database
         actionRepository.saveAndFlush(action);
@@ -225,6 +243,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void getAction() throws Exception {
         // Initialize the database
         actionRepository.saveAndFlush(action);
@@ -242,6 +261,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void getNonExistingAction() throws Exception {
         // Get the action
         restActionMockMvc.perform(get("/api/actions/{id}", Long.MAX_VALUE))
@@ -250,6 +270,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void updateAction() throws Exception {
         // Initialize the database
         actionRepository.saveAndFlush(action);
@@ -280,6 +301,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void deleteAction() throws Exception {
         // Initialize the database
         actionRepository.saveAndFlush(action);
@@ -300,6 +322,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void getActionByType() throws Exception {
 
         userRepository.saveAndFlush(user);
@@ -329,6 +352,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void testActionIsMatchWithCatastrophy() throws Exception {
         Float lat = 64F;
         Float lon = 64F;
@@ -372,6 +396,7 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void testLikes() throws Exception {
 
         List<Action>actions = actionRepository.findAll();
@@ -394,6 +419,7 @@ public class ActionResourceIntTest {
     }
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(scope = "web-app")
     public void testActionKnowledgeByCatastrophe() throws Exception {
 
        Disaster disaster= disasterRepository.findAll().get(0);
