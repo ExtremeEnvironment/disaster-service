@@ -98,13 +98,7 @@ public class MatchingIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(
-            actionRepository,
-            disasterRepository,
-            messageClient,
-            disasterService,
-            userService
-        );
+
 
         this.restActionMockMvc = MockMvcBuilders.webAppContextSetup(context)
             .apply(springSecurity())

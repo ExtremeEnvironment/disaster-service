@@ -33,11 +33,13 @@ public class DisasterService {
         this.messageClient = messageClient;
     }
 
-    public Disaster createDisater(Disaster disaster) {
+    public Disaster createDisaster(Disaster disaster) {
         disaster = disasterRepository.save(disaster);
 
         try {
-            messageClient.addConversation(Conversation.forDisaster(disaster));
+            Conversation conversation = messageClient.addConversation(Conversation.forDisaster(disaster));
+            disaster.setConversationId(conversation.getId());
+            disasterRepository.save(disaster);
         } catch (Exception e) {
             log.error("could not create conversation, deleting disaster");
             disasterRepository.delete(disaster);

@@ -1,5 +1,6 @@
 package de.extremeenvironment.disasterservice.service;
 
+import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
@@ -7,6 +8,7 @@ import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterTypeRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Inject;
@@ -24,36 +26,45 @@ import java.util.Set;
 @Service
 public class ActionService {
 
-    @Inject
+    private static final int MAX_TRIES = 5;
     ActionRepository actionRepository;
 
-    @Inject
     UserRepository userRepository;
 
-    @Inject
     DisasterRepository disasterRepository;
 
-    @Inject
     DisasterTypeRepository disasterTypeRepository;
 
-    public Action createAction(Float lat, Float lon, ActionType actionType, Long user, Set<ActionObject> actionObjects, Long disasterType) {
-        Action action = new Action();
-        action.setLat(lat);
-        action.setLon(lon);
-        action.setActionType(actionType);
+    MessageClient messageClient;
 
+    @Inject
+    public ActionService(ActionRepository actionRepository, UserRepository userRepository,
+     DisasterRepository disasterRepository, DisasterTypeRepository disasterTypeRepository, MessageClient messageClient) {
+        this.actionRepository = actionRepository;
+        this.userRepository = userRepository;
+        this.disasterRepository = disasterRepository;
+        this.disasterTypeRepository = disasterTypeRepository;
+        this.messageClient = messageClient;
+    }
 
-//        action.setUser(userRepository.findOneById(user).get());
+    public Action save(Action action) {
+        Action result = actionRepository.save(action);
 
-        if (actionType == ActionType.OFFER || actionType == ActionType.SEEK) {
-            action.setActionObjects(actionObjects);
+        int counter = 0;
+
+        while (counter++ < MAX_TRIES) {
+            try {
+                messageClient.addMember(action.getUser(), action.getDisaster().getConversationId());
+            } catch (Exception e) {
+                if (counter + 1 == MAX_TRIES) {
+                    actionRepository.delete(action);
+                    actionRepository.flush();
+                    throw e;
+                }
+            }
         }
 
-        actionRepository.save(action);
-
-
-        return action;
-
+        return result;
     }
 
     public Action updateAction(Long actionId, Set<ActionObject> actionObjects) {
@@ -69,6 +80,11 @@ public class ActionService {
 
     public List<Action> getAllActionObjectsByUserId(Long userId) {
         return actionRepository.findNotExpiredActionsByUser(userRepository.findOne(userId));
+    }
+
+
+    public List<Action> findAll() {
+        return actionRepository.findAll();
     }
 
 

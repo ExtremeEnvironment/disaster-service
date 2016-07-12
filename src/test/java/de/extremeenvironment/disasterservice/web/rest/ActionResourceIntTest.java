@@ -108,13 +108,6 @@ public class ActionResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        ActionResource actionResource = new ActionResource(
-            actionRepository,
-            disasterRepository,
-            messageClient,
-            disasterService,
-            userService
-        );
         this.restActionMockMvc = MockMvcBuilders.webAppContextSetup(context)
             .apply(springSecurity())
             .build();
@@ -128,7 +121,7 @@ public class ActionResourceIntTest {
         action.setIsExpired(DEFAULT_IS_EXPIRED);
         action.setActionType(DEFAULT_ACTION_TYPE);
 
-        user = new User();
+        user = new User(666);
         userRepository.saveAndFlush(user);
         disaster = new Disaster();
         disaster.setLat(64F);
@@ -396,8 +389,9 @@ public class ActionResourceIntTest {
 
     @Test
     @Transactional
-    @WithMockOAuth2Authentication(scope = "web-app")
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void testLikes() throws Exception {
+        actionRepository.save(action);
 
         List<Action>actions = actionRepository.findAll();
 

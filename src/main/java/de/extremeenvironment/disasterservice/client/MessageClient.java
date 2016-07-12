@@ -22,7 +22,7 @@ public interface MessageClient {
     @RequestMapping(method = RequestMethod.POST, value = "/conversations")
     Conversation addConversation(@RequestBody Conversation conversation);
 
-    @RequestMapping(method = RequestMethod.POST, value = "/conversations/{conversationId}/member")
+    @RequestMapping(method = RequestMethod.POST, value = "/conversations/{conversationId}/members")
     User addMember(@RequestBody User user, @PathVariable("conversationId") Long conversationId);
 
 }

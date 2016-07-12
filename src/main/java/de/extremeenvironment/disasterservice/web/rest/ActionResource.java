@@ -10,6 +10,7 @@ import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
+import de.extremeenvironment.disasterservice.service.ActionService;
 import de.extremeenvironment.disasterservice.service.DisasterService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -40,6 +41,8 @@ public class ActionResource {
 
     private ActionRepository actionRepository;
 
+    private ActionService actionService;
+
     private DisasterRepository disasterRepository;
 
     private MessageClient messageClient;
@@ -50,13 +53,15 @@ public class ActionResource {
 
     @Inject
     public ActionResource(ActionRepository actionRepository, DisasterRepository disasterRepository,
-                          MessageClient messageClient, DisasterService disasterService, UserService userService) {
+                          MessageClient messageClient, DisasterService disasterService, UserService userService,
+                          ActionService actionService) {
 
         this.actionRepository = actionRepository;
         this.disasterRepository = disasterRepository;
         this.messageClient = messageClient;
         this.disasterService = disasterService;
         this.userService = userService;
+        this.actionService = actionService;
     }
 
     /**
@@ -102,7 +107,8 @@ public class ActionResource {
         action.setUser(user);
 
         action = matchActions(action);
-        Action result = actionRepository.saveAndFlush(action);
+        //Action result = actionRepository.saveAndFlush(action);
+        Action result = actionService.save(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("action", result.getId().toString()))
             .body(result);

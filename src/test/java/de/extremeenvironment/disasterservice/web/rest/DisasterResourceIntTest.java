@@ -29,6 +29,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.context.WebApplicationContext;
+import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -37,6 +39,7 @@ import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.hasSize;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -90,13 +93,17 @@ public class DisasterResourceIntTest {
 
     private DisasterType diTy;
 
+    @Inject
+    private WebApplicationContext context;
+
+
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        DisasterResource disasterResource = new DisasterResource(actionRepository, disasterRepository, disasterService);
-        this.restDisasterMockMvc = MockMvcBuilders.standaloneSetup(disasterResource)
-            .setCustomArgumentResolvers(pageableArgumentResolver)
-            .setMessageConverters(jacksonMessageConverter).build();
+
+        this.restDisasterMockMvc = MockMvcBuilders.webAppContextSetup(context)
+            .apply(springSecurity())
+            .build();
     }
 
     @Before
@@ -115,6 +122,7 @@ public class DisasterResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void createDisaster() throws Exception {
         int databaseSizeBeforeCreate = disasterRepository.findAll().size();
 
@@ -138,6 +146,7 @@ public class DisasterResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void getAllDisasters() throws Exception {
         // Initialize the database
         disasterRepository.saveAndFlush(disaster);
@@ -156,6 +165,7 @@ public class DisasterResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void getDisaster() throws Exception {
         // Initialize the database
         disasterRepository.saveAndFlush(disaster);
@@ -174,6 +184,7 @@ public class DisasterResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void getNonExistingDisaster() throws Exception {
         // Get the disaster
         restDisasterMockMvc.perform(get("/api/disasters/{id}", Long.MAX_VALUE))
@@ -182,6 +193,7 @@ public class DisasterResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void updateDisaster() throws Exception {
         // Initialize the database
         disasterRepository.saveAndFlush(disaster);
@@ -214,6 +226,7 @@ public class DisasterResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void deleteDisaster() throws Exception {
         // Initialize the database
         disasterRepository.saveAndFlush(disaster);
@@ -236,6 +249,7 @@ public class DisasterResourceIntTest {
      */
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "user", scope = "web-app")
     public void noDoubleDisaster() throws  Exception {
         disasterRepository.saveAndFlush(disaster);
         int sizeD = disasterRepository.findAll().size();
@@ -259,6 +273,7 @@ public class DisasterResourceIntTest {
 
     @Test
     @Transactional
+    @WithMockOAuth2Authentication(username = "admin", scope = "web-app")
     public void getActionsForHeatmap() throws Exception {
         List<Action> actions = actionRepository.findByDisasterId(3L)
             .stream().filter(a -> (a.getActionType() == ActionType.KNOWLEDGE || a.getActionType() == ActionType.SEEK))
