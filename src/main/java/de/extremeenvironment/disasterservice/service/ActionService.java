@@ -3,6 +3,7 @@ package de.extremeenvironment.disasterservice.service;
 import de.extremeenvironment.disasterservice.client.MessageClient;
 import de.extremeenvironment.disasterservice.domain.Action;
 import de.extremeenvironment.disasterservice.domain.ActionObject;
+import de.extremeenvironment.disasterservice.domain.Disaster;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
@@ -48,18 +49,23 @@ public class ActionService {
     }
 
     public Action save(Action action) {
+        Disaster disaster;
         Action result = actionRepository.save(action);
 
         int counter = 0;
 
-        while (counter++ < MAX_TRIES) {
-            try {
-                messageClient.addMember(action.getUser(), action.getDisaster().getConversationId());
-            } catch (Exception e) {
-                if (counter + 1 == MAX_TRIES) {
-                    actionRepository.delete(action);
-                    actionRepository.flush();
-                    throw e;
+        if (action.getDisaster() != null
+            && action.getDisaster().getId() != null
+            && (disaster = disasterRepository.findOne(action.getDisaster().getId())) != null) {
+            while (counter++ < MAX_TRIES) {
+                try {
+                    messageClient.addMember(action.getUser(), disaster.getConversationId());
+                } catch (Exception e) {
+                    if (counter + 1 == MAX_TRIES) {
+                        actionRepository.delete(action);
+                        actionRepository.flush();
+                        throw e;
+                    }
                 }
             }
         }

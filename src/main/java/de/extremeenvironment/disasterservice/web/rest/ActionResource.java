@@ -392,7 +392,7 @@ public class ActionResource {
 
 
             Conversation savedConversation = messageClient.addConversation(
-                new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
+                new Conversation(true, bestMatch.getDescription() + " Conversation")
             );
             messageClient.addMember(new User(bestMatch.getUser().getUserId()), savedConversation.getId());
             messageClient.addMember(new User(a.getUser().getUserId()), savedConversation.getId());
