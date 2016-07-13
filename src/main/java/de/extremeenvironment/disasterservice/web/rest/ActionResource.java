@@ -89,9 +89,7 @@ public class ActionResource {
                 disaster.setLat(action.getLat());
                 disaster.setLon(action.getLon());
                 action.setDisaster(disaster);
-                disasterRepository.saveAndFlush(disaster);
-
-
+                disasterService.createDisaster(disaster);
             } else {
                 action.setDisaster(disasterService.getDisasterForAction(action));
             }

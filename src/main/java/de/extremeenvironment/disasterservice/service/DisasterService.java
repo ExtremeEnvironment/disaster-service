@@ -21,6 +21,7 @@ import java.util.List;
 @Service
 public class DisasterService {
 
+    private static final int MAX_TRIES = 10;
     private final Logger log = LoggerFactory.getLogger(DisasterService.class);
 
     private DisasterRepository disasterRepository;
@@ -36,14 +37,21 @@ public class DisasterService {
     public Disaster createDisaster(Disaster disaster) {
         disaster = disasterRepository.save(disaster);
 
-        try {
-            Conversation conversation = messageClient.addConversation(Conversation.forDisaster(disaster));
-            disaster.setConversationId(conversation.getId());
-            disasterRepository.save(disaster);
-        } catch (Exception e) {
-            log.error("could not create conversation, deleting disaster");
-            disasterRepository.delete(disaster);
-            throw e;
+        int counter = 0;
+        while (counter++ < MAX_TRIES) {
+            try {
+                Conversation conversation = messageClient.addConversation(Conversation.forDisaster(disaster));
+                disaster.setConversationId(conversation.getId());
+                disasterRepository.save(disaster);
+            } catch (Exception e) {
+                if (counter + 1 == MAX_TRIES) {
+                    log.error("could not create conversation, deleting disaster: {}:{}",
+                        e.getClass().toString(),
+                        e.getMessage());
+                    disasterRepository.delete(disaster);
+                    throw e;
+                }
+            }
         }
 
         log.debug("Created Information for Disaster: {}", disaster);
