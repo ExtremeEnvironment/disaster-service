@@ -52,6 +52,7 @@ public class MicroserviceSecurityConfiguration extends ResourceServerConfigurerA
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
         .and()
             .authorizeRequests()
+            .antMatchers(HttpMethod.GET, "/api/disasters").permitAll()
             .antMatchers(HttpMethod.POST, "/api/actions**").access("#oauth2.hasScope('web-app')")
             .antMatchers(HttpMethod.PUT, "/api/actions**").access("#oauth2.hasScope('web-app')")
             .antMatchers("/api/**").authenticated()
