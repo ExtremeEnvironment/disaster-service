@@ -5,6 +5,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * Created by on 10.07.16.
  *
@@ -17,11 +20,19 @@ public class TestMockMessageClient implements MessageClient {
 
     private Long userHolderCounter = 1L;
 
+    private List<Conversation> conversations = new LinkedList<>();
 
 
     @Override
+    public List<Conversation> getConversations() {
+        return conversations;
+    }
+
+    @Override
     public Conversation addConversation(@RequestBody Conversation conversation) {
-        return new Conversation(conversationCounter++, true, "test mocked conversation");
+        Conversation saved = new Conversation(conversationCounter++, true, "test mocked conversation");
+        conversations.add(saved);
+        return saved;
     }
 
     @Override

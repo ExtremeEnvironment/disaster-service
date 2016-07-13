@@ -1,6 +1,4 @@
-[![Build Status](https://travis-ci.org/ExtremeEnvironment/disaster-service.svg?branch=master)](https://travis-ci.org/ExtremeEnvironment/disaster-service)
-
-# DisasterService
+# DisatserService
 
 This application was generated using JHipster, you can find documentation and help at [https://jhipster.github.io](https://jhipster.github.io).
 
@@ -8,10 +6,30 @@ This application was generated using JHipster, you can find documentation and he
 
 Before you can build this project, you must install and configure the following dependencies on your machine:
 
+	Install Java 8
+	Install Git
+	Install Node.js
+		Install Yeoman: npm install -g yo
+		Install Bower: npm install -g bower
+		Install Gulp: npm install -g gulp
+		Install JHipster: npm install -g generator-jhipster
+		
+## Building with JHipster Registry
+    
+    alle Services in https://github.com/ExtremeEnvironment über Git auschecken
+
+    Zusätzlich die Registry auschecken :
+
+    $ git clone https://github.com/jhipster/jhipster-registry.git
+    $ cd jhipster-registry
+    $ mvn 
+    
+    jeden Service über $ ./gradlew bootRun starten
+
 
 ## Building for production
 
-To optimize the DisasterService client for production, run:
+To optimize the MessageService client for production, run:
 
     ./gradlew -Pprod clean bootRepackage
 
@@ -23,9 +41,9 @@ To ensure everything worked, run:
 
 To setup this project in Jenkins, use the following configuration:
 
-* Project name: `DisasterService`
+* Project name: `MessageService`
 * Source Code Management
-    * Git Repository: `git@github.com:xxxx/DisasterService.git`
+    * Git Repository: `git@github.com:xxxx/MessageService.git`
     * Branches to build: `*/master`
     * Additional Behaviours: `Wipe out repository & force clone`
 * Build Triggers

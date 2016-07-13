@@ -1,23 +1,28 @@
-package de.extremeenvironment.disasterservice.service;
+package de.extremeenvironment.disasterservice.config;
 
+import de.extremeenvironment.disasterservice.client.MessageClient;
+import de.extremeenvironment.disasterservice.client.UserService;
 import de.extremeenvironment.disasterservice.domain.*;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.*;
+import de.extremeenvironment.disasterservice.service.ActionService;
+import de.extremeenvironment.disasterservice.service.DisasterService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Service;
+import org.springframework.scheduling.annotation.Scheduled;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 /**
  * Created by linus on 25.06.16.
  */
-@Service
+@Configuration
 @Profile("!s2m")
-public class DataService {
-    Logger log = LoggerFactory.getLogger(DataService.class);
+public class DummyDataConfiguration {
+    private static final int MAX_TRIES = 10;
+    Logger log = LoggerFactory.getLogger(DummyDataConfiguration.class);
 
     @Inject
     DisasterTypeRepository disasterTypeRepository;
@@ -26,7 +31,13 @@ public class DataService {
     DisasterRepository disasterRepository;
 
     @Inject
-    ActionRepository actionRepository;
+    DisasterService disasterService;
+
+    @Inject
+    MessageClient messageClient;
+
+    @Inject
+    ActionService actionService;
 
     @Inject
     ActionObjectRepository actionObjectRepository;
@@ -37,9 +48,50 @@ public class DataService {
     @Inject
     CategoryRepository categoryRepository;
 
-    @PostConstruct
-    public void dataCreate() {
-        if (actionRepository.findAll().size() == 0) {
+    @Inject
+    UserService userService;
+
+    private boolean loaded = false;
+
+    /**
+     * during the application boot up several things may fail (timeouts, service discovery...)
+     * this
+     */
+    public void interServiceCallWarmUp() throws InterruptedException {
+        int counter = 0;
+
+        while (counter < MAX_TRIES) {
+            counter++;
+            try {
+                messageClient.getConversations();
+                userService.findOrCreateById(1L);
+            } catch (Exception e) {
+                log.info("something failing '{}', repeat in 1.5s. Throw in {}", e.getMessage(), MAX_TRIES - counter);
+                Thread.sleep(1500);
+                if ((counter + 1) == MAX_TRIES) {
+                    throw e;
+                }
+            }
+        }
+    }
+
+    //HACK, aber funzt
+    @Scheduled(initialDelay = 5000, fixedRate = 10000)
+    public void dataCreate() throws InterruptedException {
+        if (loaded) {
+            return;
+        }
+        loaded = true;
+
+        log.info("starting data creation");
+        if (actionService.findAll().size() == 0) {
+            interServiceCallWarmUp();
+
+            User anonymous = userService.findOrCreateById(2L); //adds "anonymous"
+            User admin = userService.findOrCreateById(3L); //adds "admin"
+            User user = userService.findOrCreateById(4L); //adds "user"
+
+
             Category category = new Category();
             Category category2 = new Category();
             Category category3 = new Category();
@@ -140,9 +192,13 @@ public class DataService {
             disaster2.setLon(34F);
             disaster2.setLat(34F);
             disaster2.setIsExpired(false);
-            disasterRepository.saveAndFlush(disaster);
-            disasterRepository.saveAndFlush(disaster1);
-            disasterRepository.saveAndFlush(disaster2);
+//            disasterRepository.saveAndFlush(disaster);
+//            disasterRepository.saveAndFlush(disaster1);
+//            disasterRepository.saveAndFlush(disaster2);
+
+            disasterService.createDisaster(disaster);
+            disasterService.createDisaster(disaster1);
+            disasterService.createDisaster(disaster2);
             Action a = new Action();
             a.setLat(23F);
             a.setLon(23F);
@@ -151,6 +207,7 @@ public class DataService {
             a.addActionObject(ao4);
             a.setDisaster(disaster);
             a.setActionType(ActionType.SEEK);
+            a.setUser(anonymous);
             Action a2 = new Action();
             a2.setLat(23F);
             a2.setLon(23F);
@@ -160,6 +217,7 @@ public class DataService {
             a2.addActionObject(ao4);
             a2.setDisaster(disaster);
             a2.setActionType(ActionType.OFFER);
+            a2.setUser(admin);
             Action a3 = new Action();
             a3.setActionType(ActionType.SEEK);
             a3.addActionObject(ao2);
@@ -168,6 +226,7 @@ public class DataService {
             a3.setDisaster(disaster1);
             a3.setLat(45F);
             a3.setLon(45F);
+            a3.setUser(admin);
             Action a4 = new Action();
             a4.setActionType(ActionType.SEEK);
             a4.addActionObject(ao1);
@@ -176,6 +235,8 @@ public class DataService {
             a4.setDisaster(disaster1);
             a4.setLat(45F);
             a4.setLon(45F);
+            a4.setUser(user);
+
             Action a5 = new Action();
             a5.setActionType(ActionType.SEEK);
             a5.addActionObject(ao2);
@@ -184,6 +245,8 @@ public class DataService {
             a5.setDisaster(disaster1);
             a5.setLat(45F);
             a5.setLon(45F);
+            a5.setUser(anonymous);
+
             Action a6 = new Action();
             Action a15 = new Action();
             Action a7 = new Action();
@@ -205,15 +268,25 @@ public class DataService {
             a14.setDisaster(disaster2);
             a15.setDisaster(disaster2);
             a6.setActionType(ActionType.KNOWLEDGE);
+            a6.setUser(admin);
             a7.setActionType(ActionType.KNOWLEDGE);
+            a7.setUser(user);
             a8.setActionType(ActionType.KNOWLEDGE);
+            a8.setUser(anonymous);
             a9.setActionType(ActionType.KNOWLEDGE);
+            a9.setUser(admin);
             a10.setActionType(ActionType.KNOWLEDGE);
+            a10.setUser(user);
             a11.setActionType(ActionType.KNOWLEDGE);
+            a11.setUser(admin);
             a12.setActionType(ActionType.KNOWLEDGE);
+            a12.setUser(anonymous);
             a13.setActionType(ActionType.KNOWLEDGE);
+            a13.setUser(user);
             a14.setActionType(ActionType.KNOWLEDGE);
+            a14.setUser(admin);
             a15.setActionType(ActionType.KNOWLEDGE);
+            a15.setUser(user);
             a6.setLon(34.03F);
             a6.setLat(34.03F);
             a7.setLon(34.03F);
@@ -234,22 +307,21 @@ public class DataService {
             a14.setLat(34.03F);
             a15.setLon(34.01F);
             a15.setLat(34.03F);
-            actionRepository.save(a);
-            actionRepository.save(a2);
-            actionRepository.save(a3);
-            actionRepository.save(a4);
-            actionRepository.save(a5);
-            actionRepository.save(a6);
-            actionRepository.save(a7);
-            actionRepository.save(a8);
-            actionRepository.save(a9);
-            actionRepository.save(a10);
-            actionRepository.save(a11);
-            actionRepository.save(a12);
-            actionRepository.save(a13);
-            actionRepository.save(a14);
-            actionRepository.save(a15);
-            actionRepository.flush();
+            actionService.save(a);
+            actionService.save(a2);
+            actionService.save(a3);
+            actionService.save(a4);
+            actionService.save(a5);
+            actionService.save(a6);
+            actionService.save(a7);
+            actionService.save(a8);
+            actionService.save(a9);
+            actionService.save(a10);
+            actionService.save(a11);
+            actionService.save(a12);
+            actionService.save(a13);
+            actionService.save(a14);
+            actionService.save(a15);
             log.info("Daten wurden Hinzugefügt");
         } else {
             log.info("schon Daten in der Datenbank");
