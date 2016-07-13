@@ -360,14 +360,14 @@ public class ActionResource {
 //        System.out.println("### Matching prior For ###");
 
         for (Action act : possibleMatches) {
-            if (act.getMatch() != null) {
+            if (act.getMatch() != null ) {
                 continue;
             }
 
             HashSet actionObjectIntersect = new HashSet<>(a.getActionObjects());
             actionObjectIntersect.retainAll(act.getActionObjects());
 
-            Float matchDist = disasterService.getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.OFFER) ? a.getCreatedDate() : act.getCreatedDate()));
+            Float matchDist = disasterService.getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.SEEK) ? a.getCreatedDate() : act.getCreatedDate()));
 
 //            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
