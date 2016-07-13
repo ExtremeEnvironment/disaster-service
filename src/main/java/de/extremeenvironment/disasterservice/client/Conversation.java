@@ -50,6 +50,14 @@ public class Conversation implements Serializable {
         this.type = type;
     }
 
+    public Conversation(Long id, Boolean active, String title, String type, Long matchedActionId) {
+        this.id = id;
+        this.active = active;
+        this.title = title;
+        this.type = type;
+        this.matchedActionId = matchedActionId;
+    }
+
     public static Conversation forDisaster(Disaster disaster) {
         return new Conversation(null, true, String.format("public '%s' chat", disaster.getTitle()), "public");
     }
