@@ -10,8 +10,6 @@ import de.extremeenvironment.disasterservice.service.DisasterService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,8 +18,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.inject.Inject;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.Duration;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -40,6 +36,7 @@ public class DisasterResource {
     private DisasterRepository disasterRepository;
 
     private DisasterService disasterService;
+
 
     @Inject
     public DisasterResource(ActionRepository actionRepository, DisasterRepository disasterRepository, DisasterService disasterService) {
@@ -79,7 +76,8 @@ public class DisasterResource {
             return ResponseEntity.badRequest().headers(HeaderUtil.createFailureAlert("disaster", "disasteralreadyexists", "A disaster already exists at this location")).body(null);
 
         } else {
-            Disaster result = disasterRepository.save(disaster);
+            //Disaster result = disasterRepository.save(disaster);
+            Disaster result = disasterService.createDisaster(disaster);
 
             return ResponseEntity.created(new URI("/api/disasters/" + result.getId()))
                 .headers(HeaderUtil.createEntityCreationAlert("disaster", result.getId().toString()))

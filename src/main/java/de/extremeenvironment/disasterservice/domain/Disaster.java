@@ -37,12 +37,14 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
     @Column(name = "description")
     private String description;
 
+    @Column
+    private Long conversationId;
+
     @Column(name = "date")
     private LocalDate date;
 
     @ManyToOne(fetch=FetchType.EAGER)
     private DisasterType disasterType;
-
     @ManyToOne
     private Area area;
 
@@ -149,5 +151,13 @@ public class Disaster extends AbstractAuditingEntity implements Serializable {
             ", description='" + description + "'" +
             ", date='" + date + "'" +
             '}';
+    }
+
+    public Long getConversationId() {
+        return conversationId;
+    }
+
+    public void setConversationId(Long conversationId) {
+        this.conversationId = conversationId;
     }
 }

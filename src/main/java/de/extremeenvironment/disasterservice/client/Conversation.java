@@ -1,6 +1,7 @@
 package de.extremeenvironment.disasterservice.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.extremeenvironment.disasterservice.domain.Disaster;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -16,13 +17,15 @@ public class Conversation implements Serializable {
 
     private static final long serialVersionUID = 189369962L;
 
-
     private Long id;
 
     private Boolean active = true;
 
-
     private String title;
+
+    private String type;
+
+    private Long matchedActionId;
 
     public Conversation() {
     }
@@ -38,6 +41,25 @@ public class Conversation implements Serializable {
         this.id = id;
         this.active = active;
         this.title = title;
+    }
+
+    public Conversation(Long id, Boolean active, String title, String type) {
+        this.id = id;
+        this.active = active;
+        this.title = title;
+        this.type = type;
+    }
+
+    public Conversation(Long id, Boolean active, String title, String type, Long matchedActionId) {
+        this.id = id;
+        this.active = active;
+        this.title = title;
+        this.type = type;
+        this.matchedActionId = matchedActionId;
+    }
+
+    public static Conversation forDisaster(Disaster disaster) {
+        return new Conversation(null, true, String.format("public '%s' chat", disaster.getTitle()), "public");
     }
 
     public static long getSerialVersionUID() {
@@ -66,5 +88,21 @@ public class Conversation implements Serializable {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public Long getMatchedActionId() {
+        return matchedActionId;
+    }
+
+    public void setMatchedActionId(Long matchedActionId) {
+        this.matchedActionId = matchedActionId;
     }
 }

@@ -10,6 +10,7 @@ import de.extremeenvironment.disasterservice.domain.User;
 import de.extremeenvironment.disasterservice.domain.enumeration.ActionType;
 import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
+import de.extremeenvironment.disasterservice.service.ActionService;
 import de.extremeenvironment.disasterservice.service.DisasterService;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
@@ -40,6 +41,8 @@ public class ActionResource {
 
     private ActionRepository actionRepository;
 
+    private ActionService actionService;
+
     private DisasterRepository disasterRepository;
 
     private MessageClient messageClient;
@@ -50,13 +53,15 @@ public class ActionResource {
 
     @Inject
     public ActionResource(ActionRepository actionRepository, DisasterRepository disasterRepository,
-                          MessageClient messageClient, DisasterService disasterService, UserService userService) {
+                          MessageClient messageClient, DisasterService disasterService, UserService userService,
+                          ActionService actionService) {
 
         this.actionRepository = actionRepository;
         this.disasterRepository = disasterRepository;
         this.messageClient = messageClient;
         this.disasterService = disasterService;
         this.userService = userService;
+        this.actionService = actionService;
     }
 
     /**
@@ -84,9 +89,7 @@ public class ActionResource {
                 disaster.setLat(action.getLat());
                 disaster.setLon(action.getLon());
                 action.setDisaster(disaster);
-                disasterRepository.saveAndFlush(disaster);
-
-
+                disasterService.createDisaster(disaster);
             } else {
                 action.setDisaster(disasterService.getDisasterForAction(action));
             }
@@ -102,7 +105,8 @@ public class ActionResource {
         action.setUser(user);
 
         action = matchActions(action);
-        Action result = actionRepository.saveAndFlush(action);
+        //Action result = actionRepository.saveAndFlush(action);
+        Action result = actionService.save(action);
         return ResponseEntity.created(new URI("/api/actions/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("action", result.getId().toString()))
             .body(result);
@@ -386,7 +390,7 @@ public class ActionResource {
 
 
             Conversation savedConversation = messageClient.addConversation(
-                new Conversation(true, bestMatch.getDisaster().getTitle() + " Conversation")
+                new Conversation(null, true, bestMatch.getDescription() + " Conversation", "match", bestMatch.getId())
             );
             messageClient.addMember(new User(bestMatch.getUser().getUserId()), savedConversation.getId());
             messageClient.addMember(new User(a.getUser().getUserId()), savedConversation.getId());
