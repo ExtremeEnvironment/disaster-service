@@ -15,10 +15,20 @@ eureka:
     instance:
         appname: DisasterService
         instanceId: DisasterService:${spring.application.instance_id:${random.value}}
-
 ribbon:
+    ReadTimeout: 5000
+    MaxAutoRetries: 3
     eureka:
         enabled: true
+
+# Increase the Hystrix timeout to 60s (globally)
+hystrix:
+    command:
+        default:
+            execution:
+                isolation:
+                    thread:
+                        timeoutInMilliseconds: 20000
 
 management:
     context-path: /management

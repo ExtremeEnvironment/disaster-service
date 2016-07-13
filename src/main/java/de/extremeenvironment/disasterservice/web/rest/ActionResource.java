@@ -348,7 +348,7 @@ public class ActionResource {
     public Action matchActions(Action a) {
 //        System.out.println("\n\n### matching begin ###");
 
-        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE) {
+        if (a.getMatch() != null || a.getActionType() == ActionType.KNOWLEDGE || (a.isIsExpired())) {
             return a;
         }
 
@@ -364,18 +364,18 @@ public class ActionResource {
 //        System.out.println("### Matching prior For ###");
 
         for (Action act : possibleMatches) {
-            if (act.getMatch() != null) {
+            if (act.getMatch() != null || act.isIsExpired()) {
                 continue;
             }
 
             HashSet actionObjectIntersect = new HashSet<>(a.getActionObjects());
             actionObjectIntersect.retainAll(act.getActionObjects());
 
-            Float matchDist = disasterService.getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.OFFER) ? a.getCreatedDate() : act.getCreatedDate()));
+            Float matchDist = disasterService.getDistance(a.getLat(), a.getLon(), act.getLat(), act.getLon(), (a.getActionType().equals(ActionType.SEEK) ? a.getCreatedDate() : act.getCreatedDate()));
 
 //            System.out.println("### " + act.getId() + " " + matchDist + " ###");
 
-            if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType()) { //check if a is in act's rejectedMatches shouldnt be necessary
+            if (!actionObjectIntersect.isEmpty() && matchDist <= 100_000.0 && matchDist < bestMatchDist && a.getActionType() != act.getActionType() && a.getUser() != act.getUser()) { //check if a is in act's rejectedMatches shouldnt be necessary
                 bestMatchDist = matchDist;
                 bestMatch = act;
             }

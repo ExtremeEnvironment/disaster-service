@@ -115,7 +115,7 @@ public class Action extends AbstractAuditingEntity implements Serializable {
     }
 
     public Boolean isIsExpired() {
-        return isExpired;
+        return isExpired == null ? false : isExpired;
     }
 
     public void setIsExpired(Boolean isExpired) {

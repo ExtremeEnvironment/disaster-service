@@ -13,16 +13,18 @@ import de.extremeenvironment.disasterservice.repository.ActionRepository;
 import de.extremeenvironment.disasterservice.repository.DisasterRepository;
 import de.extremeenvironment.disasterservice.repository.UserRepository;
 import de.extremeenvironment.disasterservice.service.DisasterService;
+import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.junit.runners.MethodSorters;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.IntegrationTest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.boot.test.WebIntegrationTest;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -32,6 +34,7 @@ import util.WithMockOAuth2Authentication;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import java.util.LinkedList;
 import java.util.List;
 
 import static junit.framework.TestCase.assertTrue;
@@ -51,6 +54,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
     "spring.profiles.active:test",
     "server.port:0"
 })
+
+@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class MatchingIntTest {
 
     private static User user;
@@ -85,6 +90,8 @@ public class MatchingIntTest {
     @Inject
     private UserService userService;
 
+    private List<Action> matchingActions = new LinkedList<>();
+
 
 
     private MockMvc restActionMockMvc;
@@ -94,6 +101,10 @@ public class MatchingIntTest {
     ActionObject actObj1, actObj2;
 
     private Disaster disaster;
+    private Logger log = LoggerFactory.getLogger(getClass());
+    private Action action1Seek;
+    private Action action2Offer;
+
 
     @PostConstruct
     public void setup() {
@@ -126,9 +137,9 @@ public class MatchingIntTest {
 
     @Test
     @Transactional
-    @WithMockOAuth2Authentication(scope = "web-app")
+    @WithMockOAuth2Authentication(username = "user1", scope = "web-app")
     public void correctMatch() throws Exception {
-        Action action1Seek = new Action();
+        action1Seek = new Action();
         action1Seek.setLat(1F);
         action1Seek.setLon(1F);
         action1Seek.setIsExpired(false);
@@ -138,13 +149,12 @@ public class MatchingIntTest {
 
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        User fortyTwo = userRepository.save(new User(42));
+        action1Seek.setUser(fortyTwo);
+        actionRepository.saveAndFlush(action1Seek);
 
-        restActionMockMvc.perform(post("/api/actions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action1Seek)));
 
-
-        Action action2Offer = new Action();
+        action2Offer = new Action();
         action2Offer.setLat(1.005F);
         action2Offer.setLon(1.005F);
         action2Offer.setIsExpired(false);
@@ -155,15 +165,19 @@ public class MatchingIntTest {
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
+            .content(TestUtil.convertObjectToJsonBytes(action2Offer)))
+            .andExpect(status().isCreated())
+        ;
 
 
         List<Action> results = actionRepository.findAll();
+        action2Offer = results.stream()
+            .filter(action -> action.getActionType() == ActionType.OFFER)
+            .findFirst()
+            .orElse(action2Offer);
 
-        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 1)));
-        assertTrue(results.get(results.size() - 1).getMatch().equals(results.get(results.size() - 2)));
-
-
+        assertTrue(action2Offer.getMatch().equals(action1Seek));
+        assertTrue(action1Seek.getMatch().equals(action2Offer));
     }
 
 
@@ -252,6 +266,9 @@ public class MatchingIntTest {
     @WithMockOAuth2Authentication(scope = "web-app")
     public void matchAlreadySet() throws Exception {
 
+        User fortyTwo = userRepository.save(new User(42));
+        User fortyTree = userRepository.save(new User(43));
+
         Action action1Seek = new Action();
         action1Seek.setLat(1F);
         action1Seek.setLon(1F);
@@ -261,11 +278,9 @@ public class MatchingIntTest {
         action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action1Seek.setUser(fortyTwo);
 
-        restActionMockMvc.perform(post("/api/actions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action1Seek)));
-
+        action1Seek = actionRepository.saveAndFlush(action1Seek);
 
         Action action2Offer = new Action();
         action2Offer.setLat(1.005F);
@@ -275,11 +290,9 @@ public class MatchingIntTest {
         action2Offer.setDisaster(disasters.get(disasters.size() - 1));
 
         action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action2Offer.setUser(fortyTree);
 
-        restActionMockMvc.perform(post("/api/actions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
-
+        action2Offer = actionRepository.saveAndFlush(action2Offer);
 
         Action action3Seek = new Action();
         action3Seek.setLat(1.005F);
@@ -297,9 +310,9 @@ public class MatchingIntTest {
 
         List<Action> results = actionRepository.findAll();
 
-        assertTrue(results.get(results.size() - 3).getMatch().equals(results.get(results.size() - 2)));
-        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 3)));
-        assertTrue(results.get(results.size() - 1).getMatch() == null);
+        assertTrue(results.get(results.size() - 3).getMatch().equals(results.get(results.size() - 1)));
+        assertTrue(results.get(results.size() - 1).getMatch().equals(results.get(results.size() - 3)));
+        assertTrue(results.get(results.size() - 2).getMatch() == null);
 
     }
 
@@ -307,6 +320,11 @@ public class MatchingIntTest {
     @Transactional
     @WithMockOAuth2Authentication(scope = "web-app")
     public void testRejectingMatch() throws Exception {
+
+        User fortyTwo = userRepository.save(new User(42));
+        User fortyTree = userRepository.save(new User(43));
+
+
         List<ActionObject> actionObjects = actionObjectRepository.findAll();
 
 //        for (Action a : actionRepository.findAll()) {
@@ -321,6 +339,7 @@ public class MatchingIntTest {
         List<Disaster> disasters = disasterRepository.findAll();
         action1Seek.setDisaster(disasters.get(disasters.size() - 1));
         action1Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
+        action1Seek.setUser(fortyTwo);
 
 
         Action action2Offer = new Action();
@@ -330,7 +349,7 @@ public class MatchingIntTest {
         action2Offer.setActionType(ActionType.OFFER);
 //        action2Offer.setDisaster(disasters.get(disasters.size()-1));
         action2Offer.addActionObject(actionObjects.get(actionObjects.size() - 1));
-
+        action2Offer.setUser(fortyTree);
 
         Action action3Seek = new Action();
         action3Seek.setLat(2.005F);
@@ -341,15 +360,8 @@ public class MatchingIntTest {
         action3Seek.addActionObject(actionObjects.get(actionObjects.size() - 1));
 
 
-        restActionMockMvc.perform(post("/api/actions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action1Seek)));
-
-
-        restActionMockMvc.perform(post("/api/actions")
-            .contentType(TestUtil.APPLICATION_JSON_UTF8)
-            .content(TestUtil.convertObjectToJsonBytes(action2Offer)));
-
+        actionRepository.saveAndFlush(action1Seek);
+        actionRepository.saveAndFlush(action2Offer);
 
         restActionMockMvc.perform(post("/api/actions")
             .contentType(TestUtil.APPLICATION_JSON_UTF8)
@@ -360,12 +372,12 @@ public class MatchingIntTest {
 //        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
 
 
-        assertTrue(results.get(results.size() - 3).getMatch().equals(results.get(results.size() - 2)));
-        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 3)));
-        assertTrue(results.get(results.size() - 1).getMatch() == null);
+        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 1)));
+        assertTrue(results.get(results.size() - 1).getMatch().equals(results.get(results.size() - 2)));
+        assertTrue(results.get(results.size() - 3).getMatch() == null);
 
 
-        restActionMockMvc.perform(put("/api/actions/{id}/rejectMatch", results.get(results.size() - 2).getId())
+        restActionMockMvc.perform(put("/api/actions/{id}/rejectMatch", results.get(results.size() - 1).getId())
             .contentType(TestUtil.APPLICATION_JSON_UTF8))
             .andDo(MockMvcResultHandlers.print())
             .andExpect(status().isOk());
@@ -373,12 +385,12 @@ public class MatchingIntTest {
         results = actionRepository.findAll();
 //        results.forEach(r -> System.out.println(r + " : " + r.getMatch()));
 
-        assertTrue(results.get(results.size() - 3).getMatch() == null);
-        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 1)));
-        assertTrue(results.get(results.size() - 1).getMatch().equals(results.get(results.size() - 2)));
+        assertTrue(results.get(results.size() - 1).getMatch() == null);
+        assertTrue(results.get(results.size() - 3).getMatch().equals(results.get(results.size() - 2)));
+        assertTrue(results.get(results.size() - 2).getMatch().equals(results.get(results.size() - 3)));
 
-        assertTrue(results.get(results.size() - 3).getRejectedMatches().contains(results.get(results.size() - 2)));
-        assertTrue(results.get(results.size() - 2).getRejectedMatches().contains(results.get(results.size() - 3)));
+        assertTrue(results.get(results.size() - 1).getRejectedMatches().contains(results.get(results.size() - 2)));
+        assertTrue(results.get(results.size() - 2).getRejectedMatches().contains(results.get(results.size() - 1)));
 
 
     }
