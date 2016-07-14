@@ -26,10 +26,10 @@ import java.util.Optional;
 public class CornerResource {
 
     private final Logger log = LoggerFactory.getLogger(CornerResource.class);
-        
+
     @Inject
     private CornerRepository cornerRepository;
-    
+
     /**
      * POST  /corners : Create a new corner.
      *
@@ -51,6 +51,8 @@ public class CornerResource {
             .headers(HeaderUtil.createEntityCreationAlert("corner", result.getId().toString()))
             .body(result);
     }
+
+
 
     /**
      * PUT  /corners : Updates an existing corner.
@@ -88,6 +90,21 @@ public class CornerResource {
     public List<Corner> getAllCorners() {
         log.debug("REST request to get all Corners");
         List<Corner> corners = cornerRepository.findAll();
+        return corners;
+    }
+
+    /**
+     * GET  /corners : get all the corners.
+     *
+     * @return the ResponseEntity with status 200 (OK) and the list of corners in body
+     */
+    @RequestMapping(value = "/corners/Area/{id}",
+        method = RequestMethod.GET,
+        produces = MediaType.APPLICATION_JSON_VALUE)
+    @Timed
+    public List<Corner> getAllAreaCorners(Long id) {
+        log.debug("REST request to get all Corners");
+        List<Corner> corners = cornerRepository.findByAreaId(id);
         return corners;
     }
 

@@ -21,7 +21,7 @@ public class Area implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER)
+    @OneToMany(mappedBy = "area",fetch=FetchType.EAGER,cascade = CascadeType.ALL)
     private Set<Corner> corners = new HashSet<>();
 
     @OneToOne(mappedBy = "area")
@@ -87,6 +87,8 @@ public class Area implements Serializable {
     public String toString() {
         return "Area{" +
             "id=" + id +
+            "corners=" + corners +
+            "Ngo=" + ngo +
             '}';
     }
 }

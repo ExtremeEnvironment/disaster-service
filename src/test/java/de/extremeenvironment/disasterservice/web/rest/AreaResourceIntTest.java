@@ -84,7 +84,7 @@ public class AreaResourceIntTest {
     @PostConstruct
     public void setup() {
         MockitoAnnotations.initMocks(this);
-        AreaResource areaResource = new AreaResource();
+        AreaResource areaResource = new AreaResource(areaRepository,cornerRepository,ngoRepository);
         ReflectionTestUtils.setField(areaResource, "areaRepository", areaRepository);
         this.restAreaMockMvc = MockMvcBuilders.standaloneSetup(areaResource)
             .setCustomArgumentResolvers(pageableArgumentResolver)
