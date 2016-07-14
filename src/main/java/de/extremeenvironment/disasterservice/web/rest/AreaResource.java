@@ -5,8 +5,10 @@ import com.vividsolutions.jts.geom.*;
 import com.vividsolutions.jts.geom.impl.CoordinateArraySequence;
 import de.extremeenvironment.disasterservice.domain.Area;
 import de.extremeenvironment.disasterservice.domain.Corner;
+import de.extremeenvironment.disasterservice.domain.Ngo;
 import de.extremeenvironment.disasterservice.repository.AreaRepository;
 import de.extremeenvironment.disasterservice.repository.CornerRepository;
+import de.extremeenvironment.disasterservice.repository.NgoRepository;
 import de.extremeenvironment.disasterservice.web.rest.util.HeaderUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,6 +38,15 @@ public class AreaResource {
     @Inject
     private CornerRepository cornerRepository;
 
+    @Inject
+    private NgoRepository ngoRepository;
+
+    @Inject
+    AreaResource(AreaRepository areaRepository,CornerRepository cornerRepository,NgoRepository ngoRepository){
+        this.areaRepository = areaRepository;
+        this.cornerRepository = cornerRepository;
+        this.ngoRepository = ngoRepository;
+    }
     /**
      * POST  /areas : Create a new area.
      *
@@ -58,7 +69,33 @@ public class AreaResource {
         }
 
 
-        Area result = areaRepository.save(area);
+
+        Set<Corner> cornerSet = new HashSet<>();
+        ArrayList<Corner> corners = new ArrayList<>();
+        corners.addAll(area.getCorners());
+
+        for(Corner co : corners){
+            Corner cor = new Corner();
+            cor.setLat(co.getLat());
+            cor.setLon(co.getLon());
+            cornerSet.add(cor);
+            cor.setArea(area);
+        }
+
+        Ngo ngo = new Ngo();
+        ngo.setId(area.getNgo().getId());
+        ngo.setArea(area);
+        ngo.setName(area.getNgo().getName());
+
+        Area result = areaRepository.saveAndFlush(area);
+        corners.addAll(cornerSet);
+
+        ngoRepository.save(ngo);
+        for(Corner co :corners){
+            cornerRepository.saveAndFlush(co);
+        }
+
+
         return ResponseEntity.created(new URI("/api/areas/" + result.getId()))
             .headers(HeaderUtil.createEntityCreationAlert("area", result.getId().toString()))
             .body(result);
